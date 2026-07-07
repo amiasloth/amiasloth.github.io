@@ -1,5 +1,5 @@
 /* Zzzpeak service worker — app shell cache-first, book data stale-while-revalidate. */
-const VERSION = "zzzpeak-v2";
+const VERSION = "zzzpeak-v3";
 const SHELL = [
   "./",
   "./index.html",

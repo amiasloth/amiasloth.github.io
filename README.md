@@ -53,7 +53,8 @@ block; `--skip-until` is a regex marking where the actual text begins), run
 the script, and add an entry to the `books.json` section at the bottom of
 the script. Commit `docs/data/` — it is meant to be public.
 
-Levels: `beginner` (2–5 words per phrase), `intermediate` (≤8),
+Levels: `starter` (1–3 words per phrase — for languages like German whose
+phrases pack a lot into few words), `beginner` (2–5), `intermediate` (≤8),
 `advanced` (≤12). The chunker is deterministic — same input, same output —
 and asserts for every sentence that the chunks reconstruct the original
 text exactly.

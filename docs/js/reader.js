@@ -27,6 +27,7 @@
   };
 
   const LEVEL_INFO = {
+    starter: "1–3 words per phrase — tiny bites",
     beginner: "2–5 words per phrase",
     intermediate: "up to 8 words per phrase",
     advanced: "up to 12 words per phrase",

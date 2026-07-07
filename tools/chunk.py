@@ -115,7 +115,8 @@ LANG_CFG = {
         "aux_deps": set(),              # German verb bracket: skip verb groups
         "inf_tags": {"PTKZU"},          # infinitive marker "zu"
         "fused_deps": {"nk", "pm", "ng", "svp", "nmc", "ac", "adc",
-                       "cm", "avc"},
+                       "cm", "avc", "pnc"},   # pnc: never cut inside
+                                              # a proper name
         # German book style: „low“ or »guillemets pointing inward«
         "open_quotes": {"„", "‚", "»", '"', "'", "("},
         "pull_quotes": {"„", "‚", "»", "("},
@@ -123,6 +124,7 @@ LANG_CFG = {
 }
 
 LEVELS = {
+    "starter":      {"min_words": 1, "target_words": 2, "max_words": 3},
     "beginner":     {"min_words": 2, "target_words": 3, "max_words": 5},
     "intermediate": {"min_words": 2, "target_words": 5, "max_words": 8},
     "advanced":     {"min_words": 3, "target_words": 8, "max_words": 12},

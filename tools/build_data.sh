@@ -17,7 +17,7 @@ mkdir -p "$OUT/en" "$OUT/de" build
 cat sources/alice_part01.txt sources/alice_part02.txt sources/alice_part03.txt \
   > build/alice_full.txt
 
-for level in beginner intermediate advanced; do
+for level in starter beginner intermediate advanced; do
   python3 chunk.py --in build/alice_full.txt --lang en \
     --id alice --title "Alice's Adventures in Wonderland" \
     --skip-until '^CHAPTER I\.' \
@@ -27,7 +27,7 @@ done
 # ---- Die Verwandlung (de): Gutenberg file is ISO-8859-1 -> convert
 iconv -f ISO-8859-1 -t UTF-8 sources/kafka.txt > build/kafka_utf8.txt
 
-for level in beginner intermediate advanced; do
+for level in starter beginner intermediate advanced; do
   python3 chunk.py --in build/kafka_utf8.txt --lang de \
     --id kafka --title "Die Verwandlung" \
     --skip-until '^I\.$' \
@@ -43,7 +43,7 @@ cat > "$OUT/books.json" <<'JSON'
       "title": "Alice's Adventures in Wonderland",
       "author": "Lewis Carroll",
       "lang": "en",
-      "levels": ["beginner", "intermediate", "advanced"],
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
     },
     {
@@ -51,7 +51,7 @@ cat > "$OUT/books.json" <<'JSON'
       "title": "Die Verwandlung",
       "author": "Franz Kafka",
       "lang": "de",
-      "levels": ["beginner", "intermediate", "advanced"],
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
     }
   ]
