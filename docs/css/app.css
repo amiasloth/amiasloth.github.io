@@ -78,6 +78,11 @@ header.bar a, header.bar button.iconbtn {
   overflow: hidden;
 }
 .bookcard .bprog > div { height: 100%; background: var(--accent); border-radius: 2px; }
+.starlink {
+  display: block; text-align: right; text-decoration: none;
+  color: var(--accent); font-size: 13px; font-weight: 600;
+  margin: -8px 4px 14px 0; padding: 4px 8px;
+}
 .toolrow { margin-top: 28px; }
 .toolcard {
   display: block; background: var(--card2); border-radius: var(--radius);
@@ -130,6 +135,11 @@ header.bar a, header.bar button.iconbtn {
   font-size: 22px; cursor: pointer; flex-shrink: 0;
 }
 .navbtn:active { background: var(--card2); }
+.subbtn {
+  width: 46px; height: 46px; font-size: 18px;
+  background: none; border: 1px solid var(--dimmer);
+}
+#starbtn { color: var(--accent); font-size: 21px; }
 .recbtn {
   width: 84px; height: 84px; border-radius: 50%; border: none; cursor: pointer;
   background: var(--card); color: var(--text);
@@ -210,6 +220,8 @@ header.bar a, header.bar button.iconbtn {
 }
 .sheet .opt.sel { border-color: var(--accent); color: var(--accent); }
 .sheet .opt small { display: block; color: var(--dim); margin-top: 2px; }
+.raterow { display: flex; gap: 10px; }
+.raterow .rateopt { text-align: center; margin-bottom: 10px; }
 
 .empty { text-align: center; color: var(--dim); padding: 60px 20px; font-size: 15px; }
 noscript { display: block; text-align: center; padding: 40px 20px; color: var(--dim); }

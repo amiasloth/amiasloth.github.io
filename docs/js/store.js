@@ -33,6 +33,41 @@
       s.levels[bookId] = level;
       save(s);
     },
+    // starred phrases per book+level: [{i, t, e?}]
+    getStars(bookId, level) {
+      const s = load();
+      return (s.stars && s.stars[bookId + ":" + level]) || [];
+    },
+    isStarred(bookId, level, i) {
+      return this.getStars(bookId, level).some((x) => x.i === i);
+    },
+    toggleStar(bookId, level, item) {
+      const s = load();
+      s.stars = s.stars || {};
+      const key = bookId + ":" + level;
+      const arr = s.stars[key] || [];
+      const at = arr.findIndex((x) => x.i === item.i);
+      if (at >= 0) arr.splice(at, 1);
+      else { arr.push(item); arr.sort((a, b) => a.i - b.i); }
+      s.stars[key] = arr;
+      save(s);
+      return at < 0;                       // true if now starred
+    },
+    starCount(bookId) {
+      const s = load();
+      let n = 0;
+      for (const k in s.stars || {})
+        if (k.startsWith(bookId + ":")) n += s.stars[k].length;
+      return n;
+    },
+    starLevels(bookId) {
+      const s = load();
+      const out = [];
+      for (const k in s.stars || {})
+        if (k.startsWith(bookId + ":") && s.stars[k].length)
+          out.push(k.slice(bookId.length + 1));
+      return out;
+    },
     getPref(name, fallback) {
       const s = load();
       return s.prefs && name in s.prefs ? s.prefs[name] : fallback;

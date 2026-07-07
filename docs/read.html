@@ -29,6 +29,7 @@
 
   <div class="statusline" id="status"></div>
   <div class="controls">
+    <button class="navbtn subbtn" id="ttsbtn" aria-label="Listen to this phrase">🔊</button>
     <button class="navbtn" id="prevbtn" aria-label="Previous phrase">‹</button>
     <button class="recbtn" id="recbtn" aria-label="Record">
       <span class="levelring" id="levelring"></span>
@@ -36,6 +37,7 @@
       <span id="reclabel">record</span>
     </button>
     <button class="navbtn" id="nextbtn" aria-label="Next phrase">›</button>
+    <button class="navbtn subbtn" id="starbtn" aria-label="Star this phrase">☆</button>
   </div>
 </div>
 
@@ -55,6 +57,7 @@
 
 <noscript>Zzzpeak needs JavaScript enabled.</noscript>
 <script src="js/store.js"></script>
+<script src="js/tts.js"></script>
 <script src="js/recorder.js"></script>
 <script src="js/reader.js"></script>
 <script>

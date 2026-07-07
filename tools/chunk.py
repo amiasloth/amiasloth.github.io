@@ -153,6 +153,10 @@ def clean(text):
     text = text.replace("\r\n", "\n")
     text = re.sub(r"\[Illustration:?[^\]]*\]", " ", text)
     text = text.replace("_", "")                # gutenberg italics markers
+    text = text.replace("~", "")                # gesperrt/emphasis markers
+    text = text.replace("=", "")                # gutenberg bold markers
+    text = text.replace("·", " ")               # decorative mid-dots (1920s
+    text = re.sub(r" {2,}", " ", text)          # typesetting: Der·treue·Johannes)
     text = re.sub(r"(\w)--(\w)", r"\1 — \2", text)
     text = text.replace("--", "—")
     return text
@@ -168,6 +172,16 @@ def paragraphs(text):
 
 HEADING_RE = re.compile(r"^(CHAPTER|KAPITEL|BOOK|BUCH)\b", re.IGNORECASE)
 
+# lowercase function words don't count against a title's capitalization
+# ("Der Wolf und die sieben jungen Geisslein" is a title)
+TITLE_STOP = {
+    "der", "die", "das", "und", "oder", "von", "vom", "dem", "den", "des",
+    "im", "in", "an", "auf", "zu", "zur", "zum", "mit", "bei", "um", "für",
+    "aus", "nach", "vor", "über", "unter", "un", "syner", "einem", "einer",
+    "ein", "eine",
+    "the", "and", "of", "in", "a", "an", "or", "to", "at", "on", "for",
+}
+
 
 def looks_like_title(p):
     """Short paragraph, no sentence-final punctuation -> section title."""
@@ -178,14 +192,22 @@ def looks_like_title(p):
     words = p.split()
     if len(words) > 8 or len(p) > 60:
         return False
-    if p[-1] in ".!?…,;:”’\"'":
+    if p[-1] in ".!?…,;:”’\"'«»‹›":
         return False
-    # all-caps or Title Case-ish
+    if not p[0].isupper():
+        return False
     letters = [w for w in words if any(c.isalpha() for c in w)]
     if not letters:
         return False
-    caps = sum(1 for w in letters if w[0].isupper())
-    return caps / len(letters) >= 0.7
+    content = [w for w in letters if w.lower() not in TITLE_STOP]
+    if not content:
+        return False
+    caps = sum(1 for w in content if w[0].isupper())
+    # German titles capitalize only nouns ("Das tapfere Schneiderlein"):
+    # accept half-capitalized content words if the final noun is capitalized
+    if content[-1][0].isupper() and caps / len(content) >= 0.5:
+        return True
+    return caps / len(content) >= 0.7
 
 
 def sections_of(text, skip_until, stop_at):

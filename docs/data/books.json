@@ -5,12 +5,15 @@
       "title": "Alice's Adventures in Wonderland",
       "author": "Lewis Carroll",
       "lang": "en",
-      "levels": [
-        "starter",
-        "beginner",
-        "intermediate",
-        "advanced"
-      ],
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "grimm",
+      "title": "Grimms Märchen",
+      "author": "Brüder Grimm",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
     },
     {
@@ -18,12 +21,15 @@
       "title": "Die Verwandlung",
       "author": "Franz Kafka",
       "lang": "de",
-      "levels": [
-        "starter",
-        "beginner",
-        "intermediate",
-        "advanced"
-      ],
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "birnbaum",
+      "title": "Unterm Birnbaum",
+      "author": "Theodor Fontane",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
     }
   ]

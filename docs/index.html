@@ -56,6 +56,14 @@
       (pct ? " · " + pct + "% read" : "") +
       " · " + (b.source || "Public domain");
     box.appendChild(a);
+    const stars = Store.starCount(b.id);
+    if (stars) {
+      const s = document.createElement("a");
+      s.className = "starlink";
+      s.href = "read.html?book=" + encodeURIComponent(b.id) + "&review=1";
+      s.textContent = "★ Practice " + stars + " starred phrase" + (stars > 1 ? "s" : "");
+      box.appendChild(s);
+    }
   });
   if (!box.children.length)
     box.innerHTML = '<div class="empty">No books in the library yet.</div>';
