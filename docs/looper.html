@@ -20,8 +20,9 @@
 <div class="loopwrap">
   <p class="help">
     Practice reading and pronunciation with instant feedback.
-    Tap <b>Record</b> and speak; tap again to stop. Your voice plays back,
-    then recording starts again automatically — a continuous loop of
+    Tap <b>Record</b> and speak — recording stops by itself when you pause
+    (or tap again to stop). Your voice plays back, then recording starts
+    again automatically — a continuous loop of
     say&nbsp;→&nbsp;listen&nbsp;→&nbsp;say. Tap <b>Reset</b> to stop the loop.
   </p>
   <button class="bigrec" id="recbtn">
@@ -31,6 +32,7 @@
   <div class="statebadge" id="state"></div>
   <button class="ghostbtn" id="resetbtn">Reset</button>
   <button class="ghostbtn" id="replaybtn" style="display:none">Replay last take</button>
+  <button class="ghostbtn" id="vadbtn">Auto-stop: on</button>
   <div class="statusline" id="status"></div>
 </div>
 <noscript>Zzzpeak needs JavaScript enabled.</noscript>
@@ -40,10 +42,12 @@
   const $ = (id) => document.getElementById(id);
   const btn = $("recbtn"), label = $("reclabel"), state = $("state"),
         status = $("status"), ring = $("levelring"),
-        resetBtn = $("resetbtn"), replayBtn = $("replaybtn");
+        resetBtn = $("resetbtn"), replayBtn = $("replaybtn"),
+        vadBtn = $("vadbtn");
 
   const rec = new LoopRecorder({
     loop: true,
+    autoStop: true,
     onState: (s) => {
       btn.className = "bigrec " + (s === "idle" ? "" : s);
       label.textContent = s === "recording" ? "Stop" : s === "playing" ? "Playing…" : "Record";
@@ -70,6 +74,10 @@
     rec.toggle();
   });
   resetBtn.addEventListener("click", () => rec.reset());
+  vadBtn.addEventListener("click", () => {
+    rec.autoStop = !rec.autoStop;
+    vadBtn.textContent = "Auto-stop: " + (rec.autoStop ? "on" : "off");
+  });
   replayBtn.addEventListener("click", () => rec.replay());
   document.addEventListener("visibilitychange", () => { if (document.hidden) rec.reset(); });
   window.addEventListener("pagehide", () => rec.reset());

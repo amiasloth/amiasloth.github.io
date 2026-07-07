@@ -14,6 +14,12 @@
  *  - Stopping mic tracks between loops makes iOS flap its audio session
  *    (volume ducking, permission re-prompts), so the stream is kept
  *    alive for the whole loop session and released only on reset.
+ *
+ * Voice activity detection (VAD): while recording, the analyser tracks
+ * an adaptive noise floor. Speech start fires onSpeechStart (used to
+ * hide the text for recall practice); with autoStop enabled, ~1s of
+ * trailing silence after speech ends the take automatically — no
+ * second tap needed.
  */
 (function (global) {
   "use strict";
@@ -36,6 +42,17 @@
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" +
     "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+
+  // VAD tuning (milliseconds / linear peak levels)
+  const VAD = {
+    absFloor: 0.02,       // never trigger below this peak
+    floorMult: 3.0,       // speech = peak > noiseFloor * mult
+    startMs: 120,         // sustained voice needed to count as speech start
+    silenceMs: 1000,      // trailing silence that ends the take
+    minSpeechMs: 250,     // don't auto-stop before this much speech
+    maxTakeMs: 30000,     // hard cap per take
+    noSpeechMs: 10000,    // give up if nothing was said at all
+  };
 
   function pickMime() {
     if (typeof MediaRecorder === "undefined" || !MediaRecorder.isTypeSupported)
@@ -103,9 +120,12 @@
   function LoopRecorder(opts) {
     opts = opts || {};
     this.loop = opts.loop !== false;
+    this.autoStop = !!opts.autoStop;        // VAD ends the take on silence
     this.onState = opts.onState || function () {};
     this.onError = opts.onError || function () {};
-    this.onLevel = opts.onLevel || null;   // mic level meter callback (0..1)
+    this.onLevel = opts.onLevel || null;    // mic level meter callback (0..1)
+    this.onSpeechStart = opts.onSpeechStart || null;
+    this.onPlayEnd = opts.onPlayEnd || null; // overrides built-in loop if set
     this.state = "idle";
     this.stream = null;
     this.rec = null;          // MediaRecorder or WavCapture
@@ -120,9 +140,11 @@
     this.audio.preload = "auto";
     this._unlocked = false;
 
-    this._levelTimer = null;
+    this._meterTimer = null;
     this._analyser = null;
-    this._levelCtx = null;
+    this._meterCtx = null;
+    this._noise = 0.01;       // adaptive noise floor (peak level)
+    this._take = null;        // VAD bookkeeping for the current take
   }
 
   LoopRecorder.isSupported = function () {
@@ -143,13 +165,14 @@
     if (p && p.catch) p.catch(() => { this._unlocked = false; });
   };
 
-  LoopRecorder.prototype._startLevelMeter = function () {
-    if (!this.onLevel || this._analyser) return;
+  // ---- meter + VAD (one analyser, runs while the stream is open)
+  LoopRecorder.prototype._startMeter = function () {
+    if (this._analyser) return;
     try {
       const Ctx = global.AudioContext || global.webkitAudioContext;
-      this._levelCtx = new Ctx();
-      const src = this._levelCtx.createMediaStreamSource(this.stream);
-      this._analyser = this._levelCtx.createAnalyser();
+      this._meterCtx = new Ctx();
+      const src = this._meterCtx.createMediaStreamSource(this.stream);
+      this._analyser = this._meterCtx.createAnalyser();
       this._analyser.fftSize = 512;
       src.connect(this._analyser);
       const data = new Uint8Array(this._analyser.frequencyBinCount);
@@ -159,20 +182,58 @@
         let peak = 0;
         for (let i = 0; i < data.length; i++)
           peak = Math.max(peak, Math.abs(data[i] - 128) / 128);
-        this.onLevel(this.state === "recording" ? peak : 0);
-        this._levelTimer = requestAnimationFrame(tick);
+        if (this.onLevel)
+          this.onLevel(this.state === "recording" ? peak : 0);
+        if (this.state === "recording") this._vad(peak);
+        this._meterTimer = requestAnimationFrame(tick);
       };
       tick();
-    } catch (e) { /* meter is decorative; never fatal */ }
+    } catch (e) { /* meter/VAD are best-effort; recording still works */ }
   };
 
-  LoopRecorder.prototype._stopLevelMeter = function () {
-    if (this._levelTimer) cancelAnimationFrame(this._levelTimer);
-    this._levelTimer = null;
+  LoopRecorder.prototype._vad = function (peak) {
+    const tk = this._take;
+    if (!tk) return;
+    const now = performance.now();
+    const thresh = Math.max(VAD.absFloor, this._noise * VAD.floorMult);
+    const voiced = peak > thresh;
+
+    if (!voiced)
+      this._noise = this._noise * 0.95 + peak * 0.05;   // learn the room
+
+    if (!tk.speech) {
+      if (voiced) {
+        if (!tk.voiceSince) tk.voiceSince = now;
+        if (now - tk.voiceSince >= VAD.startMs) {
+          tk.speech = true;
+          tk.speechAt = now;
+          tk.lastVoice = now;
+          if (this.onSpeechStart) this.onSpeechStart();
+        }
+      } else {
+        tk.voiceSince = 0;
+      }
+      if (this.autoStop && now - tk.start > VAD.noSpeechMs) {
+        this.reset();
+        this.onError("Didn't hear anything — tap Record to try again.");
+      }
+      return;
+    }
+    if (voiced) tk.lastVoice = now;
+    if (!this.autoStop) return;
+    const spoke = now - tk.speechAt >= VAD.minSpeechMs;
+    if ((spoke && now - tk.lastVoice >= VAD.silenceMs) ||
+        now - tk.start >= VAD.maxTakeMs)
+      this.stopAndPlay();
+  };
+
+  LoopRecorder.prototype._stopMeter = function () {
+    if (this._meterTimer) cancelAnimationFrame(this._meterTimer);
+    this._meterTimer = null;
     this._analyser = null;
-    if (this._levelCtx && this._levelCtx.state !== "closed")
-      this._levelCtx.close().catch(() => {});
-    this._levelCtx = null;
+    if (this._meterCtx && this._meterCtx.state !== "closed")
+      this._meterCtx.close().catch(() => {});
+    this._meterCtx = null;
     if (this.onLevel) this.onLevel(0);
   };
 
@@ -205,7 +266,7 @@
       );
       return;
     }
-    this._startLevelMeter();
+    this._startMeter();
     this.chunks = [];
     try {
       if (this.mime === null) {
@@ -224,12 +285,15 @@
     }
     if (this.rec instanceof WavCapture) { /* already capturing */ }
     else this.rec.start();
+    this._take = { start: performance.now(), speech: false,
+                   voiceSince: 0, speechAt: 0, lastVoice: 0 };
     this._set("recording");
   };
 
   LoopRecorder.prototype.stopAndPlay = function () {
     if (this.state !== "recording" || this.stopping) return;
     this.stopping = true;
+    this._take = null;
     const finish = (blob) => {
       this.stopping = false;
       if (this.url) URL.revokeObjectURL(this.url);
@@ -253,7 +317,8 @@
     a.src = this.url;
     a.onended = () => {
       if (this.state !== "playing") return;
-      if (this.loop) this.record();      // the loop: hear it, say it again
+      if (this.onPlayEnd) { this._set("idle"); this.onPlayEnd(); }
+      else if (this.loop) this.record();   // the loop: hear it, say it again
       else this._set("idle");
     };
     const p = a.play();
@@ -272,9 +337,7 @@
     try { this.audio.pause(); } catch (e) {}
   };
 
-  /* Public: full stop; releases the microphone. */
-  LoopRecorder.prototype.reset = function () {
-    this._stopPlayback();
+  LoopRecorder.prototype._stopCapture = function () {
     if (this.state === "recording" && this.rec) {
       try {
         if (this.rec instanceof WavCapture) this.rec.stop();
@@ -282,8 +345,25 @@
       } catch (e) {}
     }
     this.rec = null;
+    this._take = null;
     this.stopping = false;
-    this._stopLevelMeter();
+  };
+
+  /* Public: stop recording/playback but KEEP the microphone open —
+   * used when moving between phrases so iOS doesn't flap its audio
+   * session or re-prompt. */
+  LoopRecorder.prototype.halt = function () {
+    this._stopPlayback();
+    this._stopCapture();
+    if (this.url) { URL.revokeObjectURL(this.url); this.url = null; }
+    this._set("idle");
+  };
+
+  /* Public: full stop; releases the microphone. */
+  LoopRecorder.prototype.reset = function () {
+    this._stopPlayback();
+    this._stopCapture();
+    this._stopMeter();
     if (this.stream) {
       this.stream.getTracks().forEach((t) => t.stop());
       this.stream = null;
@@ -305,6 +385,9 @@
   };
 
   LoopRecorder.prototype.hasTake = function () { return !!this.url; };
+  LoopRecorder.prototype.micOpen = function () {
+    return !!(this.stream && this.stream.active);
+  };
 
   global.LoopRecorder = LoopRecorder;
 })(window);

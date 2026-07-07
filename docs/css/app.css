@@ -154,6 +154,14 @@ header.bar a, header.bar button.iconbtn {
 }
 .statusline.err { color: var(--rec); }
 
+/* hidden-text (recall) mode: text blurs away while you speak,
+   the emoji hint stays visible */
+.chunk .txt { transition: filter 0.25s ease, opacity 0.25s ease; }
+.chunkzone.veil .chunk .txt {
+  filter: blur(14px);
+  opacity: 0.35;
+}
+
 /* tap zones */
 .tapzone { position: absolute; top: 0; bottom: 0; width: 34%; z-index: 5; }
 .tapzone.left { left: 0; }
@@ -188,6 +196,7 @@ header.bar a, header.bar button.iconbtn {
 .sheet .panel {
   background: var(--card); width: 100%; border-radius: 20px 20px 0 0;
   padding: 20px 20px calc(20px + var(--safe-b));
+  max-height: 80dvh; overflow-y: auto;
 }
 .sheet .panel h3 { margin: 0 0 14px; font-size: 16px; }
 .sheet .opt {

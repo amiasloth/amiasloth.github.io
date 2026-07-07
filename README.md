@@ -58,6 +58,25 @@ Levels: `beginner` (2–5 words per phrase), `intermediate` (≤8),
 and asserts for every sentence that the chunks reconstruct the original
 text exactly.
 
+## Practice settings (⚙︎ in the reader)
+
+- **Auto-stop when you pause** (default on): voice activity detection ends
+  the take after ~1s of silence — no second tap.
+- **Hide text while you speak**: the phrase blurs away the moment your
+  voice starts (the emoji hint stays) and returns for playback — recall
+  practice.
+- **Record when you go to the next phrase**: tapping next starts the next
+  take immediately.
+- **After playback**: repeat this phrase (classic loop) / go to the next
+  phrase (hands-free flow) / stop.
+
+With auto-stop + "next phrase" you tap Record once and just read: speak,
+pause, hear yourself, next phrase appears, already recording.
+
+Progress and settings live in `localStorage` — on the device, per browser
+(the installed home-screen app has storage separate from the Safari tab);
+nothing is ever sent anywhere.
+
 ## Notes on recording (the historically tricky part)
 
 `docs/js/recorder.js` handles the platform quirks in one place:

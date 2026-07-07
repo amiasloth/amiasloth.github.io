@@ -1,4 +1,5 @@
-/* Zzzpeak reader — focus line + context, per-chunk loop recording. */
+/* Zzzpeak reader — focus line + context, per-chunk loop recording,
+ * optional hands-free flow (VAD auto-stop, auto-advance, hidden text). */
 (function () {
   "use strict";
 
@@ -21,6 +22,8 @@
     sheet: $("levelsheet"),
     levelOpts: $("levelopts"),
     ring: $("levelring"),
+    gearBtn: $("gearbtn"),
+    settingsSheet: $("settingssheet"),
   };
 
   const LEVEL_INFO = {
@@ -34,6 +37,15 @@
   let flat = [];         // [{t, e?, cont?, sec, secTitle}]
   let idx = 0;
   let level = null;
+
+  // ---------------- settings ----------------
+
+  const prefs = {
+    hideText: Store.getPref("hideText", false),
+    autoStop: Store.getPref("autoStop", true),
+    after: Store.getPref("after", "repeat"),      // repeat | next | stop
+    recordOnNext: Store.getPref("recordOnNext", false),
+  };
 
   // ---------------- data ----------------
 
@@ -55,6 +67,7 @@
       ? "beginner" : meta.levels[0]);
     if (!meta.levels.includes(level)) level = meta.levels[0];
     buildLevelSheet();
+    buildSettingsSheet();
     await loadLevel(level, true);
     bind();
   }
@@ -106,13 +119,16 @@
       em.textContent = c.e;
       d.appendChild(em);
     }
-    d.appendChild(document.createTextNode(c.t));
+    const txt = document.createElement("span");
+    txt.className = "txt";
+    txt.textContent = c.t;
     if (c.cont) {
       const dot = document.createElement("span");
       dot.className = "cont-dot";
       dot.textContent = " ›";
-      d.appendChild(dot);
+      txt.appendChild(dot);
     }
+    d.appendChild(txt);
     return d;
   }
 
@@ -139,25 +155,47 @@
     Store.setProgress(bookId, level, c.sec, idx, flat.length);
   }
 
+  function veil(on) {
+    el.zone.classList.toggle("veil", !!on);
+  }
+
   // ---------------- recorder ----------------
 
   const rec = new LoopRecorder({
-    loop: true,
+    autoStop: prefs.autoStop,
     onState: (s) => {
       el.rec.className = "recbtn " + (s === "idle" ? "" : s);
       if (s === "recording") { el.recIcon.textContent = "◼"; el.recLabel.textContent = "stop"; }
       else if (s === "playing") { el.recIcon.textContent = "▶"; el.recLabel.textContent = "listen"; }
       else { el.recIcon.textContent = "●"; el.recLabel.textContent = "record"; }
-      status(s === "recording" ? "Read the phrase aloud…"
-        : s === "playing" ? "Playing back — recording starts again after."
+      if (s !== "recording") veil(false);   // reveal during playback / idle
+      status(s === "recording"
+        ? (prefs.autoStop ? "Read the phrase aloud — pausing ends the take."
+                          : "Read the phrase aloud…")
+        : s === "playing" ? afterHint()
         : "");
     },
-    onError: (msg) => status(msg, true),
+    onError: (msg) => { veil(false); status(msg, true); },
+    onSpeechStart: () => { if (prefs.hideText) veil(true); },
+    onPlayEnd: () => {
+      if (prefs.after === "repeat") rec.record();
+      else if (prefs.after === "next") {
+        if (idx + 1 < flat.length) { go(1, { keepMic: true }); rec.record(); }
+        else status("End of the book — well read!");
+      }
+      // "stop": stay idle
+    },
     onLevel: (v) => {
       el.ring.style.opacity = v > 0.02 ? Math.min(1, v * 3).toFixed(2) : 0;
       el.ring.style.transform = "scale(" + (1 + v * 0.25).toFixed(3) + ")";
     },
   });
+
+  function afterHint() {
+    return prefs.after === "repeat" ? "Playing back — recording starts again after."
+      : prefs.after === "next" ? "Playing back — next phrase starts after."
+      : "Playing back.";
+  }
 
   function status(msg, isErr) {
     el.status.textContent = msg;
@@ -166,12 +204,16 @@
 
   // ---------------- navigation ----------------
 
-  function go(delta) {
+  function go(delta, opts) {
+    opts = opts || {};
     const n = idx + delta;
     if (n < 0 || n >= flat.length) return;
-    rec.reset();                       // moving on ends the loop
+    if (opts.keepMic || prefs.recordOnNext) rec.halt();  // keep mic session
+    else rec.reset();
     idx = n;
     render();
+    // one-tap reading: advancing starts the next take immediately
+    if (!opts.keepMic && prefs.recordOnNext && delta > 0) rec.toggle();
   }
 
   function bind() {
@@ -210,6 +252,10 @@
     el.sheet.addEventListener("click", (e) => {
       if (e.target === el.sheet) el.sheet.classList.remove("open");
     });
+    el.gearBtn.addEventListener("click", () => el.settingsSheet.classList.add("open"));
+    el.settingsSheet.addEventListener("click", (e) => {
+      if (e.target === el.settingsSheet) el.settingsSheet.classList.remove("open");
+    });
 
     // release mic when the page goes away / is hidden
     document.addEventListener("visibilitychange", () => {
@@ -217,6 +263,8 @@
     });
     window.addEventListener("pagehide", () => rec.reset());
   }
+
+  // ---------------- sheets ----------------
 
   function buildLevelSheet() {
     el.levelOpts.innerHTML = "";
@@ -234,6 +282,44 @@
         }
       });
       el.levelOpts.appendChild(b);
+    });
+  }
+
+  function setPref(name, value) {
+    prefs[name] = value;
+    Store.setPref(name, value);
+    if (name === "autoStop") rec.autoStop = value;
+    buildSettingsSheet();
+  }
+
+  function buildSettingsSheet() {
+    const box = $("settingsopts");
+    box.innerHTML = "";
+
+    const toggle = (label, hint, name) => {
+      const b = document.createElement("button");
+      b.className = "opt" + (prefs[name] ? " sel" : "");
+      b.innerHTML = (prefs[name] ? "✓ " : "") + label + "<small>" + hint + "</small>";
+      b.addEventListener("click", () => setPref(name, !prefs[name]));
+      box.appendChild(b);
+    };
+
+    toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take and playback starts.", "autoStop");
+    toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
+    toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
+
+    const h = document.createElement("h3");
+    h.textContent = "After playback";
+    h.style.marginTop = "16px";
+    box.appendChild(h);
+    [["repeat", "Repeat this phrase", "Record the same phrase again — the classic loop."],
+     ["next", "Go to the next phrase", "Hands-free flow: advance and start recording automatically."],
+     ["stop", "Stop", "Wait for a tap."]].forEach(([val, label, hint]) => {
+      const b = document.createElement("button");
+      b.className = "opt" + (prefs.after === val ? " sel" : "");
+      b.innerHTML = label + "<small>" + hint + "</small>";
+      b.addEventListener("click", () => setPref("after", val));
+      box.appendChild(b);
     });
   }
 
