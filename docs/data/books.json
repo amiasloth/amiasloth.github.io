@@ -1,0 +1,20 @@
+{
+  "books": [
+    {
+      "id": "alice",
+      "title": "Alice's Adventures in Wonderland",
+      "author": "Lewis Carroll",
+      "lang": "en",
+      "levels": ["beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "kafka",
+      "title": "Die Verwandlung",
+      "author": "Franz Kafka",
+      "lang": "de",
+      "levels": ["beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    }
+  ]
+}

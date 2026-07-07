@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1115">
+<title>Zzzpeak — Loop Recorder</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="bar">
+  <a href="index.html" aria-label="Back">‹ Books</a>
+  <h1>Loop Recorder</h1>
+  <span style="min-width:44px"></span>
+</header>
+<div class="loopwrap">
+  <p class="help">
+    Practice reading and pronunciation with instant feedback.
+    Tap <b>Record</b> and speak; tap again to stop. Your voice plays back,
+    then recording starts again automatically — a continuous loop of
+    say&nbsp;→&nbsp;listen&nbsp;→&nbsp;say. Tap <b>Reset</b> to stop the loop.
+  </p>
+  <button class="bigrec" id="recbtn">
+    <span class="levelring" id="levelring"></span>
+    <span id="reclabel">Record</span>
+  </button>
+  <div class="statebadge" id="state"></div>
+  <button class="ghostbtn" id="resetbtn">Reset</button>
+  <button class="ghostbtn" id="replaybtn" style="display:none">Replay last take</button>
+  <div class="statusline" id="status"></div>
+</div>
+<noscript>Zzzpeak needs JavaScript enabled.</noscript>
+<script src="js/recorder.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const btn = $("recbtn"), label = $("reclabel"), state = $("state"),
+        status = $("status"), ring = $("levelring"),
+        resetBtn = $("resetbtn"), replayBtn = $("replaybtn");
+
+  const rec = new LoopRecorder({
+    loop: true,
+    onState: (s) => {
+      btn.className = "bigrec " + (s === "idle" ? "" : s);
+      label.textContent = s === "recording" ? "Stop" : s === "playing" ? "Playing…" : "Record";
+      state.textContent =
+        s === "recording" ? "Recording — speak now"
+        : s === "playing" ? "Listen — recording restarts after playback"
+        : "";
+      replayBtn.style.display = rec.hasTake() && s === "idle" ? "" : "none";
+    },
+    onError: (m) => { status.textContent = m; status.className = "statusline err"; },
+    onLevel: (v) => {
+      ring.style.opacity = v > 0.02 ? Math.min(1, v * 3).toFixed(2) : 0;
+      ring.style.transform = "scale(" + (1 + v * 0.2).toFixed(3) + ")";
+    },
+  });
+
+  btn.addEventListener("click", () => {
+    status.textContent = ""; status.className = "statusline";
+    if (!LoopRecorder.isSupported()) {
+      status.textContent = "Recording is not supported in this browser.";
+      status.className = "statusline err";
+      return;
+    }
+    rec.toggle();
+  });
+  resetBtn.addEventListener("click", () => rec.reset());
+  replayBtn.addEventListener("click", () => rec.replay());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) rec.reset(); });
+  window.addEventListener("pagehide", () => rec.reset());
+})();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>

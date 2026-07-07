@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1115">
+<title>Zzzpeak — Read</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="reader">
+  <header class="bar">
+    <a href="index.html" aria-label="Back to library">‹ Books</a>
+    <h1 id="btitle">…</h1>
+    <button class="iconbtn" id="levelbtn" aria-label="Change level">Level</button>
+  </header>
+  <div class="progressline"><div id="progfill" style="width:0%"></div></div>
+  <div class="sectitle" id="sectitle"></div>
+
+  <div class="chunkzone" id="chunkzone">
+    <div class="tapzone left" aria-hidden="true"></div>
+    <div class="tapzone right" aria-hidden="true"></div>
+  </div>
+
+  <div class="statusline" id="status"></div>
+  <div class="controls">
+    <button class="navbtn" id="prevbtn" aria-label="Previous phrase">‹</button>
+    <button class="recbtn" id="recbtn" aria-label="Record">
+      <span class="levelring" id="levelring"></span>
+      <span class="big" id="recicon">●</span>
+      <span id="reclabel">record</span>
+    </button>
+    <button class="navbtn" id="nextbtn" aria-label="Next phrase">›</button>
+  </div>
+</div>
+
+<div class="sheet" id="levelsheet">
+  <div class="panel">
+    <h3>Reading level</h3>
+    <div id="levelopts"></div>
+  </div>
+</div>
+
+<noscript>Zzzpeak needs JavaScript enabled.</noscript>
+<script src="js/store.js"></script>
+<script src="js/recorder.js"></script>
+<script src="js/reader.js"></script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>

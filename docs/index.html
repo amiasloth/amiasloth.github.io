@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0f1115">
+<meta name="description" content="Zzzpeak — easy reading for language learners. Public-domain books in bite-size phrases, with a loop recorder for pronunciation practice.">
+<title>Zzzpeak — Easy reading for language learners</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="bar">
+  <h1 class="brand"><span class="zzz">Zzz</span>peak</h1>
+</header>
+<div class="wrap">
+  <p class="tagline">Read great books one phrase at a time.<br>Record yourself. Hear yourself. Say it again.</p>
+  <div id="booklist"><div class="empty">Loading books…</div></div>
+  <div class="toolrow">
+    <a class="toolcard" href="looper.html">🔁 Loop Recorder <span class="pill">tool</span></a>
+  </div>
+</div>
+<noscript>Zzzpeak needs JavaScript enabled.</noscript>
+<script src="js/store.js"></script>
+<script>
+(async function () {
+  const box = document.getElementById("booklist");
+  let index;
+  try {
+    index = await (await fetch("data/books.json")).json();
+  } catch (e) {
+    box.innerHTML = '<div class="empty">No books yet — run the build script in tools/ to generate data.</div>';
+    return;
+  }
+  const LANG = { en: "English", de: "German" };
+  box.innerHTML = "";
+  (index.books || []).forEach((b) => {
+    const lv = Store.getLevel(b.id, "beginner");
+    const p = Store.getProgress(b.id, b.levels.includes(lv) ? lv : b.levels[0]);
+    const pct = p && p.total ? Math.round(100 * (p.chunk + 1) / p.total) : 0;
+    const a = document.createElement("a");
+    a.className = "bookcard";
+    a.href = "read.html?book=" + encodeURIComponent(b.id);
+    a.innerHTML =
+      '<div class="btitle"></div>' +
+      '<div class="bmeta"></div>' +
+      '<div class="bprog"><div style="width:' + pct + '%"></div></div>';
+    a.querySelector(".btitle").textContent = b.title;
+    a.querySelector(".bmeta").textContent =
+      (b.author ? b.author + " · " : "") + (LANG[b.lang] || b.lang) +
+      " · " + b.levels.length + " level" + (b.levels.length > 1 ? "s" : "") +
+      (pct ? " · " + pct + "% read" : "") +
+      " · " + (b.source || "Public domain");
+    box.appendChild(a);
+  });
+  if (!box.children.length)
+    box.innerHTML = '<div class="empty">No books in the library yet.</div>';
+})();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js");
+</script>
+</body>
+</html>
