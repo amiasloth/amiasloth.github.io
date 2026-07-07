@@ -46,7 +46,9 @@ Three structural principles (instead of many positional special cases):
 Chunking then works bottom-up:
 
   ATOMIZE  cut at every valid boundary found in the tree, ranked:
-             rank 0  after ; : — (strong punctuation)
+             rank 0  after ; : — and around parentheses (punctuation
+                     is parse-independent: the de model often fails
+                     to label "(so stand …)" as a parenthetical)
              rank 1  clause boundaries (both edges of adverbial /
                      relative / complement clauses, subordinators,
                      verbal coordination)
@@ -63,10 +65,14 @@ Chunking then works bottom-up:
            fragments below the minimum are absorbed by a neighbour
            (leaning right: conjunctions and quotes belong to what
            follows; preferring the direction the gates allow)
-  FALLBACK anything still over the hard maximum is split at the valid
-           boundary nearest its midpoint; if fusion must be sacrificed,
-           prefer the start of an embedded phrase ("Vor dem | in dem
-           großen und reichen Oderbruchdorfe") over a blind mid cut
+  FALLBACK anything still over the hard maximum has no candidate
+           boundary inside — but it is still a branch of the tree, so
+           cut where the FEWEST dependency edges cross the cut (a
+           branch seam: "Vor dem | in dem großen und reichen …",
+           "auf einen | mit zwei magern Schimmeln bespannten …"),
+           then prefer fusion-respecting cuts, then the midpoint as
+           the last tiebreak — never right after a verb whose
+           complements follow
 
 Chunk size comes from --level:
 
@@ -447,6 +453,13 @@ def candidate_cuts(sent, cfg):
         # rank 0: after strong punctuation
         if t.text in STRONG_PUNCT:
             add(i + 1, 0)
+        # rank 0: parentheses are hard boundaries — parse-independent,
+        # because the parser can't be trusted to label "(so stand …)"
+        # as a parenthetical clause
+        if t.text == "(":
+            add(i, 0)
+        if t.text == ")":
+            add(i + 1, 0)
         # rank 1: clause subtree — both edges, so relative clauses don't
         # leak into the main verb; fusion/cluster rules veto edges that
         # land inside a verb complex ("geschrieben | hatte")
@@ -611,71 +624,74 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None):
 
 
 def fallback_split(toks, lo, hi, min_w, max_w, cfg):
-    """Last resort for spans with no internal boundary: cut near the
-    midpoint — at a structurally valid position if any exists."""
+    """Last resort for spans with no internal candidate boundary
+    (extended attributes, name chains, flat lists).
+
+    The span is still a branch of the dependency tree, so instead of
+    cutting blindly near the midpoint, cut at a BRANCH SEAM: the
+    position where the fewest dependency edges cross the cut.  A cut
+    with zero crossings separates whole branches ("Vor dem | in dem
+    großen und reichen …" — nothing left of the cut attaches to
+    anything right of it); a midpoint cut through the middle of a
+    branch ("auf einen mit | zwei magern Schimmeln") tears several
+    edges at once and reads as two mixed fragments.
+
+    Ranking per position: fewest crossing edges, then fusion-
+    respecting cuts, then nearest the midpoint.  A cut directly after
+    a verb whose complements follow is ranked last (merge gate B's
+    logic), and verb clusters / quote pulls are never cut except in
+    utter desperation."""
     if word_count(toks[lo:hi]) <= max_w:
         return [(lo, hi)]
+    base = toks[0].i
     mid = (lo + hi) // 2
 
-    def pick(fuse_ok, coherent, floor):
-        best = None
-        for i in range(lo + 1, hi):
-            # a cut may land ON an opening quote, never right after one
-            if (toks[i].is_punct or toks[i].is_space) \
-                    and toks[i].text not in cfg["open_quotes"]:
+    def crossings(i):
+        n = 0
+        for k in range(lo, hi):
+            t = toks[k]
+            if t.is_punct or t.is_space:
                 continue
-            if toks[i - 1].text == "-":   # inside "out-of-the-way"
-                continue
-            if fuse_ok:
-                if toks[i - 1].text in cfg["pull_quotes"]:
-                    continue
-                if not good_cut(toks, i, cfg):
-                    continue
-            if coherent and fragment_heads(toks, lo, i, cfg):
-                continue            # would strand an incoherent fragment
-            if word_count(toks[lo:i]) < floor \
-                    or word_count(toks[i:hi]) < floor:
-                continue
-            if best is None or abs(i - mid) < abs(best - mid):
-                best = i
-        return best
+            h = t.head.i - base
+            if lo <= h < hi and (h < i) != (k < i):
+                n += 1
+        return n
 
-    def pick_start(floor):
-        """Fusion must be sacrificed (extended German NPs: 'Vor dem in
-        dem großen und reichen Oderbruchdorfe Tschechin gelegenen …'
-        has no valid interior cut).  Cut where a NEW embedded phrase
-        begins — before a preposition, subordinator or coordinator —
-        biggest phrase first, so the pieces are prefixes of ONE phrase
-        ('Vor dem | in dem großen und reichen …') instead of a blind
-        midpoint cut gluing two danglers ('Vor dem in dem | …')."""
+    def severs_verb(i):
+        for k in range(i - 1, lo - 1, -1):
+            t = toks[k]
+            if t.is_punct or t.is_space:
+                continue
+            return t.pos_ in ("VERB", "AUX") and any(
+                not c.is_punct and c.i - base >= i for c in t.children)
+        return False
+
+    def pick(floor, desperate=False):
         best = None
         for i in range(lo + 1, hi):
             t = toks[i]
-            if t.is_punct or t.is_space:
+            # a cut may land ON an opening quote, never right after one
+            if (t.is_punct or t.is_space) \
+                    and t.text not in cfg["open_quotes"]:
                 continue
-            if toks[i - 1].text == "-":
+            if toks[i - 1].text == "-":   # inside "out-of-the-way"
                 continue
-            if not (t.pos_ in ("ADP", "SCONJ", "CCONJ")
-                    or t.dep_ in cfg["marker_deps"]
-                    or t.dep_ in cfg["coord_deps"]):
-                continue
+            if not desperate:
+                if toks[i - 1].text in cfg["pull_quotes"]:
+                    continue
+                if toks[i - 1].pos_ in ("VERB", "AUX") \
+                        and t.pos_ in ("VERB", "AUX"):
+                    continue              # verb clusters stay atomic
             if word_count(toks[lo:i]) < floor \
                     or word_count(toks[i:hi]) < floor:
                 continue
-            key = (-word_count(list(t.subtree)), abs(i - mid))
+            key = (severs_verb(i), crossings(i),
+                   0 if good_cut(toks, i, cfg) else 1, abs(i - mid))
             if best is None or key < best[1]:
                 best = (i, key)
         return best[0] if best else None
 
-    # tiers: coherent cut > fusion-respecting cut (verb-final clauses
-    # have no coherent prefix — normal, not an error) > fusion-
-    # respecting with the size floor sacrificed (a 1-word chunk beats
-    # a cut inside "a very | little way") > phrase-start cut >
-    # any boundary at all
-    best = (pick(True, True, min_w) or pick(True, False, min_w)
-            or pick(True, False, 1)
-            or pick_start(min_w) or pick_start(1)
-            or pick(False, False, min_w) or pick(False, False, 1))
+    best = pick(min_w) or pick(1) or pick(1, desperate=True)
     if best is None:
         return [(lo, hi)]
     return (fallback_split(toks, lo, best, min_w, max_w, cfg)
@@ -749,6 +765,29 @@ def absorb_punct_chunks(chunks, cfg):
     return out
 
 
+def shift_trailing_openers(chunks, cfg):
+    """spaCy often ends a sentence AFTER an opening quote
+    ("… steigenden Knecht: »"), so the opener dangles at the end of
+    the chunk before the speech.  Move any chunk-final run of
+    unambiguous opening quotes/brackets onto the chunk that follows —
+    the quote belongs to the speech it opens."""
+    for j in range(len(chunks) - 1):
+        t = chunks[j]["t"]
+        k = len(t)
+        while k > 0 and (t[k - 1] in cfg["pull_quotes"]
+                         or t[k - 1].isspace()):
+            k -= 1
+        if k == len(t):
+            continue
+        if not any(ch.isalnum() for ch in t[:k]):
+            continue                    # lone-punct chunk: not ours
+        moved = t[k:].strip()
+        if moved:
+            chunks[j]["t"] = t[:k].rstrip()
+            chunks[j + 1]["t"] = moved + chunks[j + 1]["t"]
+    return chunks
+
+
 def emoji_for(span_tokens, lang):
     table = EMOJI.get(lang, {})
     for t in span_tokens:
@@ -808,6 +847,7 @@ def build_book(args):
                         c["e"] = e
                     chunks.append(c)
         chunks = absorb_punct_chunks(chunks, cfg)
+        chunks = shift_trailing_openers(chunks, cfg)
         if chunks:
             out_secs.append({"title": title or "", "chunks": chunks})
 

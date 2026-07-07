@@ -15,7 +15,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from chunk import merge_ok, merge_atoms
+from chunk import (LANG_CFG, fallback_split, merge_atoms, merge_ok,
+                   shift_trailing_openers)
 
 
 class Tok:
@@ -138,6 +139,81 @@ check("pass 2 rescues undersized toward the gate-clean side",
       merge_atoms([4, 1, 4], [3, 1], 2, 5, 8,
                   span_ok=lambda a, b: (a, b) != (0, 2)),
       [(0, 1), (1, 3)])
+
+print("fallback_split cuts at branch seams (fewest crossing edges)")
+
+
+class Tok2(Tok):
+    """Fuller fake for fallback_split (fuse_dir / good_cut / word_count)."""
+
+    def __init__(self, i, text, pos, dep):
+        super().__init__(i, text, pos)
+        self.dep_, self.tag_, self.whitespace_ = dep, "", " "
+
+    @property
+    def n_rights(self):
+        return sum(1 for c in self.children if c.i > self.i)
+
+
+def de_tree(spec):
+    doc = [Tok2(i, w, p, d) for i, (w, p, d, _) in enumerate(spec)]
+    for tok, (_, _, _, h) in zip(doc, spec):
+        tok.doc = doc
+        if h != tok.i:
+            tok.head = doc[h]
+            doc[h].children.append(tok)
+    return doc
+
+
+DE = LANG_CFG["de"]
+
+# "wurden … auf einen mit zwei magern Schimmeln bespannten Bauerwagen
+# geladen." — extended attribute; no candidate boundary inside the PP
+SCHIMMELN = de_tree([
+    ("wurden", "AUX", "ROOT", 0), ("auf", "ADP", "mo", 9),
+    ("einen", "DET", "nk", 8), ("mit", "ADP", "mo", 7),
+    ("zwei", "NUM", "nk", 6), ("magern", "ADJ", "nk", 6),
+    ("Schimmeln", "NOUN", "nk", 3), ("bespannten", "ADJ", "nk", 8),
+    ("Bauerwagen", "NOUN", "nk", 1), ("geladen", "VERB", "oc", 0),
+    (".", "PUNCT", "punct", 0)])
+
+check("intermediate: auf einen | mit zwei magern Schimmeln "
+      "bespannten Bauerwagen geladen.",
+      fallback_split(SCHIMMELN, 1, 11, 2, 8, DE), [(1, 3), (3, 11)])
+check("beginner adds: mit zwei magern Schimmeln | bespannten "
+      "Bauerwagen geladen.",
+      fallback_split(SCHIMMELN, 1, 11, 2, 5, DE),
+      [(1, 3), (3, 7), (7, 11)])
+
+# "Vor dem in dem großen und reichen Oderbruchdorfe Tschechin
+# (um Michaeli 20) eröffneten Gasthaus" — tokens 9,10 external
+ODERBRUCH = de_tree([
+    ("Vor", "ADP", "mo", 10), ("dem", "DET", "nk", 10),
+    ("in", "ADP", "mo", 9), ("dem", "DET", "nk", 7),
+    ("großen", "ADJ", "nk", 7), ("und", "CCONJ", "cd", 4),
+    ("reichen", "ADJ", "cj", 5), ("Oderbruchdorfe", "NOUN", "nk", 2),
+    ("Tschechin", "PROPN", "nk", 7),
+    ("eröffneten", "ADJ", "nk", 10), ("Gasthaus", "NOUN", "ROOT", 10)])
+
+check("intermediate: Vor dem | in dem großen und reichen "
+      "Oderbruchdorfe Tschechin (0-crossing seam beats midpoint)",
+      fallback_split(ODERBRUCH, 0, 9, 2, 8, DE), [(0, 2), (2, 9)])
+check("beginner: Vor dem | in dem | großen und reichen "
+      "Oderbruchdorfe Tschechin (adjectives stay with their noun)",
+      fallback_split(ODERBRUCH, 0, 9, 2, 5, DE),
+      [(0, 2), (2, 4), (4, 9)])
+
+print("shift_trailing_openers")
+ch = [{"t": "auf die Deichsel steigenden Knecht: »", "cont": 1},
+      {"t": "Und nun vorwärts,"}]
+shift_trailing_openers(ch, DE)
+check("dangling » moves onto the speech it opens",
+      [c["t"] for c in ch],
+      ["auf die Deichsel steigenden Knecht:", "»Und nun vorwärts,"])
+ch = [{"t": "sagte er.«"}, {"t": "Dann ging er."}]
+shift_trailing_openers(ch, DE)
+check("closing « stays put",
+      [c["t"] for c in ch], ["sagte er.«", "Dann ging er."])
 
 print(f"\nfailures: {failures}")
 sys.exit(1 if failures else 0)
