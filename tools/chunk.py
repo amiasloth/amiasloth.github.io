@@ -33,6 +33,16 @@ Three structural principles (instead of many positional special cases):
    noch immer" + a 7-word PP (12 > 5) stays; "but it had", whose head
    ("thought") is not adjacent, stays.
 
+4. MERGE GATES — a merged chunk must still read as a slice of ONE
+   phrase.  (a) Single anchor: every token whose head lies outside
+   the chunk must point at the SAME external head — "with pink eyes
+   ran close" mixes a piece of the subject NP with the verb and is
+   never created.  (b) No severed complement: a merge must not end
+   the chunk on a verb whose complements follow — "for the hot day
+   made | her feel …" keeps the verb with what it governs instead.
+   Gates constrain MERGES only; atoms produced by cutting are always
+   legitimate output ("so bekam er" in a verb-second clause is fine).
+
 Chunking then works bottom-up:
 
   ATOMIZE  cut at every valid boundary found in the tree, ranked:
@@ -40,17 +50,23 @@ Chunking then works bottom-up:
              rank 1  clause boundaries (both edges of adverbial /
                      relative / complement clauses, subordinators,
                      verbal coordination)
-             rank 2  phrase boundaries (prepositional phrases,
-                     infinitive "to"/"zu", appositions)
+             rank 2  phrase boundaries (verb-attached prepositional
+                     phrases, infinitive "to"/"zu", appositions)
              rank 3  weak boundaries (subject/object noun phrases,
                      verb groups, bare commas, noun coordination)
-             rank 4  tight-binding cuts (noun-attached infinitives)
+             rank 4  tight-binding cuts (noun-attached infinitives
+                     and noun-attached PPs: "a pair | of gloves" —
+                     mergeable up to the hard max, not just the target)
   MERGE    coherence first, then glue atoms weakest-boundary-first
-           while the result fits the level's target size; fragments
-           below the minimum are absorbed by a neighbour (leaning
-           right: conjunctions and quotes belong to what follows)
+           while the result fits the level's target size (rank-4
+           boundaries: the hard max) and passes the merge gates;
+           fragments below the minimum are absorbed by a neighbour
+           (leaning right: conjunctions and quotes belong to what
+           follows; preferring the direction the gates allow)
   FALLBACK anything still over the hard maximum is split at the valid
-           boundary nearest its midpoint
+           boundary nearest its midpoint; if fusion must be sacrificed,
+           prefer the start of an embedded phrase ("Vor dem | in dem
+           großen und reichen Oderbruchdorfe") over a blind mid cut
 
 Chunk size comes from --level:
 
@@ -360,6 +376,46 @@ def fragment_heads(toks, lo, hi, cfg):
     return []                           # complete constituent
 
 
+def merge_ok(toks, lo, hi):
+    """May a MERGED chunk span [lo,hi)?  Two display-quality gates.
+
+    A. Single anchor: every token whose head lies outside the span must
+       point at the SAME external head.  Two different external heads
+       mean the span mixes pieces of two different constituents —
+       "with pink eyes ran close" (PP hangs off the subject noun, the
+       verb off the main clause) must never be created by a merge.
+       One external head is normal and fine: "for the hot day" (both
+       "for" and "day" point at "made") is a perfect chunk.
+
+    B. No severed complement: the span must not END on a verb that has
+       dependents further right — "for the hot day made" tears "made"
+       from "her feel …"; the verb belongs with what it governs.
+
+    Gates constrain merges only.  Atoms produced by cutting are always
+    legitimate output, so a verb-second clause piece like "so bekam er"
+    can still appear — it just isn't manufactured by gluing."""
+    base = toks[0].i
+    exits = set()
+    for k in range(lo, hi):
+        t = toks[k]
+        if t.is_punct or t.is_space:
+            continue
+        h = t.head.i - base
+        if not (lo <= h < hi):
+            exits.add(h)
+    if len(exits) > 1:
+        return False
+    for k in range(hi - 1, lo - 1, -1):
+        t = toks[k]
+        if t.is_punct or t.is_space:
+            continue
+        if t.pos_ in ("VERB", "AUX") and any(
+                not c.is_punct and c.i - base >= hi for c in t.children):
+            return False
+        break                           # only the last content token
+    return True
+
+
 # ---------------------------------------------------------------- chunking core
 
 def candidate_cuts(sent, cfg):
@@ -411,10 +467,13 @@ def candidate_cuts(sent, cfg):
         # rank 1: verbal conjunct left edge
         if t.dep_ in cfg["conj_deps"] and t.pos_ in ("VERB", "AUX"):
             add(t.left_edge.i - sent.start, 1)
-        # rank 2: prepositional phrase (true preposition, not a particle)
+        # rank 2 / 4: prepositional phrase (true preposition, not a
+        # particle); binds tight when it modifies a noun — "a pair
+        # of white kid gloves" wants to stay together up to the max
         if (t.pos_ == "ADP" and t.left_edge.i == t.i
                 and t.n_rights > 0 and t.dep_ not in ("prt", "svp")):
-            add(i, 2)
+            add(i, 4 if t.head.pos_ in ("NOUN", "PROPN", "PRON", "NUM")
+                else 2)
         # rank 2 / 4: infinitive marker; binds tight when it modifies a
         # noun ("nothing to do", "some plea to justify")
         if t.tag_ in cfg["inf_tags"]:
@@ -472,11 +531,13 @@ def coherence_merge(toks, atoms, ranks, cfg, max_w):
     return atoms, ranks
 
 
-def merge_atoms(wcs, ranks, min_w, target_w, max_w):
+def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None):
     """Group adjacent atoms into chunks.
 
-    wcs[i]   word count of atom i
-    ranks[k] rank of the boundary between atom k and k+1 (0 strongest)
+    wcs[i]      word count of atom i
+    ranks[k]    rank of the boundary between atom k and k+1 (0 strongest)
+    span_ok(a, b)  optional merge gate: may atoms [a,b) become ONE chunk?
+                (chunk_sentence passes merge_ok over the token span)
 
     Pure function of plain lists — unit-testable without spaCy.
     Returns a list of (first_atom, last_atom_exclusive) groups.
@@ -490,21 +551,35 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w):
         del groups[k + 1]
         del bounds[k]
 
-    # pass 1: merge weakest boundaries first while the result fits the target
+    def gated(k):
+        return span_ok is not None and \
+            not span_ok(groups[k][0], groups[k + 1][1])
+
+    def joinable(k):
+        r = bounds[k]
+        if r <= 1:                # never merge over punctuation / clause
+            return False          # boundaries here (pass 2 may, to rescue)
+        # tight boundaries (rank 4: noun-attached PPs/infinitives) may
+        # fill up to the hard max; everything else stops at the target
+        limit = max_w if r >= 4 else target_w
+        if groups[k][2] + groups[k + 1][2] > limit:
+            return False
+        return not gated(k)
+
+    # pass 1: merge weakest boundaries first while the result fits
     while True:
         best = None
         for k, r in enumerate(bounds):
-            if r <= 1:            # never merge over punctuation / clause
-                continue          # boundaries here (pass 2 may, to rescue)
-            # never merge across a boundary while an adjacent, even weaker
-            # one is uncommitted — else weak cuts survive strong ones
-            if k > 0 and bounds[k - 1] > r:
+            if not joinable(k):
                 continue
-            if k + 1 < len(bounds) and bounds[k + 1] > r:
+            # never merge across a boundary while an adjacent, even weaker
+            # one is still JOINABLE — else weak cuts survive strong ones
+            # (a neighbour that can never merge doesn't hold us hostage)
+            if k > 0 and bounds[k - 1] > r and joinable(k - 1):
+                continue
+            if k + 1 < len(bounds) and bounds[k + 1] > r and joinable(k + 1):
                 continue
             combined = groups[k][2] + groups[k + 1][2]
-            if combined > target_w:
-                continue
             key = (-r, combined, k)   # weakest rank, then smallest result
             if best is None or key < best[1]:
                 best = (k, key)
@@ -512,8 +587,9 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w):
             break
         merge(best[0])
 
-    # pass 2: absorb undersized fragments (may exceed the target;
-    # prefers staying under max and crossing the weakest boundary)
+    # pass 2: absorb undersized fragments (may exceed the target and
+    # ignore the gates if it must; prefers staying under max, then a
+    # gate-clean result, then crossing the weakest boundary)
     while len(groups) > 1:
         k = next((k for k, g in enumerate(groups) if g[2] < min_w), None)
         if k is None:
@@ -526,7 +602,8 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w):
 
         def score(j):
             combined = groups[j][2] + groups[j + 1][2]
-            return (0 if combined <= max_w else 1, -bounds[j])
+            return (0 if combined <= max_w else 1,
+                    1 if gated(j) else 0, -bounds[j])
 
         merge(min(options, key=score))
 
@@ -563,13 +640,42 @@ def fallback_split(toks, lo, hi, min_w, max_w, cfg):
                 best = i
         return best
 
+    def pick_start(floor):
+        """Fusion must be sacrificed (extended German NPs: 'Vor dem in
+        dem großen und reichen Oderbruchdorfe Tschechin gelegenen …'
+        has no valid interior cut).  Cut where a NEW embedded phrase
+        begins — before a preposition, subordinator or coordinator —
+        biggest phrase first, so the pieces are prefixes of ONE phrase
+        ('Vor dem | in dem großen und reichen …') instead of a blind
+        midpoint cut gluing two danglers ('Vor dem in dem | …')."""
+        best = None
+        for i in range(lo + 1, hi):
+            t = toks[i]
+            if t.is_punct or t.is_space:
+                continue
+            if toks[i - 1].text == "-":
+                continue
+            if not (t.pos_ in ("ADP", "SCONJ", "CCONJ")
+                    or t.dep_ in cfg["marker_deps"]
+                    or t.dep_ in cfg["coord_deps"]):
+                continue
+            if word_count(toks[lo:i]) < floor \
+                    or word_count(toks[i:hi]) < floor:
+                continue
+            key = (-word_count(list(t.subtree)), abs(i - mid))
+            if best is None or key < best[1]:
+                best = (i, key)
+        return best[0] if best else None
+
     # tiers: coherent cut > fusion-respecting cut (verb-final clauses
     # have no coherent prefix — normal, not an error) > fusion-
     # respecting with the size floor sacrificed (a 1-word chunk beats
-    # a cut inside "a very | little way") > any boundary at all
+    # a cut inside "a very | little way") > phrase-start cut >
+    # any boundary at all
     best = (pick(True, True, min_w) or pick(True, False, min_w)
-            or pick(True, False, 1) or pick(False, False, min_w)
-            or pick(False, False, 1))
+            or pick(True, False, 1)
+            or pick_start(min_w) or pick_start(1)
+            or pick(False, False, min_w) or pick(False, False, 1))
     if best is None:
         return [(lo, hi)]
     return (fallback_split(toks, lo, best, min_w, max_w, cfg)
@@ -593,7 +699,11 @@ def chunk_sentence(sent, cfg, min_w, target_w, max_w):
         ranks = [cands[c] for c in cuts]
         atoms, ranks = coherence_merge(toks, atoms, ranks, cfg, max_w)
         wcs = [word_count(toks[lo:hi]) for lo, hi in atoms]
-        groups = merge_atoms(wcs, ranks, min_w, target_w, max_w)
+
+        def span_ok(a, b):          # gate for merging atoms [a,b)
+            return merge_ok(toks, atoms[a][0], atoms[b - 1][1])
+
+        groups = merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok)
         spans = [(atoms[a][0], atoms[b - 1][1]) for a, b in groups]
         # anything still oversized had no internal boundary: cut by tokens
         spans = [s for lo, hi in spans
