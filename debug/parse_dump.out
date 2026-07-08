@@ -1,0 +1,274 @@
+
+=== de/starter: 'Endlich aber verwandelte sich sein Herz,—und eines Morgens stand er mi'
+  !! GLUED TOKENS (uncuttable, parse-poisoning): ['Herz,—und']
+    i text               pos    tag      dep                    head fuse cut
+    0 Endlich            ADV    ADV      mo          verwandelte(  2) -    
+    1 aber               ADV    ADV      mo          verwandelte(  2) R    
+    2 verwandelte        VERB   VVFIN    mo                stand(  8) -    
+    3 sich               PRON   PRF      oa          verwandelte(  2) -    r3
+    4 sein               DET    PPOSAT   nk            Herz,—und(  5) R    r3
+    5 Herz,—und          NOUN   NN       sb          verwandelte(  2) -    
+    6 eines              DET    ART      nk              Morgens(  7) R    
+    7 Morgens            NOUN   NN       mo          verwandelte(  2) -    
+    8 stand              VERB   VVFIN    mo                 trat( 15) -    
+    9 er                 PRON   PPER     sb                stand(  8) -    r3
+   10 mit                ADP    APPR     mo                stand(  8) R    r2
+   11 der                DET    ART      nk          Morgenröthe( 12) R    
+   12 Morgenröthe        NOUN   NN       nk                  mit( 10) L    
+   13 auf                ADP    PTKVZ    svp               stand(  8) L    
+   14 ,                  PUNCT  $,       punct              trat( 15) -    
+   15 trat               VERB   VVFIN    ROOT               trat( 15) -    r3
+   16 vor                ADP    APPR     mo                 trat( 15) R    r2
+   17 die                DET    ART      nk                Sonne( 18) R    
+   18 Sonne              NOUN   NN       nk                  vor( 16) L    
+   19 hin                ADV    PTKVZ    svp                trat( 15) L    
+   20 und                CCONJ  KON      cd                 trat( 15) R    r1
+   21 sprach             VERB   VVFIN    cj                  und( 20) -    
+   22 zu                 ADP    APPR     mo               sprach( 21) R    r2
+   23 ihr                PRON   PPER     nk                   zu( 22) L    
+   24 also               ADV    ADV      mo               sprach( 21) -    
+   25 :                  PUNCT  $.       punct            sprach( 21) -    
+  ATOMS after cutting:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 15) w= 4  'mit der Morgenröthe auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 20) w= 4  'vor die Sonne hin'
+    [ 20, 22) w= 2  'und sprach'
+    [ 22, 26) w= 3  'zu ihr also:'
+    fragment [4,9) -> external heads at [2, 2, 15]
+    fragment [22,26) -> external heads at [21]
+  after COHERENCE merge:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 15) w= 4  'mit der Morgenröthe auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 20) w= 4  'vor die Sonne hin'
+    [ 20, 22) w= 2  'und sprach'
+    [ 22, 26) w= 3  'zu ihr also:'
+  after MERGE_ATOMS:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 15) w= 4  'mit der Morgenröthe auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 20) w= 4  'vor die Sonne hin'
+    [ 20, 22) w= 2  'und sprach'
+    [ 22, 26) w= 3  'zu ihr also:'
+  after FALLBACK split:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  6) w= 2  'sein Herz,—und'
+    [  6,  9) w= 3  'eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 13) w= 3  'mit der Morgenröthe'
+    [ 13, 15) w= 1  'auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 19) w= 3  'vor die Sonne'
+    [ 19, 20) w= 1  'hin'
+    [ 20, 22) w= 2  'und sprach'
+    [ 22, 26) w= 3  'zu ihr also:'
+
+=== de/beginner: 'Endlich aber verwandelte sich sein Herz,—und eines Morgens stand er mi'
+  !! GLUED TOKENS (uncuttable, parse-poisoning): ['Herz,—und']
+    i text               pos    tag      dep                    head fuse cut
+    0 Endlich            ADV    ADV      mo          verwandelte(  2) -    
+    1 aber               ADV    ADV      mo          verwandelte(  2) R    
+    2 verwandelte        VERB   VVFIN    mo                stand(  8) -    
+    3 sich               PRON   PRF      oa          verwandelte(  2) -    r3
+    4 sein               DET    PPOSAT   nk            Herz,—und(  5) R    r3
+    5 Herz,—und          NOUN   NN       sb          verwandelte(  2) -    
+    6 eines              DET    ART      nk              Morgens(  7) R    
+    7 Morgens            NOUN   NN       mo          verwandelte(  2) -    
+    8 stand              VERB   VVFIN    mo                 trat( 15) -    
+    9 er                 PRON   PPER     sb                stand(  8) -    r3
+   10 mit                ADP    APPR     mo                stand(  8) R    r2
+   11 der                DET    ART      nk          Morgenröthe( 12) R    
+   12 Morgenröthe        NOUN   NN       nk                  mit( 10) L    
+   13 auf                ADP    PTKVZ    svp               stand(  8) L    
+   14 ,                  PUNCT  $,       punct              trat( 15) -    
+   15 trat               VERB   VVFIN    ROOT               trat( 15) -    r3
+   16 vor                ADP    APPR     mo                 trat( 15) R    r2
+   17 die                DET    ART      nk                Sonne( 18) R    
+   18 Sonne              NOUN   NN       nk                  vor( 16) L    
+   19 hin                ADV    PTKVZ    svp                trat( 15) L    
+   20 und                CCONJ  KON      cd                 trat( 15) R    r1
+   21 sprach             VERB   VVFIN    cj                  und( 20) -    
+   22 zu                 ADP    APPR     mo               sprach( 21) R    r2
+   23 ihr                PRON   PPER     nk                   zu( 22) L    
+   24 also               ADV    ADV      mo               sprach( 21) -    
+   25 :                  PUNCT  $.       punct            sprach( 21) -    
+  ATOMS after cutting:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 15) w= 4  'mit der Morgenröthe auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 20) w= 4  'vor die Sonne hin'
+    [ 20, 22) w= 2  'und sprach'
+    [ 22, 26) w= 3  'zu ihr also:'
+    fragment [4,9) -> external heads at [2, 2, 15]
+    fragment [22,26) -> external heads at [21]
+  after COHERENCE merge:
+    [  0,  3) w= 3  'Endlich aber verwandelte'
+    [  3,  4) w= 1  'sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 10) w= 1  'er'
+    [ 10, 15) w= 4  'mit der Morgenröthe auf,'
+    [ 15, 16) w= 1  'trat'
+    [ 16, 20) w= 4  'vor die Sonne hin'
+    [ 20, 26) w= 5  'und sprach zu ihr also:'
+  after MERGE_ATOMS:
+    [  0,  4) w= 4  'Endlich aber verwandelte sich'
+    [  4,  9) w= 5  'sein Herz,—und eines Morgens stand'
+    [  9, 15) w= 5  'er mit der Morgenröthe auf,'
+    [ 15, 20) w= 5  'trat vor die Sonne hin'
+    [ 20, 26) w= 5  'und sprach zu ihr also:'
+
+=== de/beginner: 'Säcke, Citronen- und Apfelsinenkisten standen hier an der einen Wand e'
+    i text               pos    tag      dep                    head fuse cut
+    0 Säcke              NOUN   NN       sb              standen(  5) -    
+    1 ,                  PUNCT  $,       punct             Säcke(  0) -    
+    2 Citronen-          X      TRUNC    cj                  und(  3) -    r3
+    3 und                CCONJ  KON      cd       Apfelsinenkist(  4) R    r3
+    4 Apfelsinenkisten   NOUN   NN       cj                Säcke(  0) -    
+    5 standen            VERB   VVFIN    ROOT            standen(  5) -    
+    6 hier               ADV    ADV      mo              standen(  5) -    
+    7 an                 ADP    APPR     mo              standen(  5) R    r2
+    8 der                DET    ART      nk                 Wand( 10) R    
+    9 einen              ADJ    ART      nk                 Wand( 10) R    
+   10 Wand               NOUN   NN       nk                   an(  7) L    
+   11 entlang            ADP    APPO     svp             standen(  5) L    
+   12 ,                  PUNCT  $,       punct           standen(  5) -    
+   13 während            SCONJ  KOUS     cp                lagen( 19) R    r1
+   14 an                 ADP    APPR     mo                lagen( 19) R    
+   15 der                DET    ART      nk               Fässer( 18) R    
+   16 andern             ADJ    ADJA     nk               Fässer( 18) R    
+   17 übereinandergeschi ADJ    ADJA     nk               Fässer( 18) R    
+   18 Fässer             NOUN   NN       nk                   an( 14) L    
+   19 lagen              VERB   VVFIN    mo              standen(  5) -    
+   20 ,                  PUNCT  $,       punct           standen(  5) -    
+   21 Ölfässer           NOUN   NN       cj              standen(  5) -    r3
+   22 ,                  PUNCT  $,       punct          Ölfässer( 21) -    
+   23 deren              DET    PRELAT   ag                Reihe( 25) R    r1
+   24 stattliche         ADJ    ADJA     nk                Reihe( 25) R    
+   25 Reihe              NOUN   NN       sb                  war( 34) -    
+   26 nur                ADV    ADV      mo                durch( 27) R    r1
+   27 durch              ADP    APPR     mo         unterbrochen( 33) R    
+   28 eine               DET    ART      nk             Fallthür( 32) R    
+   29 zum                ADP    APPRART  mo       hinunterführen( 31) R    
+   30 Keller             NOUN   NN       nk                  zum( 29) L    
+   31 hinunterführende   ADJ    ADJA     nk             Fallthür( 32) R    
+   32 Fallthür           NOUN   NN       nk                durch( 27) L    
+   33 unterbrochen       VERB   VVPP     oc                  war( 34) -    
+   34 war                AUX    VAFIN    rc             Ölfässer( 21) -    
+   35 .                  PUNCT  $.       punct           standen(  5) -    
+  ATOMS after cutting:
+    [  0,  2) w= 1  'Säcke,'
+    [  2,  3) w= 1  'Citronen-'
+    [  3,  7) w= 4  'und Apfelsinenkisten standen hier'
+    [  7, 13) w= 5  'an der einen Wand entlang,'
+    [ 13, 21) w= 7  'während an der andern übereinandergeschichtete Fässer lagen,'
+    [ 21, 23) w= 1  'Ölfässer,'
+    [ 23, 26) w= 3  'deren stattliche Reihe'
+    [ 26, 36) w= 9  'nur durch eine zum Keller hinunterführende Fallthür unterbrochen war.'
+  after COHERENCE merge:
+    [  0,  2) w= 1  'Säcke,'
+    [  2,  3) w= 1  'Citronen-'
+    [  3,  7) w= 4  'und Apfelsinenkisten standen hier'
+    [  7, 13) w= 5  'an der einen Wand entlang,'
+    [ 13, 21) w= 7  'während an der andern übereinandergeschichtete Fässer lagen,'
+    [ 21, 23) w= 1  'Ölfässer,'
+    [ 23, 26) w= 3  'deren stattliche Reihe'
+    [ 26, 36) w= 9  'nur durch eine zum Keller hinunterführende Fallthür unterbrochen war.'
+  after MERGE_ATOMS:
+    [  0,  3) w= 2  'Säcke, Citronen-'
+    [  3,  7) w= 4  'und Apfelsinenkisten standen hier'
+    [  7, 13) w= 5  'an der einen Wand entlang,'
+    [ 13, 21) w= 7  'während an der andern übereinandergeschichtete Fässer lagen,'
+    [ 21, 26) w= 4  'Ölfässer, deren stattliche Reihe'
+    [ 26, 36) w= 9  'nur durch eine zum Keller hinunterführende Fallthür unterbrochen war.'
+  after FALLBACK split:
+    [  0,  3) w= 2  'Säcke, Citronen-'
+    [  3,  7) w= 4  'und Apfelsinenkisten standen hier'
+    [  7, 13) w= 5  'an der einen Wand entlang,'
+    [ 13, 15) w= 2  'während an'
+    [ 15, 21) w= 5  'der andern übereinandergeschichtete Fässer lagen,'
+    [ 21, 26) w= 4  'Ölfässer, deren stattliche Reihe'
+    [ 26, 28) w= 2  'nur durch'
+    [ 28, 33) w= 5  'eine zum Keller hinunterführende Fallthür'
+    [ 33, 36) w= 2  'unterbrochen war.'
+    !! ends on fuse-R word 'an': 'während an'
+    !! ends on fuse-R word 'durch': 'nur durch'
+
+=== de/beginner: 'Und wenn es ein Gitter wird, so ist es gut, und wenn dieser durch die '
+    i text               pos    tag      dep                    head fuse cut
+    0 Und                CCONJ  KON      ju                  ist(  8) R    
+    1 wenn               SCONJ  KOUS     cp                 wird(  5) R    
+    2 es                 PRON   PPER     sb                 wird(  5) R    
+    3 ein                DET    ART      nk               Gitter(  4) R    
+    4 Gitter             NOUN   NN       pd                 wird(  5) -    
+    5 wird               AUX    VAFIN    re                   so(  7) -    
+    6 ,                  PUNCT  $,       punct                so(  7) -    
+    7 so                 ADV    ADV      mo                  ist(  8) R    r1
+    8 ist                AUX    VAFIN    ROOT                ist(  8) -    
+    9 es                 PRON   PPER     sb                  ist(  8) -    r3
+   10 gut                ADV    ADJD     pd                  ist(  8) -    
+   11 ,                  PUNCT  $,       punct               ist(  8) -    
+   12 und                CCONJ  KON      cd                  ist(  8) R    r1
+   13 wenn               SCONJ  KOUS     cp                 ging( 18) R    
+   14 dieser             PRON   PDS      sb                 ging( 18) R    
+   15 durch              ADP    APPR     mo                 ging( 18) R    
+   16 die                DET    ART      nk            Weinstube( 17) R    
+   17 Weinstube          NOUN   NN       nk                durch( 15) L    
+   18 ging               VERB   VVFIN    mo               wollen( 20) -    
+   19 ,                  PUNCT  $,       punct            wollen( 20) -    
+   20 wollen             AUX    VMFIN    cj                  und( 12) -    r3
+   21 wir                PRON   PPER     sb               wollen( 20) -    r3
+   22 wenigstens         ADV    ADV      mo               ziehen( 25) -    r1
+   23 eine               DET    ART      nk              Rabatte( 24) R    r3
+   24 Rabatte            NOUN   NN       oa               ziehen( 25) -    
+   25 ziehen             VERB   VVINF    oc               wollen( 20) -    
+   26 .                  PUNCT  $.       punct               ist(  8) -    
+  ATOMS after cutting:
+    [  0,  7) w= 6  'Und wenn es ein Gitter wird,'
+    [  7,  9) w= 2  'so ist'
+    [  9, 12) w= 2  'es gut,'
+    [ 12, 20) w= 7  'und wenn dieser durch die Weinstube ging,'
+    [ 20, 21) w= 1  'wollen'
+    [ 21, 22) w= 1  'wir'
+    [ 22, 23) w= 1  'wenigstens'
+    [ 23, 27) w= 3  'eine Rabatte ziehen.'
+    fragment [0,7) -> external heads at [7]
+    fragment [9,12) -> external heads at [8, 8]
+    fragment [12,20) -> external heads at [20]
+  after COHERENCE merge:
+    [  0,  7) w= 6  'Und wenn es ein Gitter wird,'
+    [  7, 12) w= 4  'so ist es gut,'
+    [ 12, 20) w= 7  'und wenn dieser durch die Weinstube ging,'
+    [ 20, 21) w= 1  'wollen'
+    [ 21, 22) w= 1  'wir'
+    [ 22, 23) w= 1  'wenigstens'
+    [ 23, 27) w= 3  'eine Rabatte ziehen.'
+  after MERGE_ATOMS:
+    [  0,  7) w= 6  'Und wenn es ein Gitter wird,'
+    [  7, 12) w= 4  'so ist es gut,'
+    [ 12, 20) w= 7  'und wenn dieser durch die Weinstube ging,'
+    [ 20, 22) w= 2  'wollen wir'
+    [ 22, 27) w= 4  'wenigstens eine Rabatte ziehen.'
+  after FALLBACK split:
+    [  0,  2) w= 2  'Und wenn'
+    [  2,  7) w= 4  'es ein Gitter wird,'
+    [  7, 12) w= 4  'so ist es gut,'
+    [ 12, 14) w= 2  'und wenn'
+    [ 14, 20) w= 5  'dieser durch die Weinstube ging,'
+    [ 20, 22) w= 2  'wollen wir'
+    [ 22, 27) w= 4  'wenigstens eine Rabatte ziehen.'
+    !! ends on fuse-R word 'wenn': 'Und wenn'
+    !! ends on fuse-R word 'wenn': 'und wenn'
