@@ -1,0 +1,335 @@
+
+=== en / starter (min 2 / target 2 / max 3) ===
+  [ 3] | “Well!” thought Alice
+  [ 2] | to herself,
+  [ 4] | “after such a fall <-- OVER MAX
+  [ 2] | as this,
+  [ 4] | I shall think nothing <-- OVER MAX
+  [ 2] | of tumbling
+  [ 2] | down stairs!”
+  ------------------------------------------------------------
+  [ 2] | The house
+  [ 4] | that the old man <-- OVER MAX
+  [ 2] | who lived
+  [ 3] | by the river
+  [ 3] | built last summer
+  [ 2] | burned down
+  [ 3] | during the night.
+  ------------------------------------------------------------
+  [ 2] | She opened
+  [ 2] | the door,
+  [ 1] | looked
+  [ 4] | around the empty room, <-- OVER MAX
+  [ 2] | walked slowly
+  [ 3] | to the window,
+  [ 3] | and drew back
+  [ 3] | the heavy curtains
+  [ 3] | to let in <-- ENDS IN ADP
+  [ 3] | the morning light.
+  ------------------------------------------------------------
+  [ 2] | The garden
+  [ 2] | was full
+  [ 2] | of roses,
+  [ 3] | tulips and daffodils;
+  [ 2] | the gardener,
+  [ 4] | who had worked there <-- OVER MAX
+  [ 3] | for forty years,
+  [ 3] | knew every plant
+  [ 2] | by name.
+  ------------------------------------------------------------
+  [ 3] | The old bridge
+  [ 2] | was destroyed
+  [ 3] | by the flood
+  [ 3] | before the engineers
+  [ 2] | could reinforce
+  [ 4] | the ancient stone pillars <-- OVER MAX
+  [ 3] | that had stood
+  [ 4] | for three hundred years. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 3] | He turned off
+  [ 2] | the lights,
+  [ 2] | picked up
+  [ 2] | his coat,
+  [ 3] | and set out
+  [ 4] | into the cold night <-- OVER MAX
+  [ 3] | without looking back
+  [ 3] | at the house.
+  ------------------------------------------------------------
+
+=== en / beginner (min 2 / target 3 / max 5) ===
+  [ 3] | “Well!” thought Alice
+  [ 2] | to herself,
+  [ 4] | “after such a fall
+  [ 2] | as this,
+  [ 4] | I shall think nothing
+  [ 2] | of tumbling
+  [ 2] | down stairs!”
+  ------------------------------------------------------------
+  [ 2] | The house
+  [ 4] | that the old man
+  [ 2] | who lived
+  [ 3] | by the river
+  [ 3] | built last summer
+  [ 2] | burned down
+  [ 3] | during the night.
+  ------------------------------------------------------------
+  [ 2] | She opened
+  [ 2] | the door,
+  [ 5] | looked around the empty room,
+  [ 2] | walked slowly
+  [ 3] | to the window,
+  [ 3] | and drew back
+  [ 3] | the heavy curtains
+  [ 3] | to let in <-- ENDS IN ADP
+  [ 3] | the morning light.
+  ------------------------------------------------------------
+  [ 2] | The garden
+  [ 2] | was full
+  [ 3] | of roses, tulips
+  [ 2] | and daffodils;
+  [ 2] | the gardener,
+  [ 4] | who had worked there
+  [ 3] | for forty years,
+  [ 5] | knew every plant by name.
+  ------------------------------------------------------------
+  [ 3] | The old bridge
+  [ 2] | was destroyed
+  [ 3] | by the flood
+  [ 5] | before the engineers could reinforce
+  [ 4] | the ancient stone pillars
+  [ 3] | that had stood
+  [ 4] | for three hundred years.
+  ------------------------------------------------------------
+  [ 3] | He turned off
+  [ 2] | the lights,
+  [ 2] | picked up
+  [ 2] | his coat,
+  [ 3] | and set out
+  [ 4] | into the cold night
+  [ 3] | without looking back
+  [ 3] | at the house.
+  ------------------------------------------------------------
+
+=== en / intermediate (min 2 / target 5 / max 8) ===
+  [ 5] | “Well!” thought Alice to herself,
+  [ 6] | “after such a fall as this,
+  [ 8] | I shall think nothing of tumbling down stairs!”
+  ------------------------------------------------------------
+  [ 2] | The house
+  [ 4] | that the old man
+  [ 5] | who lived by the river
+  [ 3] | built last summer
+  [ 5] | burned down during the night.
+  ------------------------------------------------------------
+  [ 4] | She opened the door,
+  [ 5] | looked around the empty room,
+  [ 5] | walked slowly to the window,
+  [ 3] | and drew back
+  [ 3] | the heavy curtains
+  [ 6] | to let in the morning light.
+  ------------------------------------------------------------
+  [ 4] | The garden was full
+  [ 5] | of roses, tulips and daffodils;
+  [ 2] | the gardener,
+  [ 4] | who had worked there
+  [ 3] | for forty years,
+  [ 5] | knew every plant by name.
+  ------------------------------------------------------------
+  [ 3] | The old bridge
+  [ 5] | was destroyed by the flood
+  [ 5] | before the engineers could reinforce
+  [ 4] | the ancient stone pillars
+  [ 3] | that had stood
+  [ 4] | for three hundred years.
+  ------------------------------------------------------------
+  [ 5] | He turned off the lights,
+  [ 4] | picked up his coat,
+  [ 3] | and set out
+  [ 4] | into the cold night
+  [ 3] | without looking back
+  [ 3] | at the house.
+  ------------------------------------------------------------
+
+=== en / advanced (min 3 / target 8 / max 12) ===
+  [ 5] | “Well!” thought Alice to herself,
+  [ 6] | “after such a fall as this,
+  [ 8] | I shall think nothing of tumbling down stairs!”
+  ------------------------------------------------------------
+  [ 6] | The house that the old man
+  [ 5] | who lived by the river
+  [ 3] | built last summer
+  [ 5] | burned down during the night.
+  ------------------------------------------------------------
+  [ 4] | She opened the door,
+  [ 5] | looked around the empty room,
+  [ 5] | walked slowly to the window,
+  [ 6] | and drew back the heavy curtains
+  [ 6] | to let in the morning light.
+  ------------------------------------------------------------
+  [ 4] | The garden was full
+  [ 5] | of roses, tulips and daffodils;
+  [ 9] | the gardener, who had worked there for forty years,
+  [ 5] | knew every plant by name.
+  ------------------------------------------------------------
+  [ 8] | The old bridge was destroyed by the flood
+  [ 5] | before the engineers could reinforce
+  [ 4] | the ancient stone pillars
+  [ 7] | that had stood for three hundred years.
+  ------------------------------------------------------------
+  [ 5] | He turned off the lights,
+  [ 4] | picked up his coat,
+  [ 7] | and set out into the cold night
+  [ 6] | without looking back at the house.
+  ------------------------------------------------------------
+
+=== de / starter (min 2 / target 2 / max 3) ===
+  [ 2] | Der Zug
+  [ 3] | fährt jeden Morgen
+  [ 3] | um sieben Uhr
+  [ 4] | vom kleinen Bahnhof ab. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] | Er sagte,
+  [ 2] | dass er
+  [ 3] | das schwere Buch
+  [ 3] | schon letzte Woche
+  [ 3] | hätte zurückgeben müssen,
+  [ 2] | aber es
+  [ 4] | immer wieder vergessen hatte. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] | Die Frau,
+  [ 3] | die den Brief,
+  [ 3] | den ihr Mann
+  [ 2] | geschrieben hatte,
+  [ 3] | niemals gelesen hat,
+  [ 3] | wohnt noch heute
+  [ 4] | in dem alten Haus <-- OVER MAX
+  [ 2] | am Fluss.
+  ------------------------------------------------------------
+  [ 4] | Nach dem langen Spaziergang <-- OVER MAX
+  [ 4] | durch den dunklen Wald <-- OVER MAX
+  [ 2] | am Rande
+  [ 4] | der kleinen Stadt kehrten <-- OVER MAX
+  [ 3] | die müden Wanderer
+  [ 5] | in das warme Gasthaus ein. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] | „Ich kann
+  [ 2] | heute leider
+  [ 2] | nicht kommen“,
+  [ 3] | sagte der Arzt,
+  [ 2] | „weil ich
+  [ 3] | noch drei Patienten
+  [ 2] | im Krankenhaus
+  [ 2] | besuchen muss.“
+  ------------------------------------------------------------
+  [ 2] | Es gab
+  [ 4] | in dem kleinen Dorf <-- OVER MAX
+  [ 3] | weder einen Bäcker
+  [ 3] | noch einen Metzger,
+  [ 3] | und die Bewohner
+  [ 3] | mussten jede Woche
+  [ 4] | in die Stadt fahren. <-- OVER MAX
+  ------------------------------------------------------------
+
+=== de / beginner (min 2 / target 3 / max 5) ===
+  [ 5] | Der Zug fährt jeden Morgen
+  [ 3] | um sieben Uhr
+  [ 4] | vom kleinen Bahnhof ab.
+  ------------------------------------------------------------
+  [ 2] | Er sagte,
+  [ 5] | dass er das schwere Buch
+  [ 3] | schon letzte Woche
+  [ 3] | hätte zurückgeben müssen,
+  [ 6] | aber es immer wieder vergessen hatte. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] | Die Frau,
+  [ 3] | die den Brief,
+  [ 5] | den ihr Mann geschrieben hatte,
+  [ 3] | niemals gelesen hat,
+  [ 3] | wohnt noch heute
+  [ 4] | in dem alten Haus
+  [ 2] | am Fluss.
+  ------------------------------------------------------------
+  [ 4] | Nach dem langen Spaziergang
+  [ 4] | durch den dunklen Wald
+  [ 2] | am Rande
+  [ 4] | der kleinen Stadt kehrten
+  [ 3] | die müden Wanderer
+  [ 5] | in das warme Gasthaus ein.
+  ------------------------------------------------------------
+  [ 4] | „Ich kann heute leider
+  [ 2] | nicht kommen“,
+  [ 3] | sagte der Arzt,
+  [ 5] | „weil ich noch drei Patienten
+  [ 4] | im Krankenhaus besuchen muss.“
+  ------------------------------------------------------------
+  [ 2] | Es gab
+  [ 4] | in dem kleinen Dorf
+  [ 3] | weder einen Bäcker
+  [ 3] | noch einen Metzger,
+  [ 3] | und die Bewohner
+  [ 3] | mussten jede Woche
+  [ 4] | in die Stadt fahren.
+  ------------------------------------------------------------
+
+=== de / intermediate (min 2 / target 5 / max 8) ===
+  [ 5] | Der Zug fährt jeden Morgen
+  [ 3] | um sieben Uhr
+  [ 4] | vom kleinen Bahnhof ab.
+  ------------------------------------------------------------
+  [ 2] | Er sagte,
+  [ 8] | dass er das schwere Buch schon letzte Woche
+  [ 3] | hätte zurückgeben müssen,
+  [ 6] | aber es immer wieder vergessen hatte.
+  ------------------------------------------------------------
+  [ 2] | Die Frau,
+  [ 3] | die den Brief,
+  [ 5] | den ihr Mann geschrieben hatte,
+  [ 3] | niemals gelesen hat,
+  [ 3] | wohnt noch heute
+  [ 6] | in dem alten Haus am Fluss.
+  ------------------------------------------------------------
+  [ 8] | Nach dem langen Spaziergang durch den dunklen Wald
+  [ 6] | am Rande der kleinen Stadt kehrten
+  [ 3] | die müden Wanderer
+  [ 5] | in das warme Gasthaus ein.
+  ------------------------------------------------------------
+  [ 6] | „Ich kann heute leider nicht kommen“,
+  [ 3] | sagte der Arzt,
+  [ 5] | „weil ich noch drei Patienten
+  [ 4] | im Krankenhaus besuchen muss.“
+  ------------------------------------------------------------
+  [ 2] | Es gab
+  [ 4] | in dem kleinen Dorf
+  [ 3] | weder einen Bäcker
+  [ 3] | noch einen Metzger,
+  [ 6] | und die Bewohner mussten jede Woche
+  [ 4] | in die Stadt fahren.
+  ------------------------------------------------------------
+
+=== de / advanced (min 3 / target 8 / max 12) ===
+  [12] | Der Zug fährt jeden Morgen um sieben Uhr vom kleinen Bahnhof ab.
+  ------------------------------------------------------------
+  [10] | Er sagte, dass er das schwere Buch schon letzte Woche
+  [ 3] | hätte zurückgeben müssen,
+  [ 6] | aber es immer wieder vergessen hatte.
+  ------------------------------------------------------------
+  [ 5] | Die Frau, die den Brief,
+  [ 5] | den ihr Mann geschrieben hatte,
+  [ 3] | niemals gelesen hat,
+  [ 3] | wohnt noch heute
+  [ 6] | in dem alten Haus am Fluss.
+  ------------------------------------------------------------
+  [ 8] | Nach dem langen Spaziergang durch den dunklen Wald
+  [ 6] | am Rande der kleinen Stadt kehrten
+  [ 8] | die müden Wanderer in das warme Gasthaus ein.
+  ------------------------------------------------------------
+  [ 6] | „Ich kann heute leider nicht kommen“,
+  [ 3] | sagte der Arzt,
+  [ 9] | „weil ich noch drei Patienten im Krankenhaus besuchen muss.“
+  ------------------------------------------------------------
+  [ 6] | Es gab in dem kleinen Dorf
+  [ 6] | weder einen Bäcker noch einen Metzger,
+  [10] | und die Bewohner mussten jede Woche in die Stadt fahren.
+  ------------------------------------------------------------
+
+hard failures: 18   bad-tail warnings: 2
