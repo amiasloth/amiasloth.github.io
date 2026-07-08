@@ -31,6 +31,38 @@
       "lang": "de",
       "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
+    },
+    {
+      "id": "frankenstein",
+      "title": "Frankenstein; or, The Modern Prometheus",
+      "author": "Mary Wollstonecraft Shelley",
+      "lang": "en",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "velveteen",
+      "title": "The Velveteen Rabbit",
+      "author": "Margery Williams",
+      "lang": "en",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "heidi",
+      "title": "Heidi kann brauchen, was es gelernt hat",
+      "author": "Johanna Spyri",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "zarathustra",
+      "title": "Also sprach Zarathustra",
+      "author": "Friedrich Wilhelm Nietzsche",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
     }
   ]
 }

@@ -46,23 +46,24 @@ RUN install -d -m 0755 /etc/apt/keyrings \
     && apt-get update && apt-get install -y --no-install-recommends gh \
     && rm -rf /var/lib/apt/lists/*
 
-# --- Python deps for tools/ (spaCy chunker) --------------------------------
-# System-wide install so any user in the container can just run the scripts.
-# No uv, no venv. PIP_BREAK_SYSTEM_PACKAGES covers `pip install` here AND the
-# pip subprocess spaCy's own `download` command shells out to internally
-# (which doesn't accept a --break-system-packages flag of its own).
-ENV PIP_BREAK_SYSTEM_PACKAGES=1
-COPY tools/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt \
-    && python3 -m spacy download en_core_web_sm \
-    && python3 -m spacy download de_core_news_lg \
-    && rm /tmp/requirements.txt
 
 # --- service user = host uid 1000 (keep-id maps it back to the host user) --
 RUN useradd -m -u ${USER_UID} -s /bin/bash ${USERNAME}
 USER ${USERNAME}
 ENV HOME="/home/${USERNAME}"
 WORKDIR /project
+
+# --- Python deps for tools/ (spaCy chunker) --------------------------------
+# No uv, no venv. PIP_BREAK_SYSTEM_PACKAGES covers `pip install` here AND the
+# pip subprocess spaCy's own `download` command shells out to internally
+# (which doesn't accept a --break-system-packages flag of its own).
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+COPY --chown=${USER_UID}:${USER_UID} tools/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
+    && python3 -m spacy download en_core_web_sm \
+    && python3 -m spacy download de_core_news_lg \
+    && rm /tmp/requirements.txt
+
 
 # --- Claude Code (native installer; npm is deprecated) ---------------------
 # Auth is injected at runtime via the CLAUDE_CODE_OAUTH_TOKEN secret (run.sh).
@@ -76,11 +77,11 @@ RUN if [ -n "${CLAUDE_VERSION}" ]; then \
 ENV PATH="${HOME}/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 # --- dotfiles (so exec'd shells feel like your box: vi mode, git prompt, vim, tmux)
-COPY --chown=${USER_UID}:${USER_UID} dotfiles/bashrc    ${HOME}/.bashrc.zzzpeak
-COPY --chown=${USER_UID}:${USER_UID} dotfiles/vimrc     ${HOME}/.vimrc
-COPY --chown=${USER_UID}:${USER_UID} dotfiles/tmux.conf ${HOME}/.tmux.conf
-COPY --chown=${USER_UID}:${USER_UID} dotfiles/gitconfig ${HOME}/.gitconfig
-COPY --chown=${USER_UID}:${USER_UID} dotfiles/gitignore ${HOME}/.gitignore
+COPY --chown=${USER_UID}:${USER_UID} container/dotfiles/bashrc    ${HOME}/.bashrc.zzzpeak
+COPY --chown=${USER_UID}:${USER_UID} container/dotfiles/vimrc     ${HOME}/.vimrc
+COPY --chown=${USER_UID}:${USER_UID} container/dotfiles/tmux.conf ${HOME}/.tmux.conf
+COPY --chown=${USER_UID}:${USER_UID} container/dotfiles/gitconfig ${HOME}/.gitconfig
+COPY --chown=${USER_UID}:${USER_UID} container/dotfiles/gitignore ${HOME}/.gitignore
 RUN cat ${HOME}/.bashrc.zzzpeak >> ${HOME}/.bashrc && rm ${HOME}/.bashrc.zzzpeak
 
 # vim: fugitive (git inside vim)
