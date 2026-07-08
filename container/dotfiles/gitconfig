@@ -28,3 +28,6 @@
 	insteadOf = ssh://git@github.com/
 	insteadOf = git@amiasloth.github.com:
 	insteadOf = ssh://git@amiasloth.github.com/
+[user]
+  email = iamasloth@proton.me
+  name = iamasloth
