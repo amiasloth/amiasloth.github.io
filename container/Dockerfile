@@ -64,7 +64,6 @@ RUN pip install --no-cache-dir -r /tmp/requirements.txt \
     && python3 -m spacy download de_core_news_lg \
     && rm /tmp/requirements.txt
 
-
 # --- Claude Code (native installer; npm is deprecated) ---------------------
 # Auth is injected at runtime via the CLAUDE_CODE_OAUTH_TOKEN secret (run.sh).
 RUN if [ -n "${CLAUDE_VERSION}" ]; then \
@@ -93,6 +92,9 @@ RUN mkdir -p "${HOME}/.vim/pack/tpope/start" \
 # --- verify claude resolves + spaCy models loaded (fail the build early if not) ---
 RUN command -v claude >/dev/null || { echo "BUILD ERROR: claude not on PATH after install" >&2; exit 1; }
 RUN python3 -c "import spacy; spacy.load('en_core_web_sm'); spacy.load('de_core_news_lg'); print('spacy models ok')"
+
+RUN pip install -U "spacy[transformers]" \
+    && python -m spacy download de_dep_news_trf
 
 # docs/ preview (see container/run.sh) — python3 -m http.server, published from run.sh
 EXPOSE 8080
