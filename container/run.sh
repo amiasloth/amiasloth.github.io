@@ -34,7 +34,7 @@ ENV_ARGS=()
 [ -n "${GH_TOKEN:-}" ] && ENV_ARGS+=(-e "GH_TOKEN=${GH_TOKEN}")
 
 exec podman run -it --rm \
-    --userns=keep-id \
+--user "$(id -u):$(id -g)" \
     -v "$(pwd):/project" \
     -p "${PORT}:8080" \
     "${ENV_ARGS[@]}" \
