@@ -11,9 +11,19 @@
 # http://localhost:8080 on the host. localhost counts as a secure context,
 # so mic capture + the service worker work without HTTPS.
 #
-# Optional env vars, forwarded if set: CLAUDE_CODE_OAUTH_TOKEN, GH_TOKEN.
+# Secrets (CLAUDE_CODE_OAUTH_TOKEN, GH_TOKEN, ...) are read from
+# container/secret.env if present — copy container/secret.env.example there
+# and fill it in. Never committed (see .gitignore).
 set -euo pipefail
 cd "$(dirname "$0")/.."
+
+SECRET_ENV="container/secret.env"
+if [ -f "$SECRET_ENV" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$SECRET_ENV"
+    set +a
+fi
 
 IMAGE="${IMAGE:-zzzpeak-dev}"
 TAG="${TAG:-latest}"

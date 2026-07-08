@@ -24,3 +24,6 @@ htmlcov/
 build/
 dist/
 *.egg-info/
+
+# Secrets
+container/secret.env
