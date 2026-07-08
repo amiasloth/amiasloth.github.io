@@ -26,9 +26,11 @@ from spacy.tokens import Doc
 from chunk import LANG_CFG, LEVELS, chunk_sentence, clean
 
 DE = LANG_CFG["de"]
-# a bare Vocab() has no German lexical attributes — is_punct would be
-# False on "," and corrupt word counts; blank("de") needs no model
+EN = LANG_CFG["en"]
+# a bare Vocab() has no lexical attributes — is_punct would be False
+# on "," and corrupt word counts; blank(lang) needs no model
 VOCAB = spacy.blank("de").vocab
+VOCAB_EN = spacy.blank("en").vocab
 failures = 0
 
 
@@ -47,22 +49,24 @@ def check(name, got, want):
         print(f"  ok   {name}")
 
 
-def build(rows):
+def build(rows, vocab=None):
     """rows: (text, space_follows, tag, pos, dep, head_index)"""
-    doc = Doc(VOCAB,
+    doc = Doc(vocab if vocab is not None else VOCAB,
               words=[r[0] for r in rows],
               spaces=[r[1] for r in rows],
               tags=[r[2] for r in rows],
               pos=[r[3] for r in rows],
               deps=[r[4] for r in rows],
-              heads=[r[5] for r in rows])
+              heads=[r[5] for r in rows],
+              lemmas=[r[0].lower() for r in rows])
     return doc
 
 
-def chunks(doc, level):
+def chunks(doc, level, cfg=None):
     lv = LEVELS[level]
     return [c.strip() for c in chunk_sentence(
-        doc[:], DE, lv["min_words"], lv["target_words"], lv["max_words"])]
+        doc[:], cfg if cfg is not None else DE,
+        lv["min_words"], lv["target_words"], lv["max_words"])]
 
 
 # ----------------------------------------------------------- clean()
@@ -173,8 +177,11 @@ check("subordinate clause stays whole via max+1 stretch",
        "so ist es gut,",
        "und wenn dieser durch die Weinstube",
        "ging,",
-       "wollen wir",
-       "wenigstens eine Rabatte ziehen."])
+       # 'ziehen' is a bare infinitive under modal 'wollen' — the
+       # bracket demotion (2026-07-08 round 2) removes the rank-1 cut
+       # before 'wenigstens', so the boundary falls at the object NP
+       "wollen wir wenigstens",
+       "eine Rabatte ziehen."])
 
 
 # ------------------------- Zarathustra with the dash FIX applied
@@ -234,6 +241,159 @@ check("no clause mixing: 'stand er' stays in clause 2",
        "mit der Morgenröthe auf,",
        "trat vor die Sonne hin",
        "und sprach zu ihr also:"])
+
+# ============================== round 2 (2026-07-08, test_chnker.out)
+
+# "She opened the door, looked around the empty room, walked slowly
+#  to the window."  (en_core_web_sm-style parse)
+DOOR = build([
+    ("She", True, "PRP", "PRON", "nsubj", 1),
+    ("opened", True, "VBD", "VERB", "ROOT", 1),
+    ("the", True, "DT", "DET", "det", 3),
+    ("door", False, "NN", "NOUN", "dobj", 1),
+    (",", True, ",", "PUNCT", "punct", 1),
+    ("looked", True, "VBD", "VERB", "conj", 1),
+    ("around", True, "IN", "ADP", "prep", 5),
+    ("the", True, "DT", "DET", "det", 9),
+    ("empty", True, "JJ", "ADJ", "amod", 9),
+    ("room", False, "NN", "NOUN", "pobj", 6),
+    (",", True, ",", "PUNCT", "punct", 1),
+    ("walked", True, "VBD", "VERB", "conj", 1),
+    ("slowly", True, "RB", "ADV", "advmod", 11),
+    ("to", True, "IN", "ADP", "prep", 11),
+    ("the", True, "DT", "DET", "det", 15),
+    ("window", False, "NN", "NOUN", "pobj", 13),
+    (".", False, ".", "PUNCT", "punct", 1),
+], VOCAB_EN)
+
+print("coordinated VPs (starter): no 'the door, looked'")
+check("severed-verb absorb goes right, not left",
+      chunks(DOOR, "starter", EN),
+      ["She opened", "the door,", "looked", "around the empty room,",
+       "walked slowly", "to the window."])
+check("beginner keeps 'looked around the empty room,' whole",
+      chunks(DOOR, "beginner", EN),
+      ["She opened", "the door,", "looked around the empty room,",
+       "walked slowly", "to the window."])
+
+# "She drew back the heavy curtains to let in the morning light."
+# — 'in' mislabelled as a preposition, exactly as en_core_web_sm does
+LETIN = build([
+    ("She", True, "PRP", "PRON", "nsubj", 1),
+    ("drew", True, "VBD", "VERB", "ROOT", 1),
+    ("back", True, "RP", "ADP", "prt", 1),
+    ("the", True, "DT", "DET", "det", 5),
+    ("heavy", True, "JJ", "ADJ", "amod", 5),
+    ("curtains", True, "NNS", "NOUN", "dobj", 1),
+    ("to", True, "TO", "PART", "aux", 7),
+    ("let", True, "VB", "VERB", "advcl", 1),
+    ("in", True, "IN", "ADP", "prep", 7),
+    ("the", True, "DT", "DET", "det", 11),
+    ("morning", True, "NN", "NOUN", "compound", 11),
+    ("light", False, "NN", "NOUN", "pobj", 8),
+    (".", False, ".", "PUNCT", "punct", 1),
+], VOCAB_EN)
+
+print("phrasal whitelist: 'let in' particle beats the mis-parse")
+check("starter: to let in | the morning light.",
+      chunks(LETIN, "starter", EN),
+      ["She drew back", "the heavy curtains", "to let in",
+       "the morning light."])
+check("beginner: splits at the clean particle seam",
+      chunks(LETIN, "beginner", EN),
+      ["She drew back", "the heavy curtains", "to let in",
+       "the morning light."])
+
+# „Ich kann heute leider nicht kommen“, sagte der Arzt, „weil ich
+# noch drei Patienten im Krankenhaus besuchen muss.“
+# — 'nicht' hung on the modal (ng→kann), as de_core_news_lg does
+ARZT = build([
+    ("„", False, "$(", "PUNCT", "punct", 2),
+    ("Ich", True, "PPER", "PRON", "sb", 2),
+    ("kann", True, "VMFIN", "AUX", "ROOT", 2),
+    ("heute", True, "ADV", "ADV", "mo", 6),
+    ("leider", True, "ADV", "ADV", "mo", 6),
+    ("nicht", True, "PTKNEG", "PART", "ng", 2),
+    ("kommen", False, "VVINF", "VERB", "oc", 2),
+    ("“", False, "$(", "PUNCT", "punct", 2),
+    (",", True, "$,", "PUNCT", "punct", 9),
+    ("sagte", True, "VVFIN", "VERB", "par", 2),
+    ("der", True, "ART", "DET", "nk", 11),
+    ("Arzt", False, "NN", "NOUN", "sb", 9),
+    (",", True, "$,", "PUNCT", "punct", 9),
+    ("„", False, "$(", "PUNCT", "punct", 22),
+    ("weil", True, "KOUS", "SCONJ", "cp", 22),
+    ("ich", True, "PPER", "PRON", "sb", 22),
+    ("noch", True, "ADV", "ADV", "mo", 17),
+    ("drei", True, "CARD", "NUM", "nk", 18),
+    ("Patienten", True, "NN", "NOUN", "oa", 21),
+    ("im", True, "APPRART", "ADP", "mo", 21),
+    ("Krankenhaus", True, "NN", "NOUN", "nk", 19),
+    ("besuchen", True, "VVINF", "VERB", "oc", 22),
+    ("muss", False, "VMFIN", "AUX", "mo", 2),
+    (".", False, "$.", "PUNCT", "punct", 2),
+    ("“", False, "$(", "PUNCT", "punct", 2),
+])
+
+print("dialogue: speech seam + nicht-fusion + modal bracket")
+# (severs_verb keeps the cut off 'kann |', so the seam falls after
+# 'heute' — the bracket 'nicht kommen' stays intact either way)
+check("beginner: kommen“, | sagte der Arzt, and intact 'nicht kommen'",
+      chunks(ARZT, "beginner"),
+      ["„Ich kann heute", "leider nicht kommen“,", "sagte der Arzt,",
+       "„weil ich noch drei Patienten", "im Krankenhaus besuchen muss.“"])
+check("starter: bracket still closes on 'nicht kommen“,'",
+      chunks(ARZT, "starter"),
+      ["„Ich kann heute", "leider nicht kommen“,", "sagte der Arzt,",
+       "„weil ich", "noch drei Patienten", "im Krankenhaus",
+       "besuchen muss.“"])
+
+# clause comma vs list comma (Klaus 2026-07-08): the comma before
+# 'then' opens a new clause and must never be merged over
+CLAUSE = build([
+    ("I", True, "PRP", "PRON", "nsubj", 1),
+    ("ate", True, "VBD", "VERB", "ROOT", 1),
+    ("apple", False, "NN", "NOUN", "dobj", 1),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("orange", False, "NN", "NOUN", "conj", 2),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("and", True, "CC", "CCONJ", "cc", 2),
+    ("mango", False, "NN", "NOUN", "conj", 2),
+    (",", True, ",", "PUNCT", "punct", 1),
+    ("then", True, "RB", "ADV", "advmod", 11),
+    ("I", True, "PRP", "PRON", "nsubj", 11),
+    ("went", True, "VBD", "VERB", "conj", 1),
+    ("to", True, "IN", "ADP", "prep", 11),
+    ("the", True, "DT", "DET", "det", 14),
+    ("hospital", False, "NN", "NOUN", "pobj", 12),
+    (".", False, ".", "PUNCT", "punct", 1),
+], VOCAB_EN)
+
+LIST = build([
+    ("I", True, "PRP", "PRON", "nsubj", 1),
+    ("ate", True, "VBD", "VERB", "ROOT", 1),
+    ("apple", False, "NN", "NOUN", "dobj", 1),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("orange", False, "NN", "NOUN", "conj", 2),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("mango", False, "NN", "NOUN", "conj", 2),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("banana", False, "NN", "NOUN", "conj", 2),
+    (",", True, ",", "PUNCT", "punct", 2),
+    ("and", True, "CC", "CCONJ", "cc", 2),
+    ("kiwi", False, "NN", "NOUN", "conj", 2),
+    (".", False, ".", "PUNCT", "punct", 1),
+], VOCAB_EN)
+
+print("comma kinds: clause comma is a wall, list commas pack")
+got = chunks(CLAUSE, "beginner", EN)
+check("clause comma: 'then I went' starts its own chunk",
+      [c for c in got if "then" in c], ["then I went"])
+check("nothing glues 'mango, then'",
+      [c for c in got if "mango, then" in c], [])
+check("list commas merge freely at beginner",
+      chunks(LIST, "beginner", EN),
+      ["I ate", "apple, orange,", "mango, banana,", "and kiwi."])
 
 print(f"\nfailures: {failures}")
 sys.exit(1 if failures else 0)

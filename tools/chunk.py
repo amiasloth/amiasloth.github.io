@@ -133,6 +133,21 @@ LANG_CFG = {
         # land ON the dash and trailing dashes shift onto the next chunk
         "open_quotes": {"“", "‘", '"', "'", "(", "—", "–"},
         "pull_quotes": {"“", "‘", "(", "—", "–"},
+        # a closing quote followed by more text is the seam between
+        # speech and narration — a strong boundary (straight quotes
+        # are ambiguous and excluded)
+        "close_quotes": {"”", "’"},
+        # rightward children a verb may be parted from without being
+        # "severed": PPs, adverbs, particles, coordination — cutting
+        # "went | to the hospital" is normal; "made | her feel" is not
+        "benign_tail": {"prep", "advmod", "npadvmod", "prt", "cc",
+                        "conj", "mark", "dep"},
+        # verb+particle pairs en_core_web_sm demonstrably mislabels as
+        # prepositions ("to let | in the morning light").  ONLY pairs
+        # with no prepositional reading directly after the verb —
+        # (put, on) stays out because "put [on the table]" is real.
+        "phrasal": {("let", "in"), ("let", "out"), ("wake", "up"),
+                    ("give", "up")},
     },
     "de": {
         "model": "de_core_news_lg",
@@ -152,6 +167,9 @@ LANG_CFG = {
         # German book style: „low“ or »guillemets pointing inward«
         "open_quotes": {"„", "‚", "»", '"', "'", "(", "—", "–"},
         "pull_quotes": {"„", "‚", "»", "(", "—", "–"},
+        "close_quotes": {"“", "‘", "«"},
+        "phrasal": set(),               # de separable verbs: dep svp
+        "benign_tail": {"mo", "svp", "cd", "cj", "par", "re"},
     },
 }
 
@@ -300,6 +318,11 @@ def fuse_dir(t, cfg):
     if (t.pos_ in ("CCONJ", "SCONJ") or t.dep_ in cfg["coord_deps"]
             or t.dep_ in cfg["marker_deps"] or t.tag_ in REL_PRON_TAGS):
         return "R"
+    # German negation belongs to the verb it negates, not the modal the
+    # parser hangs it on: "nicht | kommen" must never be cut
+    if (t.tag_ == "PTKNEG" and t.i + 1 < len(t.doc)
+            and t.doc[t.i + 1].pos_ in ("VERB", "AUX")):
+        return "R"
     # function relations fuse toward their head
     if t.dep_ in cfg["fused_deps"]:
         return "R" if t.head.i > t.i else "L"
@@ -307,13 +330,21 @@ def fuse_dir(t, cfg):
     if t.pos_ == "DET":
         return "R" if t.head.i > t.i else None
     if t.pos_ == "ADP":
+        # whitelisted particle the parser mislabelled as a preposition:
+        # "to let in | the morning light" — the particle hugs its verb
+        if (t.head.i == t.i - 1 and t.head.pos_ in ("VERB", "AUX")
+                and (t.head.lemma_, t.lemma_) in cfg["phrasal"]):
+            return "L"
         if t.n_rights > 0 or t.head.i > t.i:
             return "R"                  # preposition: keep what it governs
         if t.head.i < t.i:              # bare verb particle: "set out"
             return "L"
         return None
-    # pronoun subject leans on its verb: "I shall", "she had"
-    if t.pos_ == "PRON" and t.dep_ in cfg["subj_deps"] and t.head.i > t.i:
+    # pronoun before its verb leans forward — subject ("I shall",
+    # "she had") and clause-initial object alike ("aber es | immer
+    # wieder vergessen hatte" must not strand the es)
+    if (t.pos_ == "PRON" and t.head.i > t.i
+            and (t.dep_ in cfg["subj_deps"] or t.dep_ in cfg["obj_deps"])):
         return "R"
     # a pronoun directly AFTER its governing verb hugs it: V2 inversion
     # ("stand er", "dachte sie") and verb+clitic ("verwandelte sich",
@@ -416,7 +447,7 @@ def fragment_heads(toks, lo, hi, cfg):
     return []                           # complete constituent
 
 
-def merge_ok(toks, lo, hi):
+def merge_ok(toks, lo, hi, cfg=None):
     """May a MERGED chunk span [lo,hi)?  Two display-quality gates.
 
     A. Single anchor: every token whose head lies outside the span must
@@ -445,15 +476,31 @@ def merge_ok(toks, lo, hi):
             exits.add(h)
     if len(exits) > 1:
         return False
+    return not severs_tail(toks, lo, hi, cfg)
+
+
+def severs_tail(toks, lo, hi, cfg=None):
+    """Gate B on its own: does span [lo,hi) END on a verb whose
+    COMPLEMENTS follow ("for the hot day made | her feel …")?  Also
+    used to pick the absorb direction for undersized fragments — a
+    severed verb is the worst outcome, worse than an oversized chunk
+    ("the door, looked | around …" vs "looked around the empty room,").
+
+    With a cfg, rightward children on benign relations (PPs, adverbs,
+    particles, coordination) don't count: "then I went | to the
+    hospital." parts a verb from its PP, which is normal chunking, not
+    severing.  Without a cfg (pure-logic tests) every child counts."""
+    base = toks[0].i
+    benign = cfg["benign_tail"] if cfg is not None else set()
     for k in range(hi - 1, lo - 1, -1):
         t = toks[k]
         if t.is_punct or t.is_space:
             continue
-        if t.pos_ in ("VERB", "AUX") and any(
-                not c.is_punct and c.i - base >= hi for c in t.children):
-            return False
-        break                           # only the last content token
-    return True
+        return t.pos_ in ("VERB", "AUX") and any(
+            not c.is_punct and c.i - base >= hi
+            and getattr(c, "dep_", "") not in benign
+            for c in t.children)
+    return False
 
 
 def repair_fuse_right(toks, spans, cfg):
@@ -480,14 +527,19 @@ def repair_fuse_right(toks, spans, cfg):
             t = toks[j]
             if t.is_punct or t.is_space or fuse_dir(t, cfg) != "R":
                 continue
+            if t.pos_ == "PRON":
+                continue                # "weil ich |" reads fine — only
+                                        # true function words dangle
             if j < hi - 1 and t.pos_ not in ("CCONJ", "SCONJ"):
                 continue                # trailing punct: doesn't fuse on
-            if j > lo:                  # shift the offender rightward
+            remainder_has_word = any(
+                not (x.is_punct or x.is_space) for x in toks[lo:j])
+            if j > lo and remainder_has_word:   # shift offender rightward
                 out[k] = (lo, j)
                 out[k + 1] = (j, out[k + 1][1])
-            else:                       # chunk IS the offender: merge
-                out[k + 1] = (lo, out[k + 1][1])
-                del out[k]
+            else:                       # chunk IS the offender (or only
+                out[k + 1] = (lo, out[k + 1][1])    # punct would remain):
+                del out[k]                          # merge it into next
             changed = True
             break
     return out
@@ -514,6 +566,10 @@ def candidate_cuts(sent, cfg):
             i -= 1
         if i <= 0 or i >= n:
             return
+        # a cut whose left side holds no word would strand punctuation
+        # ("„ | Ich kann …" after the pull-back stops at i == 1)
+        if not any(not (t.is_punct or t.is_space) for t in toks[:i]):
+            return
         if not good_cut(toks, i, cfg):
             return
         if rank < cands.get(i, 99):
@@ -531,12 +587,23 @@ def candidate_cuts(sent, cfg):
             add(i, 0)
         if t.text == ")":
             add(i + 1, 0)
+        # rank 0/1: a closing quote with text after it is the seam
+        # between speech and narration: "kommen“, | sagte der Arzt"
+        if t.text in cfg["close_quotes"]:
+            add(i + 1, 1)
         # rank 1: clause subtree — both edges, so relative clauses don't
         # leak into the main verb; fusion/cluster rules veto edges that
-        # land inside a verb complex ("geschrieben | hatte")
+        # land inside a verb complex ("geschrieben | hatte").
+        # EXCEPT a bare infinitive under a modal ("kann … kommen",
+        # "mussten … fahren"): that is a verb bracket, one predicate —
+        # cutting it at rank 1 keeps even advanced chunks split
         if t.dep_ in cfg["clause_deps"]:
-            add(t.left_edge.i - sent.start, 1)
-            add(t.right_edge.i - sent.start + 1, 1)
+            modal_bracket = (t.dep_ == "oc"
+                             and t.head.tag_ == "VMFIN"
+                             and t.tag_ in ("VVINF", "VAINF", "VMINF"))
+            if not modal_bracket:
+                add(t.left_edge.i - sent.start, 1)
+                add(t.right_edge.i - sent.start + 1, 1)
         # rank 1: subordinator token starts the new chunk
         if t.dep_ in cfg["marker_deps"]:
             add(i, 1)
@@ -615,13 +682,24 @@ def coherence_merge(toks, atoms, ranks, cfg, max_w):
     return atoms, ranks
 
 
-def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None):
+def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None,
+                span_severs=None, span_linked=None):
     """Group adjacent atoms into chunks.
 
     wcs[i]      word count of atom i
     ranks[k]    rank of the boundary between atom k and k+1 (0 strongest)
     span_ok(a, b)  optional merge gate: may atoms [a,b) become ONE chunk?
                 (chunk_sentence passes merge_ok over the token span)
+    span_severs(a, b)  optional: would atoms [a,b) end on a verb severed
+                from its complements?  Steers pass-2 absorb away from
+                "the door, looked |" even when the other direction
+                overshoots the size limit.
+    span_linked(a, m, b)  optional: does any dependency edge connect
+                atoms [a,m) with atoms [m,b)?  A fragment absorbs
+                toward the side it actually attaches to — "then"
+                belongs with "I went …", never with "and mango," —
+                the same instinct as coherence_merge, applied when
+                size forces a rescue.
 
     Pure function of plain lists — unit-testable without spaCy.
     Returns a list of (first_atom, last_atom_exclusive) groups.
@@ -672,7 +750,8 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None):
         merge(best[0])
 
     # pass 2: absorb undersized fragments (may exceed the target and
-    # ignore the gates if it must; prefers staying under max, then a
+    # ignore the gates if it must; a severed verb is the WORST outcome
+    # — worse than oversize — then prefer staying under max, then a
     # gate-clean result, then crossing the weakest boundary)
     while len(groups) > 1:
         k = next((k for k, g in enumerate(groups) if g[2] < min_w), None)
@@ -686,7 +765,14 @@ def merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok=None):
 
         def score(j):
             combined = groups[j][2] + groups[j + 1][2]
-            return (0 if combined <= max_w else 1,
+            severs = (span_severs is not None
+                      and span_severs(groups[j][0], groups[j + 1][1]))
+            linked = (span_linked is None
+                      or span_linked(groups[j][0], groups[j][1],
+                                     groups[j + 1][1]))
+            return (1 if severs else 0,
+                    0 if linked else 1,
+                    0 if combined <= max_w else 1,
                     1 if gated(j) else 0, -bounds[j])
 
         merge(min(options, key=score))
@@ -734,13 +820,7 @@ def fallback_split(toks, lo, hi, min_w, max_w, cfg):
         return n
 
     def severs_verb(i):
-        for k in range(i - 1, lo - 1, -1):
-            t = toks[k]
-            if t.is_punct or t.is_space:
-                continue
-            return t.pos_ in ("VERB", "AUX") and any(
-                not c.is_punct and c.i - base >= i for c in t.children)
-        return False
+        return severs_tail(toks, lo, i, cfg)
 
     def pick(floor, desperate=False):
         best = None
@@ -808,9 +888,25 @@ def chunk_sentence(sent, cfg, min_w, target_w, max_w):
         wcs = [word_count(toks[lo:hi]) for lo, hi in atoms]
 
         def span_ok(a, b):          # gate for merging atoms [a,b)
-            return merge_ok(toks, atoms[a][0], atoms[b - 1][1])
+            return merge_ok(toks, atoms[a][0], atoms[b - 1][1], cfg)
 
-        groups = merge_atoms(wcs, ranks, min_w, target_w, max_w, span_ok)
+        def span_severs(a, b):      # would [a,b) end on a severed verb?
+            return severs_tail(toks, atoms[a][0], atoms[b - 1][1], cfg)
+
+        def span_linked(a, m, b):   # any edge between [a,m) and [m,b)?
+            lo, mid, hi = atoms[a][0], atoms[m][0], atoms[b - 1][1]
+            base = toks[0].i
+            for k in range(lo, hi):
+                t = toks[k]
+                if t.is_punct or t.is_space:
+                    continue
+                h = t.head.i - base
+                if lo <= h < hi and (h < mid) != (k < mid):
+                    return True
+            return False
+
+        groups = merge_atoms(wcs, ranks, min_w, target_w, max_w,
+                             span_ok, span_severs, span_linked)
         spans = [(atoms[a][0], atoms[b - 1][1]) for a, b in groups]
         # anything still oversized had no internal boundary: cut by tokens
         spans = [s for lo, hi in spans
