@@ -47,10 +47,13 @@ RUN install -d -m 0755 /etc/apt/keyrings \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Python deps for tools/ (spaCy chunker) --------------------------------
-# System-wide install (--break-system-packages: trixie's pip refuses otherwise)
-# so any user in the container can just run the scripts. No uv, no venv.
+# System-wide install so any user in the container can just run the scripts.
+# No uv, no venv. PIP_BREAK_SYSTEM_PACKAGES covers `pip install` here AND the
+# pip subprocess spaCy's own `download` command shells out to internally
+# (which doesn't accept a --break-system-packages flag of its own).
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 COPY tools/requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --break-system-packages -r /tmp/requirements.txt \
+RUN pip install --no-cache-dir -r /tmp/requirements.txt \
     && python3 -m spacy download en_core_web_sm \
     && python3 -m spacy download de_core_news_lg \
     && rm /tmp/requirements.txt
