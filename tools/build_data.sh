@@ -2,7 +2,7 @@
 # Build all Zzzpeak book data into docs/data/.
 #
 # One-time setup:
-#   pip install spacy
+#   pip install -r requirements.txt
 #   python -m spacy download en_core_web_sm
 #   python -m spacy download de_core_news_lg
 #

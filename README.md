@@ -17,11 +17,32 @@ docs/            the web app (GitHub Pages serves this folder)
   looper.html    standalone loop recorder
   data/          pre-chunked book JSON (generated, committed)
 tools/
-  chunk.py       deterministic spaCy phrase chunker (no AI)
-  emoji_map.py   lemma -> emoji hints
-  build_data.sh  regenerates docs/data/ from tools/sources/
-  sources/       Project Gutenberg plain-text sources
+  chunk.py          deterministic spaCy phrase chunker (no AI)
+  emoji_map.py      lemma -> emoji hints
+  build_data.sh     regenerates docs/data/ from tools/sources/
+  requirements.txt  pip deps for the above
+  sources/          Project Gutenberg plain-text sources
+container/       optional rootless-podman dev container (see below)
 ```
+
+## Dev container (optional)
+
+`container/` has a Dockerfile with git/gh/vim/tmux/ssh + Python (for `tools/`)
++ Claude Code, built for rootless podman:
+
+```
+container/build.sh              # podman build (repo root is the context)
+container/run.sh                # interactive shell, repo mounted at /project
+container/run.sh claude         # same, launches Claude Code directly
+```
+
+Inside the container, `serve-docs` (a bashrc helper) runs
+`python3 -m http.server` in `docs/` on the port `run.sh` published
+(default 8080) — open `http://localhost:8080` on the host to preview the
+web app locally. `localhost` counts as a secure context, so mic capture and
+the service worker work there without HTTPS. `build-data` runs
+`tools/build_data.sh`. Optional env vars `CLAUDE_CODE_OAUTH_TOKEN` /
+`GH_TOKEN` are forwarded into the container if set on the host.
 
 ## Deploy to GitHub Pages
 
@@ -37,10 +58,11 @@ previously denied it).
 
 ## Rebuilding / adding book data
 
-One-time setup on your machine:
+One-time setup on your machine (already done for you if you use the
+[dev container](#dev-container-optional)):
 
 ```
-pip install spacy
+pip install -r tools/requirements.txt
 python -m spacy download en_core_web_sm
 python -m spacy download de_core_news_lg
 ```

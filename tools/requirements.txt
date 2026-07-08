@@ -1,0 +1,7 @@
+# Python deps for tools/ (the deterministic spaCy phrase chunker).
+# Install:  pip install -r tools/requirements.txt
+# Then (one-time, not pip-installable — fetched via spaCy's own downloader):
+#   python -m spacy download en_core_web_sm
+#   python -m spacy download de_core_news_lg
+# (container/Dockerfile does both steps automatically.)
+spacy==3.8.14
