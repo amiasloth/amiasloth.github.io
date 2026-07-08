@@ -177,13 +177,15 @@ SCHIMMELN = de_tree([
     ("Bauerwagen", "NOUN", "nk", 1), ("geladen", "VERB", "oc", 0),
     (".", "PUNCT", "punct", 0)])
 
-check("intermediate: auf einen | mit zwei magern Schimmeln "
-      "bespannten Bauerwagen geladen.",
-      fallback_split(SCHIMMELN, 1, 11, 2, 8, DE), [(1, 3), (3, 11)])
-check("beginner adds: mit zwei magern Schimmeln | bespannten "
-      "Bauerwagen geladen.",
+# fusion veto (2026-07): 'auf einen |' strands the article, so the
+# only fusion-clean seam is before 'bespannten'; the 6-word left half
+# stays whole at beginner via the max+1 stretch
+check("intermediate: auf einen mit zwei magern Schimmeln | "
+      "bespannten Bauerwagen geladen. (no stranded article)",
+      fallback_split(SCHIMMELN, 1, 11, 2, 8, DE), [(1, 7), (7, 11)])
+check("beginner: same seam; fusion-locked left half stretches to 6",
       fallback_split(SCHIMMELN, 1, 11, 2, 5, DE),
-      [(1, 3), (3, 7), (7, 11)])
+      [(1, 7), (7, 11)])
 
 # "Vor dem in dem großen und reichen Oderbruchdorfe Tschechin
 # (um Michaeli 20) eröffneten Gasthaus" — tokens 9,10 external
@@ -195,10 +197,11 @@ ODERBRUCH = de_tree([
     ("Tschechin", "PROPN", "nk", 7),
     ("eröffneten", "ADJ", "nk", 10), ("Gasthaus", "NOUN", "ROOT", 10)])
 
-check("intermediate: Vor dem | in dem großen und reichen "
-      "Oderbruchdorfe Tschechin (0-crossing seam beats midpoint)",
-      fallback_split(ODERBRUCH, 0, 9, 2, 8, DE), [(0, 2), (2, 9)])
-check("beginner: Vor dem | in dem | großen und reichen "
+# every internal cut violates fusion, and 9 words is max+1 for the
+# intermediate level: the whole span survives as one readable chunk
+check("intermediate: fusion-locked 9-word span stays whole (max+1)",
+      fallback_split(ODERBRUCH, 0, 9, 2, 8, DE), [(0, 9)])
+check("beginner (desperation): Vor dem | in dem | großen und reichen "
       "Oderbruchdorfe Tschechin (adjectives stay with their noun)",
       fallback_split(ODERBRUCH, 0, 9, 2, 5, DE),
       [(0, 2), (2, 4), (4, 9)])

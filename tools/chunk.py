@@ -67,15 +67,22 @@ Chunking then works bottom-up:
            follows; preferring the direction the gates allow)
   FALLBACK anything still over the hard maximum has no candidate
            boundary inside — but it is still a branch of the tree, so
-           cut where the FEWEST dependency edges cross the cut (a
-           branch seam: "Vor dem | in dem großen und reichen …",
-           "auf einen | mit zwei magern Schimmeln bespannten …"),
-           then prefer fusion-respecting cuts, then the midpoint as
-           the last tiebreak — never right after a verb whose
-           complements follow
+           cut at a FUSION-CLEAN branch seam: among cuts that respect
+           fusion, the one the fewest dependency edges cross, then
+           the midpoint — never right after a verb whose complements
+           follow.  A span with no fusion-clean cut stays whole up to
+           max+1 words ("Und wenn es ein Gitter wird,"); beyond that,
+           desperation demotes fusion back to a tiebreak.
+  REPAIR   output invariant, whatever path produced a chunk: no chunk
+           ends on a word that opens what follows (article, prepo-
+           sition, coordinator, subordinator) — offenders shift onto
+           the next chunk ("während an | der andern …" can no longer
+           be emitted, even by a wrong parse)
 
 Chunk size comes from --level:
 
+  starter        min 2 / target 2 / max 3     (max stretches to 4 when
+                                               fusion leaves no clean cut)
   beginner       min 2 / target 3 / max 5     "of sitting | by her sister"
   intermediate   min 2 / target 5 / max 8
   advanced       min 3 / target 8 / max 12
@@ -121,8 +128,11 @@ LANG_CFG = {
         "fused_deps": {"det", "poss", "predet", "amod", "compound",
                        "nummod", "quantmod", "aux", "auxpass", "neg",
                        "prt", "case", "expl"},
-        "open_quotes": {"“", "‘", '"', "'", "("},
-        "pull_quotes": {"“", "‘", "("},
+        # dashes count as openers: a mid-sentence dash introduces what
+        # follows ("sein Herz, | — und eines Morgens stand"), so cuts
+        # land ON the dash and trailing dashes shift onto the next chunk
+        "open_quotes": {"“", "‘", '"', "'", "(", "—", "–"},
+        "pull_quotes": {"“", "‘", "(", "—", "–"},
     },
     "de": {
         "model": "de_core_news_lg",
@@ -140,13 +150,13 @@ LANG_CFG = {
                        "cm", "avc", "pnc"},   # pnc: never cut inside
                                               # a proper name
         # German book style: „low“ or »guillemets pointing inward«
-        "open_quotes": {"„", "‚", "»", '"', "'", "("},
-        "pull_quotes": {"„", "‚", "»", "("},
+        "open_quotes": {"„", "‚", "»", '"', "'", "(", "—", "–"},
+        "pull_quotes": {"„", "‚", "»", "(", "—", "–"},
     },
 }
 
 LEVELS = {
-    "starter":      {"min_words": 1, "target_words": 2, "max_words": 3},
+    "starter":      {"min_words": 2, "target_words": 2, "max_words": 3},
     "beginner":     {"min_words": 2, "target_words": 3, "max_words": 5},
     "intermediate": {"min_words": 2, "target_words": 5, "max_words": 8},
     "advanced":     {"min_words": 3, "target_words": 8, "max_words": 12},
@@ -181,6 +191,12 @@ def clean(text):
     text = re.sub(r" {2,}", " ", text)          # typesetting: Der·treue·Johannes)
     text = re.sub(r"(\w)--(\w)", r"\1 — \2", text)
     text = text.replace("--", "—")
+    # an em-dash glued to a word ("Herz,—und") survives BOTH the de and
+    # en tokenizers as ONE token — uncuttable, and it poisons the parse
+    # of the clauses on either side (2026-07 analysis: ~4% of all
+    # Zarathustra chunks, every level). Space it out.
+    text = re.sub(r"(?<=\S)([—–])", r" \1", text)
+    text = re.sub(r"([—–])(?=\S)", r"\1 ", text)
     return text
 
 
@@ -299,6 +315,14 @@ def fuse_dir(t, cfg):
     # pronoun subject leans on its verb: "I shall", "she had"
     if t.pos_ == "PRON" and t.dep_ in cfg["subj_deps"] and t.head.i > t.i:
         return "R"
+    # a pronoun directly AFTER its governing verb hugs it: V2 inversion
+    # ("stand er", "dachte sie") and verb+clitic ("verwandelte sich",
+    # "made her") — cutting between them strands a meaningless
+    # one-word chunk (12% of all starter chunks before this rule)
+    if (t.pos_ == "PRON" and t.head.i == t.i - 1
+            and t.head.pos_ in ("VERB", "AUX")
+            and (t.dep_ in cfg["subj_deps"] or t.dep_ in cfg["obj_deps"])):
+        return "L"
     # modifier directly before what it modifies: "noch immer", "very much"
     if t.pos_ in ("ADV", "NUM") and t.head.i == t.i + 1:
         return "R"
@@ -316,6 +340,16 @@ def good_cut(toks, i, cfg):
             return False
         # verb clusters are atomic: "hätte zurückgeben müssen"
         if p.pos_ in ("VERB", "AUX") and t.pos_ in ("VERB", "AUX"):
+            return False
+    else:
+        # a comma must not smuggle a stranded coordinator past the
+        # fusion check ("ans Fenster und, | weil das Licht …"): look
+        # through the punctuation to the last CONTENT token and
+        # honour ITS fusion direction
+        j = i - 2
+        while j >= 0 and (toks[j].is_punct or toks[j].is_space):
+            j -= 1
+        if j >= 0 and fuse_dir(toks[j], cfg) == "R":
             return False
     if fuse_dir(t, cfg) == "L":
         return False
@@ -420,6 +454,43 @@ def merge_ok(toks, lo, hi):
             return False
         break                           # only the last content token
     return True
+
+
+def repair_fuse_right(toks, spans, cfg):
+    """Output invariant: a chunk must not END on a word that
+    grammatically opens what follows (article, preposition,
+    coordinator, subordinator).  Whatever path produced it — fallback
+    desperation, fragment absorption, or a tagger error — shift the
+    offender (plus anything after it) onto the next chunk; if that
+    would empty the chunk, merge it into the next one instead.
+
+    Punctuation right after the offender means it does NOT fuse
+    forward ("und der, | den du …" — demonstrative pronoun) — except
+    for conjunctions/subordinators, which can never close a phrase
+    ("ans Fenster und, | weil das Licht …" still moves)."""
+    out = list(spans)
+    changed = True
+    while changed and len(out) > 1:
+        changed = False
+        for k in range(len(out) - 1):
+            lo, hi = out[k]
+            j = hi - 1
+            while j > lo and (toks[j].is_punct or toks[j].is_space):
+                j -= 1
+            t = toks[j]
+            if t.is_punct or t.is_space or fuse_dir(t, cfg) != "R":
+                continue
+            if j < hi - 1 and t.pos_ not in ("CCONJ", "SCONJ"):
+                continue                # trailing punct: doesn't fuse on
+            if j > lo:                  # shift the offender rightward
+                out[k] = (lo, j)
+                out[k + 1] = (j, out[k + 1][1])
+            else:                       # chunk IS the offender: merge
+                out[k + 1] = (lo, out[k + 1][1])
+                del out[k]
+            changed = True
+            break
+    return out
 
 
 # ---------------------------------------------------------------- chunking core
@@ -636,11 +707,16 @@ def fallback_split(toks, lo, hi, min_w, max_w, cfg):
     branch ("auf einen mit | zwei magern Schimmeln") tears several
     edges at once and reads as two mixed fragments.
 
-    Ranking per position: fewest crossing edges, then fusion-
-    respecting cuts, then nearest the midpoint.  A cut directly after
-    a verb whose complements follow is ranked last (merge gate B's
-    logic), and verb clusters / quote pulls are never cut except in
-    utter desperation."""
+    Fusion is a VETO here (the crossing count otherwise prefers
+    cutting right beside a separable particle or bare preposition,
+    whose head lies outside the span).  Among fusion-clean positions:
+    fewest crossing edges, then nearest the midpoint.  A cut directly
+    after a verb whose complements follow is ranked last (merge gate
+    B's logic).  If NO fusion-clean cut fits, a span up to max+1
+    words stays whole ("Und wenn es ein Gitter wird,") — one slightly
+    oversized readable chunk beats "Und wenn |"; only genuinely
+    oversized fusion-locked spans fall through to desperation, where
+    fusion degrades back to a tiebreak."""
     if word_count(toks[lo:hi]) <= max_w:
         return [(lo, hi)]
     base = toks[0].i
@@ -682,6 +758,13 @@ def fallback_split(toks, lo, hi, min_w, max_w, cfg):
                 if toks[i - 1].pos_ in ("VERB", "AUX") \
                         and t.pos_ in ("VERB", "AUX"):
                     continue              # verb clusters stay atomic
+                # fusion is a VETO here, not a tiebreak: the crossing
+                # count actively prefers cutting beside a token whose
+                # head lies outside the span — which is exactly a
+                # separable particle, clitic or bare preposition
+                # ("während an |", "nur durch |", "auf, |")
+                if not good_cut(toks, i, cfg):
+                    continue
             if word_count(toks[lo:i]) < floor \
                     or word_count(toks[i:hi]) < floor:
                 continue
@@ -691,7 +774,15 @@ def fallback_split(toks, lo, hi, min_w, max_w, cfg):
                 best = (i, key)
         return best[0] if best else None
 
-    best = pick(min_w) or pick(1) or pick(1, desperate=True)
+    best = pick(min_w)
+    if best is None:
+        # no fusion-clean cut fits: ONE slightly oversized chunk that
+        # reads as a unit ("Und wenn es ein Gitter wird,") beats a
+        # stranded function word ("Und wenn |")
+        if word_count(toks[lo:hi]) <= max_w + 1:
+            return [(lo, hi)]
+        best = (pick(1) or pick(min_w, desperate=True)
+                or pick(1, desperate=True))
     if best is None:
         return [(lo, hi)]
     return (fallback_split(toks, lo, best, min_w, max_w, cfg)
@@ -724,6 +815,8 @@ def chunk_sentence(sent, cfg, min_w, target_w, max_w):
         # anything still oversized had no internal boundary: cut by tokens
         spans = [s for lo, hi in spans
                  for s in fallback_split(toks, lo, hi, min_w, max_w, cfg)]
+        # display-quality invariant, whatever path produced the spans
+        spans = repair_fuse_right(toks, spans, cfg)
 
     doc = sent.doc
     raw = []
