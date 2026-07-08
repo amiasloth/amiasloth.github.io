@@ -1,0 +1,323 @@
+
+=== en / starter (min 2 / target 2 / max 3) ===
+  [ 3]    | Alice was beginning
+  [ 2]    | to get
+  [ 2] 🥱 | very tired
+  [ 2]    | of sitting
+  [ 3] 👧 | by her sister
+  [ 3]    | on the bank,
+  [ 4]    | and of having nothing <-- OVER MAX
+  [ 2]    | to do:
+  [ 3]    | once or twice
+  [ 3]    | she had peeped
+  [ 3] 📖 | into the book
+  [ 2] 👧 | her sister
+  [ 2] 📖 | was reading,
+  [ 3]    | but it had
+  [ 2]    | no pictures
+  [ 2]    | or conversations
+  [ 2]    | in it,
+  [ 3]    | “and what is
+  [ 2]    | the use
+  [ 3] 📖 | of a book,”
+  [ 2] 🤔 | thought Alice,
+  [ 2]    | “without pictures
+  [ 2]    | or conversations?”
+  ------------------------------------------------------------
+  [ 2] 🧑‍🌾 | The farmer
+  [ 2] 🍎 | bought apples,
+  [ 2]    | pears, plums
+  [ 2]    | and cherries
+  [ 3] 🏪 | at the market
+  [ 3]    | because his wife
+  [ 3]    | wanted to bake
+  [ 3] 🍰 | a large cake
+  [ 3]    | for the wedding.
+  ------------------------------------------------------------
+  [ 3] 🐺 | A Wolf, meeting
+  [ 4] 🐑 | with a Lamb astray <-- OVER MAX
+  [ 3]    | from the fold,
+  [ 4]    | resolved not to lay <-- OVER MAX
+  [ 2] ✋ | violent hands
+  [ 2]    | on him,
+  [ 3] 🔍 | but to find
+  [ 2]    | some plea
+  [ 2]    | to justify
+  [ 3] 🐑 | to the Lamb
+  [ 4] 🐺 | the Wolf's right <-- OVER MAX
+  [ 3] 🍽️ | to eat him.
+  ------------------------------------------------------------
+  [ 3]    | There was nothing
+  [ 3]    | so very remarkable
+  [ 2]    | in that;
+  [ 3]    | nor did Alice
+  [ 2] 🤔 | think it
+  [ 1]    | so
+  [ 6] 🛤️ | very much out of the way <-- OVER MAX
+  [ 2] 👂 | to hear
+  [ 2] 🐰 | the Rabbit
+  [ 3] 💬 | say to itself,
+  [ 2]    | “Oh dear!
+  ------------------------------------------------------------
+  [ 2]    | Oh dear!
+  ------------------------------------------------------------
+  [ 4]    | I shall be late!” <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] 🐶 | The Dog
+  [ 2] 🏃 | ran away.
+  ------------------------------------------------------------
+
+=== en / beginner (min 2 / target 3 / max 5) ===
+  [ 3]    | Alice was beginning
+  [ 4] 🥱 | to get very tired
+  [ 2]    | of sitting
+  [ 3] 👧 | by her sister
+  [ 3]    | on the bank,
+  [ 4]    | and of having nothing
+  [ 2]    | to do:
+  [ 3]    | once or twice
+  [ 3]    | she had peeped
+  [ 3] 📖 | into the book
+  [ 2] 👧 | her sister
+  [ 2] 📖 | was reading,
+  [ 3]    | but it had
+  [ 2]    | no pictures
+  [ 4]    | or conversations in it,
+  [ 3]    | “and what is
+  [ 5] 📖 | the use of a book,”
+  [ 2] 🤔 | thought Alice,
+  [ 2]    | “without pictures
+  [ 2]    | or conversations?”
+  ------------------------------------------------------------
+  [ 2] 🧑‍🌾 | The farmer
+  [ 2] 🍎 | bought apples,
+  [ 2]    | pears, plums
+  [ 2]    | and cherries
+  [ 3] 🏪 | at the market
+  [ 4]    | because his wife wanted
+  [ 2]    | to bake
+  [ 3] 🍰 | a large cake
+  [ 3]    | for the wedding.
+  ------------------------------------------------------------
+  [ 2] 🐺 | A Wolf,
+  [ 5] 🐑 | meeting with a Lamb astray
+  [ 3]    | from the fold,
+  [ 4]    | resolved not to lay
+  [ 2] ✋ | violent hands
+  [ 2]    | on him,
+  [ 3] 🔍 | but to find
+  [ 2]    | some plea
+  [ 2]    | to justify
+  [ 3] 🐑 | to the Lamb
+  [ 4] 🐺 | the Wolf's right
+  [ 3] 🍽️ | to eat him.
+  ------------------------------------------------------------
+  [ 3]    | There was nothing
+  [ 3]    | so very remarkable
+  [ 2]    | in that;
+  [ 5] 🤔 | nor did Alice think it
+  [ 1]    | so
+  [ 6] 🛤️ | very much out of the way <-- OVER MAX
+  [ 2] 👂 | to hear
+  [ 2] 🐰 | the Rabbit
+  [ 3] 💬 | say to itself,
+  [ 2]    | “Oh dear!
+  ------------------------------------------------------------
+  [ 2]    | Oh dear!
+  ------------------------------------------------------------
+  [ 4]    | I shall be late!”
+  ------------------------------------------------------------
+  [ 4] 🐶 | The Dog ran away.
+  ------------------------------------------------------------
+
+=== en / intermediate (min 2 / target 5 / max 8) ===
+  [ 3]    | Alice was beginning
+  [ 4] 🥱 | to get very tired
+  [ 5] 👧 | of sitting by her sister
+  [ 3]    | on the bank,
+  [ 4]    | and of having nothing
+  [ 2]    | to do:
+  [ 3]    | once or twice
+  [ 3]    | she had peeped
+  [ 3] 📖 | into the book
+  [ 4] 👧 | her sister was reading,
+  [ 3]    | but it had
+  [ 2]    | no pictures
+  [ 4]    | or conversations in it,
+  [ 3]    | “and what is
+  [ 5] 📖 | the use of a book,”
+  [ 2] 🤔 | thought Alice,
+  [ 4]    | “without pictures or conversations?”
+  ------------------------------------------------------------
+  [ 4] 🧑‍🌾 | The farmer bought apples,
+  [ 4]    | pears, plums and cherries
+  [ 3] 🏪 | at the market
+  [ 4]    | because his wife wanted
+  [ 2]    | to bake
+  [ 6] 🍰 | a large cake for the wedding.
+  ------------------------------------------------------------
+  [ 2] 🐺 | A Wolf,
+  [ 8] 🐑 | meeting with a Lamb astray from the fold,
+  [ 6] ✋ | resolved not to lay violent hands
+  [ 2]    | on him,
+  [ 5] 🔍 | but to find some plea
+  [ 2]    | to justify
+  [ 7] 🐑 | to the Lamb the Wolf's right
+  [ 3] 🍽️ | to eat him.
+  ------------------------------------------------------------
+  [ 6]    | There was nothing so very remarkable
+  [ 2]    | in that;
+  [ 5] 🤔 | nor did Alice think it
+  [ 7] 🛤️ | so very much out of the way
+  [ 2] 👂 | to hear
+  [ 5] 🐰 | the Rabbit say to itself,
+  [ 2]    | “Oh dear!
+  ------------------------------------------------------------
+  [ 2]    | Oh dear!
+  ------------------------------------------------------------
+  [ 4]    | I shall be late!”
+  ------------------------------------------------------------
+  [ 4] 🐶 | The Dog ran away.
+  ------------------------------------------------------------
+
+=== en / advanced (min 3 / target 8 / max 12) ===
+  [ 7] 🥱 | Alice was beginning to get very tired
+  [ 8] 👧 | of sitting by her sister on the bank,
+  [ 6]    | and of having nothing to do:
+  [ 3]    | once or twice
+  [ 6] 📖 | she had peeped into the book
+  [ 4] 👧 | her sister was reading,
+  [ 3]    | but it had
+  [ 6]    | no pictures or conversations in it,
+  [ 8] 📖 | “and what is the use of a book,”
+  [ 6] 🤔 | thought Alice, “without pictures or conversations?”
+  ------------------------------------------------------------
+  [ 8] 🧑‍🌾 | The farmer bought apples, pears, plums and cherries
+  [ 3] 🏪 | at the market
+  [ 4]    | because his wife wanted
+  [ 8] 🍰 | to bake a large cake for the wedding.
+  ------------------------------------------------------------
+  [10] 🐺 | A Wolf, meeting with a Lamb astray from the fold,
+  [ 8] ✋ | resolved not to lay violent hands on him,
+  [ 5] 🔍 | but to find some plea
+  [ 9] 🐑 | to justify to the Lamb the Wolf's right
+  [ 3] 🍽️ | to eat him.
+  ------------------------------------------------------------
+  [ 8]    | There was nothing so very remarkable in that;
+  [12] 🤔 | nor did Alice think it so very much out of the way
+  [ 9] 👂 | to hear the Rabbit say to itself, “Oh dear!
+  ------------------------------------------------------------
+  [ 2]    | Oh dear!
+  ------------------------------------------------------------
+  [ 4]    | I shall be late!”
+  ------------------------------------------------------------
+  [ 4] 🐶 | The Dog ran away.
+  ------------------------------------------------------------
+
+=== de / starter (min 2 / target 2 / max 3) ===
+  [ 3]    | Es war einmal
+  [ 3] 🤏 | ein kleines Mädchen,
+  [ 2] 🚶 | das ging
+  [ 4] 🐘 | in den großen Wald, <-- OVER MAX
+  [ 3] 👩‍🍼 | weil seine Mutter
+  [ 3] 💬 | ihm gesagt hatte,
+  [ 3] 👵 | dass die Großmutter
+  [ 2] 🤒 | krank sei
+  [ 2]    | und dringend
+  [ 2]    | Hilfe brauche.
+  ------------------------------------------------------------
+  [ 3] 👑 | Der König hatte
+  [ 2]    | drei Töchter,
+  [ 4] ✨ | die alle schön waren, <-- OVER MAX
+  [ 3] 🌱 | aber die jüngste
+  [ 3] ✨ | war so schön,
+  [ 4] ☀️ | dass die Sonne selber <-- OVER MAX
+  [ 2]    | sich verwunderte,
+  [ 3]    | sooft sie ihr
+  [ 3]    | ins Gesicht schien.
+  ------------------------------------------------------------
+  [ 3]    | Als es nun
+  [ 2] 🌆 | Abend wurde
+  [ 3] 🐺 | und der Wolf
+  [ 2]    | noch immer
+  [ 3] 🚪 | vor der Tür
+  [ 4] 🤏 | des kleinen Hauses saß, <-- OVER MAX
+  [ 2] 😨 | fürchteten sich
+  [ 4]    | die sieben Geißlein sehr. <-- OVER MAX
+  ------------------------------------------------------------
+  [ 2] 🐶 | Der Hund
+  [ 2] 🏃 | lief weg.
+  ------------------------------------------------------------
+
+=== de / beginner (min 2 / target 3 / max 5) ===
+  [ 3]    | Es war einmal
+  [ 3] 🤏 | ein kleines Mädchen,
+  [ 2] 🚶 | das ging
+  [ 4] 🐘 | in den großen Wald,
+  [ 3] 👩‍🍼 | weil seine Mutter
+  [ 3] 💬 | ihm gesagt hatte,
+  [ 5] 👵 | dass die Großmutter krank sei
+  [ 4]    | und dringend Hilfe brauche.
+  ------------------------------------------------------------
+  [ 3] 👑 | Der König hatte
+  [ 2]    | drei Töchter,
+  [ 4] ✨ | die alle schön waren,
+  [ 3] 🌱 | aber die jüngste
+  [ 3] ✨ | war so schön,
+  [ 4] ☀️ | dass die Sonne selber
+  [ 3]    | sich verwunderte, sooft
+  [ 5]    | sie ihr ins Gesicht schien.
+  ------------------------------------------------------------
+  [ 5] 🌆 | Als es nun Abend wurde
+  [ 5] 🐺 | und der Wolf noch immer
+  [ 3] 🚪 | vor der Tür
+  [ 4] 🤏 | des kleinen Hauses saß,
+  [ 2] 😨 | fürchteten sich
+  [ 4]    | die sieben Geißlein sehr.
+  ------------------------------------------------------------
+  [ 4] 🐶 | Der Hund lief weg.
+  ------------------------------------------------------------
+
+=== de / intermediate (min 2 / target 5 / max 8) ===
+  [ 6] 🤏 | Es war einmal ein kleines Mädchen,
+  [ 2] 🚶 | das ging
+  [ 4] 🐘 | in den großen Wald,
+  [ 6] 👩‍🍼 | weil seine Mutter ihm gesagt hatte,
+  [ 5] 👵 | dass die Großmutter krank sei
+  [ 4]    | und dringend Hilfe brauche.
+  ------------------------------------------------------------
+  [ 5] 👑 | Der König hatte drei Töchter,
+  [ 4] ✨ | die alle schön waren,
+  [ 6] 🌱 | aber die jüngste war so schön,
+  [ 6] ☀️ | dass die Sonne selber sich verwunderte,
+  [ 6]    | sooft sie ihr ins Gesicht schien.
+  ------------------------------------------------------------
+  [ 5] 🌆 | Als es nun Abend wurde
+  [ 5] 🐺 | und der Wolf noch immer
+  [ 7] 🚪 | vor der Tür des kleinen Hauses saß,
+  [ 6] 😨 | fürchteten sich die sieben Geißlein sehr.
+  ------------------------------------------------------------
+  [ 4] 🐶 | Der Hund lief weg.
+  ------------------------------------------------------------
+
+=== de / advanced (min 3 / target 8 / max 12) ===
+  [ 6] 🤏 | Es war einmal ein kleines Mädchen,
+  [ 6] 🚶 | das ging in den großen Wald,
+  [ 6] 👩‍🍼 | weil seine Mutter ihm gesagt hatte,
+  [ 5] 👵 | dass die Großmutter krank sei
+  [ 4]    | und dringend Hilfe brauche.
+  ------------------------------------------------------------
+  [ 5] 👑 | Der König hatte drei Töchter,
+  [ 4] ✨ | die alle schön waren,
+  [ 6] 🌱 | aber die jüngste war so schön,
+  [ 6] ☀️ | dass die Sonne selber sich verwunderte,
+  [ 6]    | sooft sie ihr ins Gesicht schien.
+  ------------------------------------------------------------
+  [ 5] 🌆 | Als es nun Abend wurde
+  [12] 🐺 | und der Wolf noch immer vor der Tür des kleinen Hauses saß,
+  [ 6] 😨 | fürchteten sich die sieben Geißlein sehr.
+  ------------------------------------------------------------
+  [ 4] 🐶 | Der Hund lief weg.
+  ------------------------------------------------------------
+
+failures: 12
