@@ -48,6 +48,38 @@ for level in $LEVELS; do
     --level "$level" --out "$OUT/de/birnbaum_${level}.json"
 done
 
+# ---- Frankenstein; or, The Modern Prometheus (en)
+for level in $LEVELS; do
+  python3 chunk.py --in sources/frankenstein_en.txt --lang en \
+    --id frankenstein --title "Frankenstein; or, The Modern Prometheus" \
+    --skip-until '^Letter 1\s*$' \
+    --level "$level" --out "$OUT/en/frankenstein_${level}.json"
+done
+
+# ---- The Velveteen Rabbit (en)
+for level in $LEVELS; do
+  python3 chunk.py --in sources/velveteen_rabbit_en.txt --lang en \
+    --id velveteen --title "The Velveteen Rabbit" \
+    --skip-until '^HERE was once a velveteen rabbit' \
+    --level "$level" --out "$OUT/en/velveteen_${level}.json"
+done
+
+# ---- Heidi kann brauchen, was es gelernt hat (de)
+for level in $LEVELS; do
+  python3 chunk.py --in sources/heidi_kann_brauchen_de.txt --lang de \
+    --id heidi --title "Heidi kann brauchen, was es gelernt hat" \
+    --skip-until '^Reisezurüstungen\n\nDer freundliche' \
+    --level "$level" --out "$OUT/de/heidi_${level}.json"
+done
+
+# ---- Also sprach Zarathustra (de)
+for level in $LEVELS; do
+  python3 chunk.py --in sources/zarathustra_de.txt --lang de \
+    --id zarathustra --title "Also sprach Zarathustra" \
+    --skip-until '^Erster Theil\s*$' \
+    --level "$level" --out "$OUT/de/zarathustra_${level}.json"
+done
+
 # ---- library index
 cat > "$OUT/books.json" <<'JSON'
 {
@@ -80,6 +112,38 @@ cat > "$OUT/books.json" <<'JSON'
       "id": "birnbaum",
       "title": "Unterm Birnbaum",
       "author": "Theodor Fontane",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "frankenstein",
+      "title": "Frankenstein; or, The Modern Prometheus",
+      "author": "Mary Wollstonecraft Shelley",
+      "lang": "en",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "velveteen",
+      "title": "The Velveteen Rabbit",
+      "author": "Margery Williams",
+      "lang": "en",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "heidi",
+      "title": "Heidi kann brauchen, was es gelernt hat",
+      "author": "Johanna Spyri",
+      "lang": "de",
+      "levels": ["starter", "beginner", "intermediate", "advanced"],
+      "source": "Project Gutenberg"
+    },
+    {
+      "id": "zarathustra",
+      "title": "Also sprach Zarathustra",
+      "author": "Friedrich Wilhelm Nietzsche",
       "lang": "de",
       "levels": ["starter", "beginner", "intermediate", "advanced"],
       "source": "Project Gutenberg"
