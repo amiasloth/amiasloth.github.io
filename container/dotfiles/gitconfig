@@ -17,7 +17,7 @@
 [credential]
 	# gh installs itself as the HTTPS credential helper once you `gh auth login`
 	# (or set GH_TOKEN in the environment) — no SSH key needed in the container.
-	helper =
+	helper = !gh auth git-credential
 # The repo remote uses a host-side multi-account SSH alias
 # (git@amiasloth.github.com:amiasloth/amiasloth.github.io.git) defined in the
 # HOST ~/.ssh/config, which isn't mounted into the container. Rewrite it (and
