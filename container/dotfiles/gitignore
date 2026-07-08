@@ -1,0 +1,5 @@
+# harness ~/.gitignore — global ignores (core.excludesfile)
+.DS_Store
+*.swp
+*.swo
+*~

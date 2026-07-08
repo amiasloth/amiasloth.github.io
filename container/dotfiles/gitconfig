@@ -1,0 +1,35 @@
+# audit-toolkit — harness ~/.gitconfig (baked into the image; non-secret).
+# Identity is NOT a token — set it here once (tracked). Tokens live in host/secrets.env.
+# The entrypoint runs `gh auth setup-git` so pushes over HTTPS use GH_TOKEN automatically.
+[user]
+	name = exploitabilityexplorer
+	email = exploitabilityexplorer@proton.me
+[init]
+	defaultBranch = main
+[pull]
+	ff = only
+[push]
+	default = current
+	autoSetupRemote = true
+[core]
+	editor = vim
+	excludesfile = ~/.gitignore
+[fetch]
+	prune = true
+[credential]
+	# gh installs itself as the HTTPS credential helper at runtime (see entrypoint).
+	helper =
+# Route GitHub SSH remotes over HTTPS *inside the harness only*. The harness has
+# no GitHub SSH key (its one ~/.ssh key is the harness->sandbox `sbx` key) and
+# `gh auth setup-git` authenticates only https://github.com/ URLs — so an SSH
+# remote (esp. a host-side multi-account alias like git@<acct>.github.com:, which
+# is defined in the HOST ~/.ssh/config that isn't mounted here) makes `git pull`/
+# `push` fail while `git status` (local-only) still works. These rewrites redirect
+# such URLs to HTTPS so the GH_TOKEN credential helper handles them. Baked in the
+# image, so it never touches the shared repo .git/config the host relies on.
+# Add more `insteadOf` lines here if you use other host aliases.
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+	insteadOf = ssh://git@github.com/
+	insteadOf = git@exploitabilityexplorer.github.com:
+	insteadOf = ssh://git@exploitabilityexplorer.github.com/

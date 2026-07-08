@@ -1,0 +1,60 @@
+# audit-toolkit — harness .bashrc additions (appended to the base .bashrc at build time)
+# The harness is the "brain": file + project management (git/gh/vim/tmux). No heavy tools.
+# You exec into this shell (`podman exec -it harness-<t> bash`), so make it feel like home.
+
+# --- shell behaviour -------------------------------------------------------
+set -o vi                         # vi keybindings at the prompt
+shopt -s globstar                 # ** recurses
+shopt -s histappend
+export HISTSIZE=100000 HISTFILESIZE=200000
+export HISTCONTROL=ignoreboth
+
+# --- editor ----------------------------------------------------------------
+export VISUAL=vim
+export EDITOR="$VISUAL"
+
+# --- PATH ------------------------------------------------------------------
+# Claude Code native installer drops the binary in ~/.local/bin; harness helpers (sbx,
+# memory.sh, kickoff.sh) are mounted at /toolkit/harness/bin. Keep both ahead of system dirs.
+export PATH="$HOME/.local/bin:/toolkit/harness/bin:$PATH"
+
+# --- per-audit chain config ------------------------------------------------
+# Source the single in-repo config (/project/config.env) so every operator shell
+# has CHAIN_ID / ERPC_URL / ETH_RPC_URL / PINNED_BLOCK. This is why
+# `echo $CHAIN_ID` / `echo $ERPC_URL` now show the audit's chain (they used to be
+# empty — the entrypoint's export never reached `podman exec` sessions). Safe to
+# source before kickoff.sh has written config.env: it just defaults to mainnet.
+[ -f /toolkit/harness/bin/audit-env.sh ] && . /toolkit/harness/bin/audit-env.sh
+
+# --- git-aware prompt ------------------------------------------------------
+# green = clean, yellow = ahead of upstream, red = dirty. Tagged [harness] so you always
+# know which box you're in when exec'd.
+__set_my_prompt() {
+    local RED="\033[0;31m" GREEN="\033[0;32m" YELLOW="\033[0;33m" NOCOLOR="\033[0m"
+    local git_modified_color="\[${GREEN}\]"
+    if git status 2>/dev/null | grep -q "Your branch is ahead"; then
+        git_modified_color="\[${YELLOW}\]"
+    fi
+    if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+        git_modified_color="\[${RED}\]"
+    fi
+    local git_branch
+    git_branch=$(git branch --show-current 2>/dev/null)
+    [ -n "$git_branch" ] && git_branch="$git_modified_color($git_branch)\[${NOCOLOR}\] "
+    PS1="\[\033[01;36m\][harness]\[\033[01;32m\] \u \[\033[01;34m\]\w\[\033[00m\] ${git_branch}\[\033[01;32m\]\$ \[\033[00m\]"
+}
+PROMPT_COMMAND='__set_my_prompt'
+
+# --- git helper ------------------------------------------------------------
+mycommit() {
+    local msg="$1"
+    git add -A
+    git commit -m "$msg"
+    git push
+}
+
+# --- convenience aliases ---------------------------------------------------
+alias ll='ls -alF'
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph --decorate -20'
