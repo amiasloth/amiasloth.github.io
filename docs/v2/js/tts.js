@@ -12,11 +12,32 @@
   const synth = global.speechSynthesis || null;
   let voices = [];
   let current = null;              // keep a ref so GC can't eat the utterance
+  let unlocked = false;
 
   function refresh() { if (synth) voices = synth.getVoices() || []; }
   if (synth) {
     refresh();
     synth.onvoiceschanged = refresh;
+  }
+
+  // iOS requires the FIRST speak() of a session to happen inside a user
+  // gesture — a gestureless first utterance silently never starts (verified
+  // on device, probe B4: stuck for 5s with no onstart). After one in-gesture
+  // speak, gestureless speaks work for the whole session. Self-arm on the
+  // first tap anywhere so hands-free TTS is unlocked before it's needed.
+  function unlock() {
+    if (unlocked || !synth || synth.speaking) return;
+    unlocked = true;
+    try { synth.speak(new SpeechSynthesisUtterance("")); } catch (e) {}
+  }
+  if (synth) {
+    const arm = () => {
+      unlock();
+      document.removeEventListener("touchend", arm, true);
+      document.removeEventListener("click", arm, true);
+    };
+    document.addEventListener("touchend", arm, true);
+    document.addEventListener("click", arm, true);
   }
 
   function pickVoice(lang) {
@@ -32,6 +53,9 @@
 
   const TTS = {
     available() { return !!synth; },
+
+    /* Call from any user gesture to unlock gestureless TTS (idempotent). */
+    unlock,
 
     hasVoice(lang) { return !!pickVoice(lang); },
 

@@ -1,17 +1,25 @@
-/* Zzzpeak v2 — Check mode engine (Phase 04).
+/* Zzzpeak v2 — Check mode engine (Phase 04), reworked after device isolation.
+ * Evidence: docs/v2/STT_DEBUG_PLAN.md, device sessions 1–3 (probe B/B1/B3/B4).
  *
- * Owns the Web Speech API SpeechRecognition lifecycle and, where the
- * platform allows it, a concurrent MediaRecorder capture so the user's take
- * can be played back. Deliberately NOT built on LoopRecorder, but it obeys
- * the same iOS rules.
+ * WHAT THE PROBES PROVED (iPhone, real device):
+ *  - Cycling MediaRecorder per take on a live stream is the iOS poison:
+ *    recorder instance #2+ captures NOISE, and the churn cumulatively wedges
+ *    Safari's audio session (breaks recognition on later takes, survives
+ *    reload, only force-quit recovers). MediaRecorder is therefore GONE
+ *    from this file.
+ *  - Fresh SpeechRecognition per take, restarted with NO gesture on a
+ *    persistent mic stream, works — as long as nothing is cycled (probe B).
+ *  - Audio-element playback and TTS between takes are harmless, provided
+ *    each got its one-time unlock inside a user tap (probes B3/B4).
  *
- * PERSISTENT SESSION (the v1 trick): the getUserMedia mic stream is opened
- * ONCE (from the first user tap) and kept alive across phrases — released
- * only on reset() (leaving Check mode / page hidden). Each phrase reuses the
- * open stream: a fresh MediaRecorder + a fresh recognition, no re-acquiring
- * the mic. This is what lets the reader auto-continue hands-free WITHOUT a
- * tap per phrase, including on iOS Safari (verified with probe_continuous:
- * a no-gesture recognition restart on an already-open mic session works).
+ * DESIGN:
+ *  - PERSISTENT SESSION (the v1 trick): getUserMedia ONCE from the first
+ *    tap; the stream lives across phrases, released only on reset().
+ *  - ONE AudioContext per mic session (never per take — no churn). It
+ *    feeds BOTH the level meter and a ScriptProcessor PCM capture.
+ *  - Per take: gate the PCM capture on/off + one fresh recognition. The
+ *    take's audio becomes a small WAV blob — playable immediately, no
+ *    recorder involved.
  *
  * Scoring lives in match.js; this module only produces the transcript, its
  * alternatives, and (optionally) a playable take URL via onResult.
@@ -23,17 +31,31 @@
     "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAgD4AAAB9AAACABAAZGF0YQAAAAA=";
 
   var SR = global.SpeechRecognition || global.webkitSpeechRecognition || null;
+  var Ctx = global.AudioContext || global.webkitAudioContext || null;
 
-  function pickMime() {
-    if (typeof MediaRecorder === "undefined" || !MediaRecorder.isTypeSupported) return null;
-    var types = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"];
-    for (var i = 0; i < types.length; i++) {
-      try { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; } catch (e) {}
-    }
-    return "";
-  }
+  var MAX_TAKE_SECONDS = 20;   // hard cap on captured audio per take
 
   function noop() {}
+
+  // Float32 chunks -> 16-bit mono WAV blob.
+  function encodeWav(chunks, totalLen, rate) {
+    var buf = new ArrayBuffer(44 + totalLen * 2), v = new DataView(buf);
+    function str(o, s) { for (var i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); }
+    str(0, "RIFF"); v.setUint32(4, 36 + totalLen * 2, true); str(8, "WAVE"); str(12, "fmt ");
+    v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, rate, true); v.setUint32(28, rate * 2, true);
+    v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+    str(36, "data"); v.setUint32(40, totalLen * 2, true);
+    var off = 44;
+    for (var c = 0; c < chunks.length; c++) {
+      var ch = chunks[c];
+      for (var i = 0; i < ch.length; i++) {
+        var s = Math.max(-1, Math.min(1, ch[i]));
+        v.setInt16(off, s < 0 ? s * 0x8000 : s * 0x7fff, true); off += 2;
+      }
+    }
+    return new Blob([buf], { type: "audio/wav" });
+  }
 
   function Checker(opts) {
     opts = opts || {};
@@ -47,26 +69,33 @@
 
     this.state = "idle";
     this._rec = null;         // SpeechRecognition (per take)
-    this._mr = null;          // MediaRecorder (per take)
     this._stream = null;      // PERSISTENT mic stream (kept across takes)
-    this._chunks = [];
-    this._mime = pickMime();
-    this._url = null;
+    this._url = null;         // last take's WAV url
     this._safety = null;
     this._gen = 0;            // bumped each take/reset; stale callbacks bail
     this._finals = [];        // final alternative transcripts (best first)
     this._disabled = false;   // recognition service unavailable this session
-    this._degraded = false;   // concurrency failed on THIS take -> recognition only
-    this._ccFails = 0;        // consecutive concurrency failures (3 -> give up)
     this._canPlayback = !!(navigator.mediaDevices &&
-      navigator.mediaDevices.getUserMedia && typeof MediaRecorder !== "undefined");
+      navigator.mediaDevices.getUserMedia && Ctx);
+
+    // WebAudio graph — ONE per mic session, shared by meter + capture.
+    this._ctx = null;
+    this._graphStream = null; // the stream the graph was built on
+    this._srcNode = null;
+    this._proc = null;
+    this._sink = null;        // zero-gain node so the processor runs w/o feedback
+    this._analyser = null;
+    this._meterRAF = null;
+
+    // per-take PCM capture state
+    this._capturing = false;
+    this._capChunks = [];
+    this._capLen = 0;
 
     this.audio = new Audio();
     this.audio.setAttribute("playsinline", "");
     this.audio.preload = "auto";
     this._unlocked = false;
-
-    this._analyser = null; this._meterCtx = null; this._meterRAF = null;
   }
 
   Checker.isSupported = function () { return !!SR; };
@@ -78,9 +107,7 @@
     return map[lang.toLowerCase()] || lang;
   };
 
-  Checker.prototype.playbackEnabled = function () {
-    return this._canPlayback && !this._degraded && this._ccFails < 3;
-  };
+  Checker.prototype.playbackEnabled = function () { return this._canPlayback; };
   Checker.prototype.disabled = function () { return this._disabled; };
   Checker.prototype.hasTake = function () { return !!this._url; };
   Checker.prototype.micOpen = function () { return !!(this._stream && this._stream.active); };
@@ -91,39 +118,100 @@
     if (this._unlocked) return;
     this._unlocked = true;
     this.audio.src = SILENCE;
+    var self = this;
     var p = this.audio.play();
-    if (p && p.catch) p.catch(function () {});
+    // A failed unlock must NOT latch: reset so the next tap can try again.
+    if (p && p.catch) p.catch(function () { self._unlocked = false; });
   };
 
-  // ---- level meter (uses the persistent stream) ----
-  Checker.prototype._startMeter = function () {
-    if (!this.onLevel || !this._stream || this._analyser) return;
+  // ---- audio graph (one per mic session; NEVER cycled per take) ----
+  Checker.prototype._ensureGraph = function () {
+    if (!this._stream || !this._stream.active || !Ctx) return false;
+    if (this._ctx && this._graphStream === this._stream) return true;
+    this._closeGraph();                       // stream changed: rebuild once
     try {
-      var Ctx = global.AudioContext || global.webkitAudioContext;
-      this._meterCtx = new Ctx();
-      var src = this._meterCtx.createMediaStreamSource(this._stream);
-      this._analyser = this._meterCtx.createAnalyser();
+      this._ctx = new Ctx();
+      this._srcNode = this._ctx.createMediaStreamSource(this._stream);
+      this._analyser = this._ctx.createAnalyser();
       this._analyser.fftSize = 512;
-      src.connect(this._analyser);
-      var data = new Uint8Array(this._analyser.frequencyBinCount);
+      this._srcNode.connect(this._analyser);
+      this._proc = this._ctx.createScriptProcessor(4096, 1, 1);
+      this._sink = this._ctx.createGain();
+      this._sink.gain.value = 0;              // keep the processor pumping, no feedback
+      this._srcNode.connect(this._proc);
+      this._proc.connect(this._sink);
+      this._sink.connect(this._ctx.destination);
       var self = this;
-      var tick = function () {
-        if (!self._analyser) return;
-        self._analyser.getByteTimeDomainData(data);
-        var peak = 0;
-        for (var i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i] - 128) / 128);
-        if (self.onLevel) self.onLevel(self.state === "listening" ? peak : 0);
-        self._meterRAF = requestAnimationFrame(tick);
+      this._proc.onaudioprocess = function (e) {
+        if (!self._capturing || !self._ctx) return;
+        var d = e.inputBuffer.getChannelData(0);
+        if (self._capLen + d.length > self._ctx.sampleRate * MAX_TAKE_SECONDS) return;
+        self._capChunks.push(new Float32Array(d));
+        self._capLen += d.length;
       };
-      tick();
-    } catch (e) { /* best-effort */ }
+      this._graphStream = this._stream;
+      return true;
+    } catch (e) {                             // no capture this take; retry next take
+      this._closeGraph();
+      return false;
+    }
+  };
+
+  Checker.prototype._closeGraph = function () {
+    try { if (this._proc) { this._proc.onaudioprocess = null; this._proc.disconnect(); } } catch (e) {}
+    try { if (this._srcNode) this._srcNode.disconnect(); } catch (e) {}
+    try { if (this._sink) this._sink.disconnect(); } catch (e) {}
+    if (this._ctx && this._ctx.state !== "closed") { try { this._ctx.close().catch(noop); } catch (e) {} }
+    this._ctx = null; this._srcNode = null; this._proc = null; this._sink = null;
+    this._analyser = null; this._graphStream = null;
+  };
+
+  // ---- per-take capture gating ----
+  Checker.prototype._beginCapture = function () {
+    if (!this._canPlayback || !this._ensureGraph()) return;
+    if (this._ctx.state === "suspended") { try { this._ctx.resume().catch(noop); } catch (e) {} }
+    this._capChunks = []; this._capLen = 0;
+    this._capturing = true;
+    this._startMeter();
+  };
+
+  Checker.prototype._discardCapture = function () {
+    this._capturing = false;
+    this._capChunks = []; this._capLen = 0;
+  };
+
+  // End the capture and return a WAV object URL for the take (or null).
+  Checker.prototype._endCaptureUrl = function () {
+    this._capturing = false;
+    if (!this._capLen || !this._ctx) { this._discardCapture(); return null; }
+    var url = null;
+    try {
+      var blob = encodeWav(this._capChunks, this._capLen, this._ctx.sampleRate);
+      if (blob && blob.size) url = URL.createObjectURL(blob);
+    } catch (e) { /* no playback for this take */ }
+    this._discardCapture();
+    return url;
+  };
+
+  // ---- level meter (reads the session analyser; RAF only, no ctx churn) ----
+  Checker.prototype._startMeter = function () {
+    if (!this.onLevel || !this._analyser || this._meterRAF) return;
+    var self = this;
+    var data = new Uint8Array(this._analyser.frequencyBinCount);
+    var tick = function () {
+      if (!self._analyser) { self._meterRAF = null; return; }
+      self._analyser.getByteTimeDomainData(data);
+      var peak = 0;
+      for (var i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i] - 128) / 128);
+      if (self.onLevel) self.onLevel(self.state === "listening" ? peak : 0);
+      self._meterRAF = requestAnimationFrame(tick);
+    };
+    this._meterRAF = requestAnimationFrame(tick);
   };
 
   Checker.prototype._stopMeter = function () {
     if (this._meterRAF) cancelAnimationFrame(this._meterRAF);
-    this._meterRAF = null; this._analyser = null;
-    if (this._meterCtx && this._meterCtx.state !== "closed") this._meterCtx.close().catch(function () {});
-    this._meterCtx = null;
+    this._meterRAF = null;
     if (this.onLevel) this.onLevel(0);
   };
 
@@ -142,42 +230,36 @@
 
   // Mic failure policy: only a REAL permission denial is permanent. Anything
   // else (device busy, teardown race, transient iOS audio-session weirdness)
-  // is retried on a later take — a one-off hiccup must never disable
-  // playback or the persistent session for the whole visit.
+  // is retried on a later take.
   Checker.prototype._noteMicFail = function (err) {
     var name = err && err.name;
     if (name === "NotAllowedError" || name === "SecurityError") this._canPlayback = false;
   };
 
   // ---- public: begin one check take (call the first one from a user tap) ----
-  // Same start order on ALL platforms (concurrent capture + recognition is
-  // verified working on iOS):
-  //  - session already open: recorder + recognition, both sync;
-  //  - first take: stream -> recorder -> brief beat -> recognition.
-  // If a platform ever refuses a recognition start on this path, the
-  // not-allowed handler keeps the session alive and asks for a tap — it
-  // degrades per-take, never silently changes configured behavior.
+  //  - session already open: gate capture on + fresh recognition, both sync
+  //    (probe-verified: restarts on a live session need no gesture and no delay);
+  //  - first take: stream -> graph + capture -> brief beat -> recognition
+  //    (the beat matches the take-1 pattern that always worked on device).
   Checker.prototype.start = function () {
     if (!SR || this._disabled || this.state === "listening") return;
-    this._degraded = false;    // retry concurrency each take (until _ccFails caps)
     this._finals = [];
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
     var self = this, gen = this._gen;
-    if (this.playbackEnabled() && this._stream && this._stream.active) {
-      this._startRecorder(this._stream);
+    if (this._stream && this._stream.active) {
+      this._beginCapture();
       this._startRecognition();
       return;
     }
-    if (!this.playbackEnabled()) {
+    if (!this._canPlayback) {
       this._startRecognition();
       return;
     }
     this._ensureStream(gen).then(function (stream) {
       if (self._gen !== gen) return;
       if (stream) {
-        self._startRecorder(stream);
-        // brief beat so capture is really open before recognition
+        self._beginCapture();
         setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 120);
       } else {
         self._startRecognition();
@@ -186,18 +268,6 @@
       self._noteMicFail(err);
       if (self._gen === gen) self._startRecognition();
     });
-  };
-
-  Checker.prototype._startRecorder = function (stream) {
-    this._chunks = [];
-    try {
-      this._mr = this._mime ? new MediaRecorder(stream, { mimeType: this._mime })
-                            : new MediaRecorder(stream);
-    } catch (e) { this._mr = new MediaRecorder(stream); }
-    var self = this;
-    this._mr.ondataavailable = function (e) { if (e.data && e.data.size) self._chunks.push(e.data); };
-    try { this._mr.start(); } catch (e) {}
-    this._startMeter();
   };
 
   Checker.prototype._startRecognition = function () {
@@ -245,9 +315,8 @@
     }
     if (kind === "not-allowed") {
       // If we already hold a live mic stream, this is NOT a permission
-      // denial — it's iOS refusing a recognition start outside a gesture.
-      // Keep the persistent session alive (it's what makes hands-free work)
-      // and just ask for a tap.
+      // denial — it's iOS refusing a recognition start. Keep the persistent
+      // session alive (it's what makes hands-free work) and just ask for a tap.
       if (this._stream && this._stream.active) {
         this._endTakeIdle();
         this.onError("generic", "Tap ✓ to continue.");
@@ -262,63 +331,28 @@
       this.onError("no-speech", "Didn't hear anything — tap to try again.");
       return;
     }
-    // audio-capture / aborted / unknown: degrade THIS take (recognition
-    // alone). Concurrency is retried next take; 3 consecutive failures ->
-    // give up for the session; any success forgives past failures.
-    if (!this._degraded && (this._mr || this.playbackEnabled())) {
-      this._degraded = true;
-      this._ccFails++;
-      this._detachRec();
-      this._stopRecorder();
-      this._stopMeter();
-      this._gen++;
-      var self = this, gen = this._gen;
-      this.state = "listening";
-      setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 50);
-      return;
-    }
+    // aborted / audio-capture / unknown: end the take, keep the session.
+    // (The old degrade-and-restart machinery existed to dodge recorder
+    // interference; with no recorder there is nothing to degrade to, and its
+    // instant restart caused a second error on iOS — see the debug plan.)
     this._endTakeIdle();
     this.onError("generic", "Speech recognition failed — tap to try again.");
   };
 
   Checker.prototype._finalize = function () {
-    var self = this, gen = this._gen;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     var alternatives = [];
     for (var i = 0; i < this._finals.length; i++)
       for (var k = 0; k < this._finals[i].length; k++) alternatives.push(this._finals[i][k]);
     var transcript = alternatives.length ? alternatives[0] : "";
 
-    var done = function (takeUrl) {
-      if (self._gen !== gen) return;
-      self._detachRec();
-      self._stopMeter();                           // stream stays OPEN for the next phrase
-      self._set("idle");
-      // PERSISTENT SESSION: if we don't hold the mic yet (first take starts
-      // recognition-only so the tap gesture isn't wasted on getUserMedia),
-      // open it NOW — between takes, where it can't disturb recognition.
-      // This is what keeps hands-free auto-restart working on iPhone, and
-      // enables take playback from the next phrase on.
-      self._primeStream();
-      self.onResult({ transcript: transcript, alternatives: alternatives, takeUrl: takeUrl || null });
-    };
-
-    if (this._mr && this._mr.state !== "inactive") {
-      var mr = this._mr;
-      mr.onstop = function () {
-        var blob = self._chunks.length ? new Blob(self._chunks, { type: mr.mimeType || self._mime || "" }) : null;
-        self._mr = null;
-        if (blob && blob.size) {
-          self._ccFails = 0;                     // concurrency worked — forgive past failures
-          self._url = URL.createObjectURL(blob);
-          done(self._url);
-        }
-        else done(null);
-      };
-      try { mr.stop(); } catch (e) { self._mr = null; done(null); }
-    } else {
-      done(null);
-    }
+    this._detachRec();
+    this._stopMeter();
+    var url = this._endCaptureUrl();             // WAV for THIS take (or null)
+    if (url) this._url = url;
+    this._set("idle");                           // stream + graph stay OPEN for the next phrase
+    this._primeStream();                         // recognition-only first take: open the session now
+    this.onResult({ transcript: transcript, alternatives: alternatives, takeUrl: url || null });
   };
 
   // ---- public: stop the current recognition (ends the take normally) ----
@@ -334,7 +368,7 @@
     this._gen++;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     this._detachRec();
-    this._stopRecorder();
+    this._discardCapture();
     this._stopMeter();
     this.state = "idle";
     this.onState("idle");
@@ -343,7 +377,7 @@
   Checker.prototype._endTakeIdle = function () {
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     this._detachRec();
-    this._stopRecorder();
+    this._discardCapture();
     this._stopMeter();
     this._set("idle");
     this._primeStream();   // e.g. a silent first take must still open the session
@@ -364,7 +398,7 @@
     }, 300);
   };
 
-  // ---- public: play the last take (user tap) ----
+  // ---- public: play the last take ----
   Checker.prototype.playTake = function () {
     var self = this;
     return new Promise(function (resolve) {
@@ -374,7 +408,9 @@
       a.src = self._url;
       a.onended = function () { resolve(true); };
       var p = a.play();
-      if (p && p.catch) p.catch(function () { resolve(false); });
+      // A rejected play means the unlock is gone — reset it so the next
+      // user tap can restore playback (was a latched failure before).
+      if (p && p.catch) p.catch(function () { self._unlocked = false; resolve(false); });
     });
   };
 
@@ -386,28 +422,18 @@
     }
   };
 
-  Checker.prototype._stopRecorder = function () {
-    if (this._mr && this._mr.state !== "inactive") { try { this._mr.stop(); } catch (e) {} }
-    this._mr = null;
-    this._chunks = [];
-  };
-
   Checker.prototype._releaseStream = function () {
     if (this._stream) { this._stream.getTracks().forEach(function (t) { t.stop(); }); this._stream = null; }
   };
 
   // ---- public: full stop — release the mic (leaving Check mode / hidden) ----
-  // Also clears the transient failure counters, so toggling Check mode is a
-  // true clean slate. (_canPlayback stays: it only latches on a REAL
-  // permission denial; _disabled stays: the service won't come back.)
   Checker.prototype.reset = function () {
     this._gen++;
-    this._ccFails = 0;
-    this._degraded = false;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     this._detachRec();
-    this._stopRecorder();
+    this._discardCapture();
     this._stopMeter();
+    this._closeGraph();
     this._releaseStream();
     try { this.audio.pause(); } catch (e) {}
     this.audio.onended = null;
