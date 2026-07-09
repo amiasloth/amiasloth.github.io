@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<!--
+  Zzzpeak v2 — Phase 04 follow-up probe: HANDS-FREE recognition on iOS.
+
+  Question: can we get v1-style hands-free (no tap per phrase) for
+  SpeechRecognition, the way the loop keeps the mic alive? Two candidate
+  mechanisms are tested; run BOTH on the iPhone and report the summaries.
+
+    A · Continuous session (no restart)
+        One recognition started from a single tap, continuous = true.
+        Speak several phrases with pauses. If iOS keeps ONE session alive
+        and delivers a final result for each phrase -> hands-free works by
+        keeping the session open. If it fires `end` after the first phrase
+        -> iOS ignores continuous and this path fails.
+
+    B · Auto-restart on end (no gesture)
+        continuous = false, but when a session ends we call start() AGAIN
+        programmatically (no tap). If those restarts still produce results
+        -> hands-free works by restarting without a gesture. If a restart
+        errors (not-allowed) or goes silent -> iOS needs a tap, path fails.
+
+  If EITHER works, hands-free Check mode on iOS is achievable and the
+  checker can be reworked around it.
+
+  Bare, self-contained, linked from nowhere.  Open:
+    /v2/probe_continuous.html?lang=de-DE
+  iOS prereqs: Settings > Siri & Search > dictation ON, mic allowed, HTTPS.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zzzpeak hands-free STT probe</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:16px; background:#0f1115; color:#e6e8ec;
+    font:15px/1.45 -apple-system, system-ui, sans-serif; -webkit-text-size-adjust:100%; }
+  h1 { font-size:18px; margin:0 0 4px; }
+  .sub { color:#9aa0aa; font-size:13px; margin:0 0 12px; }
+  .caps { font-size:13px; margin:0 0 12px; padding:10px 12px; background:#171a20; border-radius:10px; }
+  .caps b { color:#fff; }
+  .row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; align-items:center; }
+  button { appearance:none; border:0; border-radius:999px; padding:12px 16px;
+    font-size:15px; font-weight:600; background:#2b6cff; color:#fff; }
+  button.sec { background:#2a2f3a; color:#e6e8ec; }
+  button:disabled { opacity:.4; }
+  label.chk { font-size:13px; color:#c7ccd6; display:flex; gap:6px; align-items:center; }
+  .summary { font-size:13px; padding:10px 12px; border-radius:10px; background:#171a20;
+    margin-bottom:12px; white-space:pre-wrap; }
+  .big { font:800 15px -apple-system, system-ui, sans-serif; }
+  .ok { color:#4ade80; } .bad { color:#f87171; } .warn { color:#fbbf24; }
+  #log { background:#05070b; border:1px solid #1c2230; border-radius:10px; padding:10px;
+    height:44vh; overflow:auto; font:12px/1.4 ui-monospace, Menlo, monospace;
+    white-space:pre-wrap; word-break:break-word; }
+  .note { color:#6b7280; font-size:12px; margin-top:12px; }
+  audio { width:100%; margin-top:10px; }
+</style>
+</head>
+<body>
+  <h1>Hands-free recognition probe</h1>
+  <p class="sub">Phase 04 follow-up · lang=<span id="langlabel">?</span></p>
+  <div class="caps" id="caps">checking…</div>
+
+  <div class="row">
+    <button id="btnA">A · Continuous (no restart)</button>
+    <button id="btnB" class="sec">B · Auto-restart on end</button>
+    <button id="btnStop" class="sec" disabled>Stop</button>
+  </div>
+  <div class="row">
+    <label class="chk"><input type="checkbox" id="withRec"> also run recorder concurrently</label>
+    <button id="btnPlay" class="sec" disabled>▶ Play recording</button>
+    <button id="btnClear" class="sec">Clear</button>
+  </div>
+
+  <div class="summary" id="summary">No run yet. Speak 3–4 short phrases with a ~2s pause between each.</div>
+  <audio id="player" controls playsinline></audio>
+  <div id="log"></div>
+
+  <p class="note">
+    Goal: with ONE tap, capture several phrases. Read the summary counts back:
+    phrases captured, session-end count, and (mode B) whether no-gesture
+    restarts produced results. iOS: dictation ON, mic allowed, HTTPS.
+  </p>
+
+<script>
+(function () {
+  "use strict";
+  var LANG = new URLSearchParams(location.search).get("lang") || "de-DE";
+  document.getElementById("langlabel").textContent = LANG;
+
+  var elLog = document.getElementById("log"), elSum = document.getElementById("summary"),
+      elCaps = document.getElementById("caps"),
+      btnA = document.getElementById("btnA"), btnB = document.getElementById("btnB"),
+      btnStop = document.getElementById("btnStop"), btnPlay = document.getElementById("btnPlay"),
+      btnClear = document.getElementById("btnClear"), withRec = document.getElementById("withRec"),
+      player = document.getElementById("player");
+
+  var t0 = 0;
+  function ms() { return t0 ? String(Math.round(performance.now() - t0)).padStart(6, " ") : "   ·  "; }
+  function log(m, c) { var d = document.createElement("div"); d.textContent = ms() + "ms  " + m;
+    if (c) d.className = c; elLog.appendChild(d); elLog.scrollTop = elLog.scrollHeight; }
+  btnClear.onclick = function () { elLog.textContent = ""; };
+
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var hasMR = typeof MediaRecorder !== "undefined";
+  var hasGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  function pickMime() {
+    if (!hasMR || !MediaRecorder.isTypeSupported) return null;
+    var ts = ["audio/mp4","audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus"];
+    for (var i=0;i<ts.length;i++){ try{ if(MediaRecorder.isTypeSupported(ts[i])) return ts[i]; }catch(e){} }
+    return "";
+  }
+  var MIME = pickMime();
+  elCaps.innerHTML = "SpeechRecognition: <b class='"+(SR?"ok'>yes":"bad'>NO")+"</b>"+
+    " · recorder mime: <b>"+(MIME===null?"none":(MIME||"default"))+"</b><br>UA: <b>"+navigator.userAgent+"</b>";
+  if (!SR) { btnA.disabled = btnB.disabled = true;
+    elSum.innerHTML = "<span class='bad'>SpeechRecognition unavailable on this browser.</span>"; }
+
+  // ---- shared run state ----
+  var rec=null, mr=null, stream=null, chunks=[], lastUrl=null, safety=null;
+  var mode=null, gen=0;
+  var phrases=0, ends=0, restarts=0, restartResults=0, errors=[], stopped=false;
+  var RESTART_CAP=6, sawResultThisSession=false;
+
+  function setBusy(b){ btnA.disabled=b||!SR; btnB.disabled=b||!SR; btnStop.disabled=!b; withRec.disabled=b; }
+
+  function releaseRec(){ if(mr&&mr.state!=="inactive"){try{mr.stop();}catch(e){}} }
+  function releaseStream(){ if(stream){stream.getTracks().forEach(function(tr){tr.stop();});stream=null;} }
+
+  function startRecorder(after){
+    if(!(withRec.checked&&hasGUM&&hasMR)){ after(); return; }
+    navigator.mediaDevices.getUserMedia({audio:true}).then(function(s){
+      stream=s; chunks=[];
+      try{ mr=MIME?new MediaRecorder(s,{mimeType:MIME}):new MediaRecorder(s);}catch(e){mr=new MediaRecorder(s);}
+      mr.ondataavailable=function(e){ if(e.data&&e.data.size) chunks.push(e.data); };
+      mr.start(); log("recorder started ("+(mr.mimeType||"?")+")","ok");
+      setTimeout(after, 200);
+    }).catch(function(err){ log("recorder getUserMedia failed: "+(err&&err.name||err),"warn"); after(); });
+  }
+
+  function newRecognition(){
+    var r = new SR();
+    r.lang = LANG;
+    r.continuous = (mode==="A");
+    r.interimResults = true;
+    try{ r.maxAlternatives = 3; }catch(e){}
+    r.onstart = function(){ log("recognition.start ("+(mode==="A"?"continuous":"single")+")"); };
+    r.onspeechstart = function(){ log("speechstart"); };
+    r.onspeechend = function(){ log("speechend"); };
+    r.onresult = function(e){
+      for(var i=e.resultIndex;i<e.results.length;i++){
+        var res=e.results[i];
+        if(res.isFinal){ phrases++; sawResultThisSession=true; if(mode==="B"&&restarts>0) restartResults++;
+          log("FINAL #"+phrases+": \""+res[0].transcript.trim()+"\"  conf="+
+            (res[0].confidence!=null?res[0].confidence.toFixed(2):"?"), "ok");
+        } else { log("  interim: \""+res[0].transcript.trim()+"\""); }
+      }
+    };
+    r.onnomatch = function(){ log("nomatch","warn"); };
+    r.onerror = function(e){ errors.push(e.error||"error");
+      log("ERROR: "+(e.error||"?")+(e.message?" — "+e.message:""), "bad"); };
+    r.onend = function(){
+      ends++;
+      log("recognition.end (#"+ends+")");
+      if(stopped){ finish("stopped"); return; }
+      if(mode==="A"){
+        // continuous ended on its own -> the session did NOT stay alive
+        finish("session ended on its own");
+        return;
+      }
+      // mode B: programmatic restart with NO user gesture
+      if(restarts < RESTART_CAP){
+        restarts++;
+        log("→ auto-restart #"+restarts+" (NO gesture)…","warn");
+        sawResultThisSession=false;
+        try{ rec = newRecognition(); rec.start(); }
+        catch(err){ log("restart start() threw: "+err,"bad"); finish("restart threw"); }
+      } else {
+        finish("restart cap reached");
+      }
+    };
+    return r;
+  }
+
+  function begin(m){
+    mode=m; t0=performance.now(); gen++;
+    phrases=0; ends=0; restarts=0; restartResults=0; errors=[]; stopped=false; sawResultThisSession=false;
+    chunks=[]; btnPlay.disabled=true;
+    setBusy(true);
+    elSum.textContent = (m==="A"
+      ? "Mode A: one continuous session. Speak 3–4 phrases with pauses…"
+      : "Mode B: auto-restart on end. Speak 3–4 phrases with pauses…");
+    log("=== RUN "+m+" ===");
+    startRecorder(function(){
+      try{ rec = newRecognition(); rec.start(); }
+      catch(err){ log("start() threw: "+err,"bad"); finish("start threw"); }
+      if(safety) clearTimeout(safety);
+      safety = setTimeout(function(){ log("safety timeout (60s)"); doStop(); }, 60000);
+    });
+  }
+
+  function finish(reason){
+    if(safety){ clearTimeout(safety); safety=null; }
+    setBusy(false);
+    // build recording blob if any
+    var doSummary = function(){
+      var verdict;
+      if(mode==="A"){
+        verdict = phrases>=2 && ends<=1
+          ? "<span class='ok'>HANDS-FREE OK — one session captured "+phrases+" phrases.</span>"
+          : phrases>=2
+            ? "<span class='warn'>Captured "+phrases+" phrases but session ended "+ends+"×.</span>"
+            : "<span class='bad'>Session did NOT stay alive ("+phrases+" phrase, "+ends+" end). Continuous ignored.</span>";
+      } else {
+        verdict = restartResults>=1
+          ? "<span class='ok'>HANDS-FREE OK — no-gesture restart produced "+restartResults+" result(s).</span>"
+          : "<span class='bad'>No-gesture restart produced NO results ("+restarts+" restarts tried). iOS needs a tap.</span>";
+      }
+      elSum.innerHTML =
+        "<b>Run "+mode+" ("+reason+")</b>\n"+
+        "phrases captured: <b>"+phrases+"</b>   session-ends: <b>"+ends+"</b>"+
+        (mode==="B"?("   restarts: <b>"+restarts+"</b>   restart-results: <b>"+restartResults+"</b>"):"")+"\n"+
+        "errors: "+(errors.length?("<span class='bad'>"+errors.join(", ")+"</span>"):"none")+"\n\n"+
+        "<span class='big'>Verdict: "+verdict+"</span>";
+      log("— end of run ("+reason+") —");
+    };
+    if(mr && mr.state!=="inactive"){
+      mr.onstop=function(){ var b=chunks.length?new Blob(chunks,{type:MIME||""}):null;
+        if(b&&b.size){ if(lastUrl)URL.revokeObjectURL(lastUrl); lastUrl=URL.createObjectURL(b);
+          player.src=lastUrl; btnPlay.disabled=false; log("recording blob "+b.size+"b","ok"); }
+        releaseStream(); doSummary(); };
+      try{ mr.stop(); }catch(e){ releaseStream(); doSummary(); }
+    } else { releaseStream(); doSummary(); }
+  }
+
+  function doStop(){ stopped=true;
+    if(rec){ try{ rec.stop(); }catch(e){ finish("manual stop"); } } else finish("manual stop"); }
+
+  btnA.onclick = function(){ begin("A"); };
+  btnB.onclick = function(){ begin("B"); };
+  btnStop.onclick = doStop;
+  btnPlay.onclick = function(){ if(lastUrl) player.play().catch(function(e){ log("playback blocked: "+e,"bad"); }); };
+})();
+</script>
+</body>
+</html>
