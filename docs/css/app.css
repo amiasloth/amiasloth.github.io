@@ -63,7 +63,7 @@ header.bar a, header.bar button.iconbtn {
 .brand .zzz { color: var(--accent); }
 
 /* ---------- library ---------- */
-.wrap { max-width: 640px; margin: 0 auto; padding: 0 16px calc(24px + var(--safe-b)); }
+.wrap { max-width: 640px; margin: 0 auto; padding: 0 16px calc(72px + var(--safe-b)); }
 .tagline { color: var(--dim); font-size: 14px; margin: 4px 0 20px; text-align: center; }
 .bookcard {
   display: block; background: var(--card); border-radius: var(--radius);
