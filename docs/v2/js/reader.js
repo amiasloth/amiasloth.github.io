@@ -93,6 +93,12 @@
         onInterim: onCheckInterim,
         onResult: onCheckResult,
         onError: onCheckError,
+        onSpeechStart: () => {
+          // Hide the text only once you actually start speaking (like the
+          // loop's VAD) — NOT the instant listening begins, so you can read.
+          const hide = sentenceStep ? (prefs.hideText && !prefs.sentenceShowText) : prefs.hideText;
+          if (hide) veil(true);
+        },
         onLevel: (v) => {
           el.ring.style.opacity = v > 0.02 ? Math.min(1, v * 3).toFixed(2) : 0;
           el.ring.style.transform = "scale(" + (1 + v * 0.25).toFixed(3) + ")";
@@ -415,25 +421,34 @@
     else { el.recIcon.textContent = "●"; el.recLabel.textContent = "record"; }
   }
 
-  // Begin a check take. `auto` = started without a fresh user gesture
-  // (hands-free after a pass); such starts may be blocked on iOS — see
-  // onCheckResult / onCheckError for the graceful fallback.
+  // Begin a check take. `auto` = started hands-free (no fresh user gesture),
+  // e.g. auto-retry or auto-advance. Text is NOT blurred here — it blurs on
+  // speech start (see onSpeechStart) so you can read until you speak.
+  // NOTE: hands-free auto-starts have no user gesture; iOS Safari requires a
+  // tap to begin dictation, so on iOS these fall back to "Tap ✓" (the mic
+  // simply won't arm itself). On desktop they run fully hands-free.
   function startCheckTake(auto) {
     if (!checker) return;
     checkAuto = !!auto;
-    clearCheckDiff();
-    if (prefs.hideText) veil(true);   // recall: text stays hidden while listening
-    status("Listening… say the phrase.");
-    checker.start();
+    TTS.stop();
+    rec.reset();                 // the two mic systems never run at once (harmless if idle)
+    checker._unlock();           // best-effort audio unlock for take playback
+    clearCheckDiff();            // clean, readable text while we wait for speech
+    const listen = () => {
+      if (!checkActive()) return;   // bailed out during TTS
+      status("Listening… say the phrase.");
+      checker.start();
+    };
+    if (prefs.ttsFirst && TTS.available()) {   // "Hear the phrase first"
+      status("Listen…");
+      TTS.speak(curText(), meta.lang, prefs.ttsRate).then(listen);
+    } else listen();
   }
 
-  // A check take from a user tap: release the loop mic, unlock playback,
-  // then listen. Tapping again while listening stops early.
+  // A check take from a user tap. Tapping again while listening stops early.
   function onCheckTap() {
     if (!checker) return;
     if (checker.state === "listening") { checker.stop(); return; }
-    rec.reset();                 // the two mic systems never run at once
-    checker._unlock();           // inside the tap: unlock playback of the take
     startCheckTake(false);
   }
 
@@ -450,9 +465,10 @@
 
   function onCheckResult(res) {
     const auto = checkAuto;
+    veil(false);
     if (!res.transcript) {   // nothing recognized: silence, or iOS blocked an auto-start
-      // Never counts as a retry. On an auto-start that couldn't arm the mic,
-      // just invite a tap; on a manual take, it means we didn't hear speech.
+      // Never counts as a retry and never auto-loops. On an auto-start that
+      // couldn't arm the mic, just invite a tap; manually, we didn't hear you.
       status(auto ? "Tap ✓ to continue." : "Didn't catch that — tap ✓ to try again.");
       return;
     }
@@ -463,34 +479,47 @@
       if (sc.score > best.score) best = sc;
     });
     renderDiff(best.tokens);
-    const pct = Math.round(best.score * 100);
-    if (best.score >= Match.PASS) {
-      checkRetry = 0;
-      status("✓ " + pct + "% — you said it.");
-      const after = () => checkAfter();
-      if (res.takeUrl && checker.playbackEnabled()) checker.playTake().then(after);
-      else after();
-    } else {
+    const passed = best.score >= Match.PASS;
+    if (passed) { checkRetry = 0; status("✓ " + Math.round(best.score * 100) + "% — you said it."); }
+    else {
       checkRetry++;
-      if (checkRetry >= 3) status("Revealed — tap › to move on.");   // reveal + let them pass
-      else status("Try again — " + (3 - checkRetry) + " left.");
+      status(checkRetry >= 3 ? "Revealed — moving on." : "Try again — " + (3 - checkRetry) + " left.");
     }
+    // "Compare with the voice": on a pass, hear your take then the phrase;
+    // on a miss, hear the correct phrase so you know the target.
+    const speakModel = () => (prefs.abCompare && TTS.available())
+      ? TTS.speak(curText(), meta.lang, prefs.ttsRate) : Promise.resolve();
+    const finish = () => checkNext(passed);
+    if (passed && res.takeUrl && checker.playbackEnabled())
+      checker.playTake().then(speakModel).then(finish);   // take -> model -> next
+    else
+      speakModel().then(finish);
   }
 
-  // After a PASS the practice settings apply just like the loop:
-  //   after = repeat -> listen to the same phrase again,
-  //   after = next   -> advance and listen to the next one (hands-free),
-  //   after = stop   -> stay put, diff stays up.
-  // "Record when you go to the next phrase" is handled in go() for manual
-  // navigation. NOTE: these auto-starts have no user gesture; on iOS that
-  // may be blocked — startCheckTake/onCheckResult degrade to "Tap ✓" then.
-  function checkAfter() {
-    if (prefs.after === "repeat") startCheckTake(true);
-    else if (prefs.after === "next") {
+  // What happens after a scored take — driven entirely by the practice
+  // settings, so Check mode is as hands-free as the loop:
+  //   after = stop   -> wait for a tap (fully manual, both pass and miss).
+  //   after = repeat -> pass: listen to the same phrase again;
+  //                     miss: auto-retry (until the 3-try cap, then reveal).
+  //   after = next   -> pass: advance and listen to the next phrase;
+  //                     miss: auto-retry, and after the 3rd miss reveal +
+  //                           advance to keep moving.
+  // (On iOS the auto-listen can't arm the mic without a tap — see
+  // startCheckTake; the flow degrades to a "Tap ✓" prompt there.)
+  function checkNext(passed) {
+    if (prefs.after === "stop") return;
+    const advance = () => {
       if (go(1, { keepMic: true })) startCheckTake(true);
       else status(review ? "End of the deck — well done!" : "End of the book — well read!");
+    };
+    if (passed) {
+      if (prefs.after === "repeat") startCheckTake(true);
+      else advance();                       // "next"
+      return;
     }
-    // "stop": remain idle
+    if (checkRetry < 3) { startCheckTake(true); return; }   // hands-free auto-retry
+    if (prefs.after === "next") advance();                  // revealed -> move on
+    // after = repeat on reveal: leave it revealed for a tap (no endless retries)
   }
 
   function onCheckError(kind, msg) {
@@ -687,6 +716,7 @@
     if (name === "checkMode") {   // switching modes: hand the mic over cleanly
       if (checker) checker.reset();
       rec.reset();
+      TTS.stop();
       checkRetry = 0;
       clearCheckDiff();
       paintIdleButton();

@@ -163,3 +163,36 @@ Caveat noted during testing: playback was unreliable **only** when routed
 through a Bluetooth mic/headset (audio-session routing quirk, not a code
 bug); on the built-in mic/speaker record + playback worked cleanly. Not a
 blocker; worth a one-line UI hint if Bluetooth issues recur.
+
+## Settings behaviour (Check mode follows the practice config)
+
+Check mode honours the same settings as the loop:
+
+- **Hide text while you speak** — the phrase stays readable until you
+  actually start speaking (blurs on the recognizer's `speechstart`, like
+  the loop's VAD), then the diff reveals it. It does NOT blur the instant
+  listening begins.
+- **Hear the phrase first** (`ttsFirst`) — TTS speaks the phrase, then the
+  check take begins.
+- **Compare with the voice** (`abCompare`) — on a pass, your take plays then
+  the phrase is spoken; on a miss, the correct phrase is spoken so you hear
+  the target.
+- **After playback** drives the hands-free flow:
+  - `stop` → fully manual (tap for every take, pass or miss).
+  - `repeat` → pass: listen to the same phrase again; miss: auto-retry until
+    the 3-try cap, then reveal and wait for a tap.
+  - `next` → pass: advance and listen to the next phrase; miss: auto-retry,
+    and after the 3rd miss reveal + advance to keep moving.
+- **Record when you go to the next phrase** — a manual next tap auto-starts
+  the next check take.
+
+### iOS limitation (important)
+
+All of the above is fully hands-free on **desktop**. On **iOS Safari**,
+Apple gates `SpeechRecognition.start()` on a user gesture — the mic will not
+arm itself without a tap. So on iOS the hands-free auto-listen (auto-retry,
+auto-advance-and-listen) cannot begin dictation on its own; the flow
+advances/scores but then shows **"Tap ✓ to continue"** instead of listening.
+Gesture-backed starts (the ✓ button, and "record on next" via a next tap)
+work on iOS. This is a platform constraint with no known browser workaround,
+not a bug.

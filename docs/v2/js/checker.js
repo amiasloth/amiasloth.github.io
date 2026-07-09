@@ -38,6 +38,7 @@
     this.lang = Checker.bcp(opts.lang || "en");
     this.onState = opts.onState || noop;     // (state)
     this.onInterim = opts.onInterim || noop; // (interimText)
+    this.onSpeechStart = opts.onSpeechStart || null; // fires when speech is detected
     this.onLevel = opts.onLevel || null;     // (0..1)
     this.onResult = opts.onResult || noop;   // ({transcript, alternatives, takeUrl})
     this.onError = opts.onError || noop;     // (kind, message)  kind: mic|no-speech|unavailable|generic
@@ -181,6 +182,7 @@
       if (interim) self.onInterim(interim.trim());
     };
 
+    rec.onspeechstart = function () { if (self._gen === gen && self.onSpeechStart) self.onSpeechStart(); };
     rec.onerror = function (e) { if (self._gen === gen) self._onError(e.error || "generic"); };
     rec.onend = function () { if (self._gen === gen) self._finalize(); };
 
