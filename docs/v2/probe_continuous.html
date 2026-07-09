@@ -180,8 +180,22 @@
       function(e){ log("between-tone play() REJECTED: "+(e&&e.name||e),"bad"); fin(); });
     setTimeout(fin, 2000);                // never wedge the run on a silent element
   }
+  function unlockTTS(){                  // must run synchronously inside the tap
+    if (!("speechSynthesis" in window)){ log("speechSynthesis unavailable","warn"); return; }
+    try {
+      var n = 0; try { n = speechSynthesis.getVoices().length; } catch(e){}
+      var u = new SpeechSynthesisUtterance("");   // the empty-utterance unlock trick
+      u.onstart = function(){ log("TTS unlock started","ok"); };
+      u.onend = function(){ log("TTS unlock ended (voices="+n+")","ok"); };
+      u.onerror = function(e){ log("TTS unlock ERROR: "+(e.error||"?"),"bad"); };
+      speechSynthesis.cancel();
+      speechSynthesis.speak(u);
+      log("TTS unlock queued (voices="+n+")");
+    } catch(e){ log("TTS unlock threw: "+e,"bad"); }
+  }
   function speakBetween(cb){             // B4: the app's ttsFirst/abCompare pattern
-    var done = false, fin = function(){ if(done) return; done = true; cb(); };
+    var done = false, fin = function(why){ if(done) return; done = true;
+      if(why){ log(why,"bad"); try{ speechSynthesis.cancel(); }catch(e){} } cb(); };
     if (!("speechSynthesis" in window)){ log("speechSynthesis unavailable","warn"); fin(); return; }
     try {
       speechSynthesis.cancel();
@@ -189,10 +203,12 @@
       u.lang = LANG;
       u.onstart = function(){ log("between-TTS speaking (activation="+activation()+")"); };
       u.onend = function(){ log("between-TTS ended","ok"); fin(); };
-      u.onerror = function(e){ log("between-TTS ERROR: "+(e.error||"?"),"bad"); fin(); };
+      u.onerror = function(e){ fin("between-TTS ERROR: "+(e.error||"?")); };
       speechSynthesis.speak(u);
-    } catch(e){ log("between-TTS threw: "+e,"bad"); fin(); }
-    setTimeout(fin, 5000);                // never wedge the run on a silent utterance
+      setTimeout(function(){ if(!done) log("  tts state: speaking="+speechSynthesis.speaking+
+        " pending="+speechSynthesis.pending+" paused="+speechSynthesis.paused); }, 500);
+    } catch(e){ fin("between-TTS threw: "+e); }
+    setTimeout(function(){ fin(done?null:"between-TTS TIMEOUT — never started"); }, 5000);
   }
 
   // ---- shared run state ----
@@ -315,6 +331,7 @@
     })[m];
     log("=== RUN "+m+" ===");
     if(m==="B3") unlockPB();             // sync, still inside the tap
+    if(m==="B4") unlockTTS();            // sync, still inside the tap
     startRecorder(function(){
       try{ rec = newRecognition(); rec.start(); }
       catch(err){ log("start() threw: "+err,"bad"); finish("start threw"); }
