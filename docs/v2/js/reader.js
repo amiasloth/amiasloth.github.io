@@ -39,9 +39,10 @@
 
   let meta = null;       // entry from books.json
   let book = null;       // loaded book json (null in review mode)
-  let flat = [];         // [{t, e?, cont?, sec, secTitle, i, lv?}]
+  let flat = [];         // [{t, e?, cont?, sec, secTitle, i, lv?, sentStart?, sentEnd?}]
   let idx = 0;
   let level = null;
+  let sentenceStep = null;  // null | {start, end, t, e} — virtual full-sentence step
 
   // ---------------- settings ----------------
 
@@ -52,6 +53,8 @@
     recordOnNext: Store.getPref("recordOnNext", false),
     ttsFirst: Store.getPref("ttsFirst", false),
     ttsRate: Store.getPref("ttsRate", 1),
+    sentenceReplay: Store.getPref("sentenceReplay", false),
+    sentenceShowText: Store.getPref("sentenceShowText", true),
   };
 
   // ---------------- data ----------------
@@ -85,8 +88,47 @@
     bind();
   }
 
+  /* group flat[] into sentences: a run of `cont` chunks ending at the
+   * first chunk without `cont`. Stores sentStart/sentEnd on each item.
+   * Skipped in review mode — the starred deck has no reliable `cont`
+   * context, so those flat items never get these fields. */
+  function computeSentences() {
+    let start = 0;
+    for (let k = 0; k < flat.length; k++) {
+      if (!flat[k].cont) {
+        for (let j = start; j <= k; j++) {
+          flat[j].sentStart = start;
+          flat[j].sentEnd = k;
+        }
+        start = k + 1;
+      }
+    }
+    if (start < flat.length) {
+      for (let j = start; j < flat.length; j++) {
+        flat[j].sentStart = start;
+        flat[j].sentEnd = flat.length - 1;
+      }
+    }
+  }
+
+  function buildSentenceStep(start, end) {
+    let t = "", e = "";
+    for (let k = start; k <= end; k++) {
+      t += (t ? " " : "") + flat[k].t;
+      if (flat[k].e) e += flat[k].e;
+    }
+    return { start, end, t: t.replace(/\s+/g, " ").trim(), e };
+  }
+
+  /* current text/emoji: the virtual sentence step's joined values while
+   * active, otherwise the current chunk's. Route all TTS/record access
+   * through these so the step is a drop-in replacement for flat[idx]. */
+  function curText() { return sentenceStep ? sentenceStep.t : flat[idx].t; }
+  function curEmoji() { return sentenceStep ? sentenceStep.e : flat[idx].e; }
+
   /* review mode: the deck is every starred phrase, across levels */
   function loadDeck() {
+    sentenceStep = null;
     flat = [];
     meta.levels.forEach((lv) => {
       Store.getStars(bookId, lv).forEach((s) => {
@@ -113,6 +155,7 @@
     }
     level = lv;
     Store.setLevel(bookId, lv);
+    sentenceStep = null;
     flat = [];
     book.sections.forEach((s, si) => {
       s.chunks.forEach((c) => {
@@ -120,6 +163,7 @@
                     secTitle: s.title, i: flat.length });
       });
     });
+    computeSentences();
     if (restore) {
       const p = Store.getProgress(bookId, lv);
       idx = p ? Math.min(p.chunk, flat.length - 1) : 0;
@@ -174,22 +218,44 @@
     if (old) old.remove();
     el.zone.querySelectorAll(".chunk").forEach((n) => n.remove());
     const frag = document.createDocumentFragment();
-    for (let o = -2; o <= 2; o++) {
-      const j = idx + o;
-      if (j < 0 || j >= flat.length) {
-        const pad = document.createElement("div");
-        pad.className = "chunk ctx" + (Math.abs(o) === 2 ? " far" : "");
-        pad.innerHTML = "&nbsp;";
-        frag.appendChild(pad);
-        continue;
+    if (sentenceStep) {
+      // context rows are blank during the virtual sentence step — the
+      // individual chunks it merges are already behind us.
+      for (let o = -2; o <= 2; o++) {
+        if (o === 0) {
+          frag.appendChild(chunkNode({ t: sentenceStep.t, e: sentenceStep.e }, "now"));
+        } else {
+          const pad = document.createElement("div");
+          pad.className = "chunk ctx" + (Math.abs(o) === 2 ? " far" : "");
+          pad.innerHTML = "&nbsp;";
+          frag.appendChild(pad);
+        }
       }
-      const cls = o === 0 ? "now" : "ctx" + (Math.abs(o) === 2 ? " far" : "");
-      frag.appendChild(chunkNode(flat[j], cls));
+    } else {
+      for (let o = -2; o <= 2; o++) {
+        const j = idx + o;
+        if (j < 0 || j >= flat.length) {
+          const pad = document.createElement("div");
+          pad.className = "chunk ctx" + (Math.abs(o) === 2 ? " far" : "");
+          pad.innerHTML = "&nbsp;";
+          frag.appendChild(pad);
+          continue;
+        }
+        const cls = o === 0 ? "now" : "ctx" + (Math.abs(o) === 2 ? " far" : "");
+        frag.appendChild(chunkNode(flat[j], cls));
+      }
     }
     el.zone.appendChild(frag);
     el.prog.style.width = (100 * (idx + 1) / flat.length).toFixed(2) + "%";
-    if (!review) Store.setProgress(bookId, level, c.sec, idx, flat.length);
-    updateStar();
+    // the sentence step is virtual — position stays saved at the last
+    // real chunk (idx) until the user moves past it.
+    if (!review && !sentenceStep) Store.setProgress(bookId, level, c.sec, idx, flat.length);
+    if (sentenceStep) {
+      el.star.style.display = "none";
+    } else {
+      el.star.style.display = "";
+      updateStar();
+    }
   }
 
   function veil(on) {
@@ -205,7 +271,7 @@
   }
 
   function toggleStar() {
-    if (!flat.length) return;
+    if (!flat.length || sentenceStep) return;   // star button is hidden during the step
     const c = flat[idx];
     if (review) {
       Store.toggleStar(bookId, c.lv, { i: c.i, t: c.t, e: c.e });  // unstar
@@ -231,7 +297,7 @@
     if (!flat.length || !TTS.available()) return Promise.resolve(false);
     rec.halt();                      // never TTS into an open take
     status("");
-    return TTS.speak(flat[idx].t, meta.lang, prefs.ttsRate);
+    return TTS.speak(curText(), meta.lang, prefs.ttsRate);
   }
 
   /* begin a take, optionally hearing the phrase first (shadowing) */
@@ -260,11 +326,15 @@
         : "");
     },
     onError: (msg) => { veil(false); status(msg, true); },
-    onSpeechStart: () => { if (prefs.hideText) veil(true); },
+    onSpeechStart: () => {
+      // during the sentence step, hideText only veils if sentenceShowText is off
+      const hide = sentenceStep ? (prefs.hideText && !prefs.sentenceShowText) : prefs.hideText;
+      if (hide) veil(true);
+    },
     onPlayEnd: () => {
       if (prefs.after === "repeat") startTake();
       else if (prefs.after === "next") {
-        if (idx + 1 < flat.length) { go(1, { keepMic: true }); startTake(); }
+        if (go(1, { keepMic: true })) startTake();
         else status(review ? "End of the deck — well done!" : "End of the book — well read!");
       }
       // "stop": stay idle
@@ -288,11 +358,53 @@
 
   // ---------------- navigation ----------------
 
+  // Returns true if the navigation moved somewhere (a real chunk or the
+  // virtual sentence step), false if there was nowhere to go (used by the
+  // hands-free "next" flow to know whether to keep going or stop).
   function go(delta, opts) {
     opts = opts || {};
-    const n = idx + delta;
-    if (n < 0 || n >= flat.length) return;
     TTS.stop();
+
+    // Leaving an active sentence step: next continues after it, prev
+    // returns to its last (real) chunk. Either way the step ends.
+    if (sentenceStep) {
+      const step = sentenceStep;
+      if (delta > 0) {
+        const n = step.end + 1;
+        if (n >= flat.length) return false;
+        sentenceStep = null;
+        if (opts.keepMic || prefs.recordOnNext) rec.halt();
+        else rec.reset();
+        idx = n;
+        render();
+        if (!opts.keepMic && prefs.recordOnNext) { rec._unlock(); startTake(); }
+        return true;
+      } else {
+        sentenceStep = null;
+        if (opts.keepMic || prefs.recordOnNext) rec.halt();
+        else rec.reset();
+        idx = step.end;
+        render();
+        return true;
+      }
+    }
+
+    // Leaving the last chunk of a multi-chunk sentence (advancing forward):
+    // insert the virtual whole-sentence step instead of moving idx.
+    if (delta > 0 && !review && prefs.sentenceReplay) {
+      const c = flat[idx];
+      if (c && c.sentEnd === idx && c.sentEnd > c.sentStart) {
+        if (opts.keepMic || prefs.recordOnNext) rec.halt();
+        else rec.reset();
+        sentenceStep = buildSentenceStep(c.sentStart, c.sentEnd);
+        render();
+        if (!opts.keepMic && prefs.recordOnNext) { rec._unlock(); startTake(); }
+        return true;
+      }
+    }
+
+    const n = idx + delta;
+    if (n < 0 || n >= flat.length) return false;
     if (opts.keepMic || prefs.recordOnNext) rec.halt();  // keep mic session
     else rec.reset();
     idx = n;
@@ -302,6 +414,7 @@
       rec._unlock();
       startTake();
     }
+    return true;
   }
 
   function bind() {
@@ -407,6 +520,12 @@
     toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take and playback starts.", "autoStop");
     toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
     toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
+
+    heading("Sentence replay");
+    toggle("Read the whole sentence", "After the last piece of a sentence, read the complete sentence once.", "sentenceReplay");
+    if (prefs.sentenceReplay) {
+      toggle("Show text for full sentences", "Even when chunk text is hidden, the complete-sentence step stays visible.", "sentenceShowText");
+    }
 
     if (TTS.available()) {
       heading("Listening (on-device voice)");
