@@ -61,6 +61,24 @@ Decision already made with the owner (do not redesign):
      the existing "current text" accessor: refactor `flat[idx].t` reads
      into a helper `curText()` / `curEmoji()` that returns the sentence
      values when the step is active. Keep the refactor minimal.
+   - **Playback order — own take, then TTS.** For a normal chunk,
+     `ttsFirst` (if on) speaks TTS *before* recording (shadowing), and
+     `onPlayEnd` runs the `after` pref (repeat/next/stop) right after the
+     user's take plays back. The sentence step inverts this deliberately —
+     the goal here is recall + self-correction, not shadowing:
+     - `ttsFirst` is ignored for the sentence step; always start the take
+       directly (`rec.record()`), never TTS-before-record here.
+     - When the user's take finishes playing back (`onPlayEnd` fires
+       while `sentenceStep` is active), do NOT immediately run the
+       `after` pref. Instead call `speakCurrent()` (TTS of the sentence
+       text) once, and only run the normal `after` (repeat/next/stop)
+       logic once that TTS playback resolves.
+     - Net order for the sentence step: record → hear your own take →
+       hear the correct TTS → then repeat/next/stop as configured. This
+       lets the learner notice what they got wrong by comparing their
+       own playback against the correct reading right after.
+     - This override applies only while `sentenceStep` is active; regular
+       chunks keep existing `ttsFirst` / `after` behavior unchanged.
    - Any navigation (next/prev/swipe) from the step clears it: next goes
      to `end + 1`, prev returns to `end` (the last chunk, normal mode).
    - `hideText` veil: apply the veil during the step only if
@@ -84,6 +102,10 @@ Decision already made with the owner (do not redesign):
   full sentence with emoji trail; record loop and TTS work on it; next
   again proceeds to the following sentence's first chunk; prev returns to
   the last chunk.
+- Sentence step playback order: record the sentence, hear your own take
+  play back, then hear the TTS reading immediately after (own take always
+  first, TTS always second — `ttsFirst` has no effect here); only then
+  does the `after` pref (repeat/next/stop) take over.
 - Single-chunk sentences produce NO extra step.
 - With `hideText` on and `sentenceShowText` on: chunk text hides on
   speech, sentence text stays visible.

@@ -301,9 +301,12 @@
     return TTS.speak(curText(), meta.lang, prefs.ttsRate);
   }
 
-  /* begin a take, optionally hearing the phrase first (shadowing) */
+  /* begin a take, optionally hearing the phrase first (shadowing).
+   * During the sentence step, ttsFirst is ignored: that step has its own
+   * fixed order (own take, then TTS) so the learner can self-correct —
+   * see onPlayEnd below. */
   function startTake() {
-    if (prefs.ttsFirst && TTS.available()) {
+    if (!sentenceStep && prefs.ttsFirst && TTS.available()) {
       speakCurrent().then(() => rec.record());
     } else {
       rec.record();
@@ -311,6 +314,17 @@
   }
 
   // ---------------- recorder ----------------
+
+  /* the `after` pref (repeat/next/stop), run once all playback for the
+   * current step (own take, plus TTS during the sentence step) is done. */
+  function runAfter() {
+    if (prefs.after === "repeat") startTake();
+    else if (prefs.after === "next") {
+      if (go(1, { keepMic: true })) startTake();
+      else status(review ? "End of the deck — well done!" : "End of the book — well read!");
+    }
+    // "stop": stay idle
+  }
 
   const rec = new LoopRecorder({
     autoStop: prefs.autoStop,
@@ -327,7 +341,10 @@
         : "");
     },
     beforePlay: () => {
-      if (!prefs.abCompare || !TTS.available()) return Promise.resolve();
+      // sentence step has its own fixed order (own take, then TTS —
+      // see onPlayEnd below), so skip the ab-compare pre-play here to
+      // avoid hearing TTS twice / out of order.
+      if (sentenceStep || !prefs.abCompare || !TTS.available()) return Promise.resolve();
       status("Listen…");
       return TTS.speak(curText(), meta.lang, prefs.ttsRate);
     },
@@ -338,12 +355,18 @@
       if (hide) veil(true);
     },
     onPlayEnd: () => {
-      if (prefs.after === "repeat") startTake();
-      else if (prefs.after === "next") {
-        if (go(1, { keepMic: true })) startTake();
-        else status(review ? "End of the deck — well done!" : "End of the book — well read!");
+      // Sentence step: hear your own take (just finished), then hear the
+      // correct TTS reading, THEN apply the after-playback pref — so the
+      // learner can notice what they got wrong before moving on.
+      if (sentenceStep) {
+        const step = sentenceStep;
+        speakCurrent().then(() => {
+          if (sentenceStep !== step) return;   // step left/changed during TTS
+          runAfter();
+        });
+        return;
       }
-      // "stop": stay idle
+      runAfter();
     },
     onLevel: (v) => {
       el.ring.style.opacity = v > 0.02 ? Math.min(1, v * 3).toFixed(2) : 0;
