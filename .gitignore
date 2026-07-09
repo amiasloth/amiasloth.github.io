@@ -27,3 +27,5 @@ dist/
 
 # Secrets
 container/secret.env
+
+scripts/Caddyfile
