@@ -237,6 +237,46 @@ Candidate fixes IF H8 confirms (one commit each, device-tested, in this order):
    take on iOS — tests whether the *persistent* stream is what breaks finalization after
    take 1, i.e. whether the v1 trick and finals are mutually exclusive.
 
+## Device sessions 2–3 — 2026-07-09, iPhone, Step 0 rerun + probe isolation
+
+**Step 0, doubly answered.** T1–T5 rerun at `05b9a4d~1` (pre ALL checker commits):
+take-2 failure identical → revert dead. HEAD rerun with force-quit-Safari-between-
+every-run protocol: take 1 always works, take 2 always breaks → the failure is
+deterministic, not accumulated OS state. H9 survives only as: the wedge persists
+across reload but is cleared by force-quit.
+
+**HEAD symptom decode (matches code exactly):** runs where iOS throws recognition
+*errors* increment `_ccFails`; at 3 the checker degrades to recognition-only, which
+WORKS — those runs recover scoring but never playback ("auto-stop yes, Revealed, no
+playback"). Runs with the silent interims-no-final mode never increment `_ccFails`,
+so every take (incl. manual ✓) re-attempts concurrency and re-breaks — never
+recovers. The "inconsistency" is just which failure flavor iOS throws.
+
+**Probe isolation (probe_continuous.html, variants added):**
+
+| Run | Pattern | Result |
+|---|---|---|
+| B | persistent stream, ONE recorder never cycled, no-gesture recognition restarts | finals every session, blob audible start-to-end |
+| B1 | same + recorder STOPPED/RECREATED between sessions | recognition still finalized, BUT session blobs from recorder #2 on are ~120 KB of NOISE (not the spoken phrase); playback during a run kills subsequent pickup; **a finished B1 run poisons the NEXT run** ("No speech detected" on fresh everything) |
+| B3 | same as B + audio-element tone played between sessions (element unlocked in tap) | finals every session, repeatable across runs; gestureless `play()` resolved (`activation=no`) |
+| manual per-run start/stop (full churn + gesture) | | reproduced BOTH app failure modes outside the app — gesture does not help |
+
+**VERDICT: cycling MediaRecorder on a live stream is the poison.**
+Instance #2+ captures garbage (explains "no playback" — the app plays a noise
+blob), and the churn cumulatively degrades Safari's audio session (explains the
+take-2 recognition death, the cross-run/cross-reload wedge, and force-quit as the
+only recovery). Playback is innocent (B3). Gesture is irrelevant (H1 dead both
+directions). H3 dead (blob audible across sessions). H4 effectively dead
+(gestureless play works on an unlocked element).
+
+**Fix design (evidence-backed):** persistent stream + ONE capture per check
+session, never cycled; recognition restarted per take (proven B/B3); per-take
+playback sliced via WebAudio PCM → WAV blob per take (one AudioContext per
+session, shared with the meter — also satisfies H5's direction); playback through
+the already-unlocked audio element. Open item: B4 (TTS between sessions) pending
+on device — the app speaks TTS between takes; verify speechSynthesis is innocent
+before reworking checker.js.
+
 ## Bugs found while reading (file for later; do NOT fix now)
 
 - `_finalize`'s "first take starts recognition-only" comment describes code that no longer exists — the stale comment is itself evidence of round-2/3 churn.

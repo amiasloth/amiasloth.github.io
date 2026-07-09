@@ -32,6 +32,12 @@
         producing results here -> playback is the poison. Also logs
         play() resolve/reject (H4).
 
+    B4 · TTS between sessions (isolates speechSynthesis)
+        Like B (continuous recorder, never cycled), but speechSynthesis
+        speaks a short phrase between sessions before the restart — the
+        app's ttsFirst/abCompare pattern. If restarts stop producing
+        results here -> TTS is the poison.
+
   If EITHER works, hands-free Check mode on iOS is achievable and the
   checker can be reworked around it.
 
@@ -83,6 +89,7 @@
   <div class="row">
     <button id="btnB1" class="sec">B1 · Cycle recorder</button>
     <button id="btnB3" class="sec">B3 · Play between</button>
+    <button id="btnB4" class="sec">B4 · TTS between</button>
   </div>
   <div class="row">
     <label class="chk"><input type="checkbox" id="withRec"> also run recorder concurrently</label>
@@ -110,6 +117,7 @@
       elCaps = document.getElementById("caps"),
       btnA = document.getElementById("btnA"), btnB = document.getElementById("btnB"),
       btnB1 = document.getElementById("btnB1"), btnB3 = document.getElementById("btnB3"),
+      btnB4 = document.getElementById("btnB4"),
       btnStop = document.getElementById("btnStop"), btnPlay = document.getElementById("btnPlay"),
       btnClear = document.getElementById("btnClear"), withRec = document.getElementById("withRec"),
       player = document.getElementById("player");
@@ -132,7 +140,7 @@
   var MIME = pickMime();
   elCaps.innerHTML = "SpeechRecognition: <b class='"+(SR?"ok'>yes":"bad'>NO")+"</b>"+
     " · recorder mime: <b>"+(MIME===null?"none":(MIME||"default"))+"</b><br>UA: <b>"+navigator.userAgent+"</b>";
-  if (!SR) { btnA.disabled = btnB.disabled = btnB1.disabled = btnB3.disabled = true;
+  if (!SR) { btnA.disabled = btnB.disabled = btnB1.disabled = btnB3.disabled = btnB4.disabled = true;
     elSum.innerHTML = "<span class='bad'>SpeechRecognition unavailable on this browser.</span>"; }
 
   function activation(){
@@ -172,6 +180,20 @@
       function(e){ log("between-tone play() REJECTED: "+(e&&e.name||e),"bad"); fin(); });
     setTimeout(fin, 2000);                // never wedge the run on a silent element
   }
+  function speakBetween(cb){             // B4: the app's ttsFirst/abCompare pattern
+    var done = false, fin = function(){ if(done) return; done = true; cb(); };
+    if (!("speechSynthesis" in window)){ log("speechSynthesis unavailable","warn"); fin(); return; }
+    try {
+      speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance("Hallo, gut gemacht");
+      u.lang = LANG;
+      u.onstart = function(){ log("between-TTS speaking (activation="+activation()+")"); };
+      u.onend = function(){ log("between-TTS ended","ok"); fin(); };
+      u.onerror = function(e){ log("between-TTS ERROR: "+(e.error||"?"),"bad"); fin(); };
+      speechSynthesis.speak(u);
+    } catch(e){ log("between-TTS threw: "+e,"bad"); fin(); }
+    setTimeout(fin, 5000);                // never wedge the run on a silent utterance
+  }
 
   // ---- shared run state ----
   var rec=null, mr=null, stream=null, chunks=[], lastUrl=null, safety=null;
@@ -180,12 +202,13 @@
   var RESTART_CAP=6, sawResultThisSession=false;
 
   function setBusy(b){ btnA.disabled=b||!SR; btnB.disabled=b||!SR;
-    btnB1.disabled=b||!SR; btnB3.disabled=b||!SR; btnStop.disabled=!b; withRec.disabled=b; }
+    btnB1.disabled=b||!SR; btnB3.disabled=b||!SR; btnB4.disabled=b||!SR;
+    btnStop.disabled=!b; withRec.disabled=b; }
 
   function releaseRec(){ if(mr&&mr.state!=="inactive"){try{mr.stop();}catch(e){}} }
   function releaseStream(){ if(stream){stream.getTracks().forEach(function(tr){tr.stop();});stream=null;} }
 
-  function needRecorder(){ return (withRec.checked || mode==="B1" || mode==="B3") && hasGUM && hasMR; }
+  function needRecorder(){ return (withRec.checked || mode==="B1" || mode==="B3" || mode==="B4") && hasGUM && hasMR; }
 
   function startRecorder(after){
     if(!needRecorder()){ after(); return; }
@@ -226,6 +249,7 @@
   function betweenSessions(cb){
     if(mode==="B1") cycleRecorder(cb);
     else if(mode==="B3") playBetween(cb);
+    else if(mode==="B4") speakBetween(cb);
     else cb();
   }
 
@@ -286,7 +310,8 @@
       A:  "Mode A: one continuous session. Speak 3–4 phrases with pauses…",
       B:  "Mode B: auto-restart on end. Speak 3–4 phrases with pauses…",
       B1: "Mode B1: recorder CYCLED between sessions. Speak 3–4 phrases with pauses…",
-      B3: "Mode B3: tone plays between sessions. Speak 3–4 phrases with pauses…"
+      B3: "Mode B3: tone plays between sessions. Speak 3–4 phrases with pauses…",
+      B4: "Mode B4: TTS speaks between sessions. Speak 3–4 phrases with pauses…"
     })[m];
     log("=== RUN "+m+" ===");
     if(m==="B3") unlockPB();             // sync, still inside the tap
@@ -311,7 +336,8 @@
             ? "<span class='warn'>Captured "+phrases+" phrases but session ended "+ends+"×.</span>"
             : "<span class='bad'>Session did NOT stay alive ("+phrases+" phrase, "+ends+" end). Continuous ignored.</span>";
       } else {
-        var what = mode==="B1" ? "recorder cycling" : mode==="B3" ? "playback between takes" : "";
+        var what = mode==="B1" ? "recorder cycling" : mode==="B3" ? "playback between takes"
+          : mode==="B4" ? "TTS between takes" : "";
         verdict = restartResults>=1
           ? "<span class='ok'>HANDS-FREE OK — no-gesture restart produced "+restartResults+" result(s)"+
             (what?(" WITH "+what):"")+".</span>"
@@ -343,6 +369,7 @@
   btnB.onclick = function(){ begin("B"); };
   btnB1.onclick = function(){ begin("B1"); };
   btnB3.onclick = function(){ begin("B3"); };
+  btnB4.onclick = function(){ begin("B4"); };
   btnStop.onclick = doStop;
   btnPlay.onclick = function(){ if(lastUrl) player.play().catch(function(e){ log("playback blocked: "+e,"bad"); }); };
 })();
