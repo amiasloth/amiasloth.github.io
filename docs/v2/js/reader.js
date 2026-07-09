@@ -55,6 +55,7 @@
     ttsRate: Store.getPref("ttsRate", 1),
     sentenceReplay: Store.getPref("sentenceReplay", false),
     sentenceShowText: Store.getPref("sentenceShowText", true),
+    abCompare: Store.getPref("abCompare", false),
   };
 
   // ---------------- data ----------------
@@ -325,6 +326,11 @@
         : s === "playing" ? afterHint()
         : "");
     },
+    beforePlay: () => {
+      if (!prefs.abCompare || !TTS.available()) return Promise.resolve();
+      status("Listen…");
+      return TTS.speak(curText(), meta.lang, prefs.ttsRate);
+    },
     onError: (msg) => { veil(false); status(msg, true); },
     onSpeechStart: () => {
       // during the sentence step, hideText only veils if sentenceShowText is off
@@ -530,6 +536,7 @@
     if (TTS.available()) {
       heading("Listening (on-device voice)");
       toggle("Hear the phrase first", "Shadowing: the phrase is spoken aloud, then recording starts — imitate what you heard.", "ttsFirst");
+      toggle("Compare with the voice", "After each take: hear the phrase spoken, then your own recording, back to back.", "abCompare");
       const rates = [[0.6, "Slow"], [0.8, "Relaxed"], [1, "Normal"]];
       const row = document.createElement("div");
       rates.forEach(([v, label]) => {

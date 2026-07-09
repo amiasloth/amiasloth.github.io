@@ -126,7 +126,10 @@
     this.onLevel = opts.onLevel || null;    // mic level meter callback (0..1)
     this.onSpeechStart = opts.onSpeechStart || null;
     this.onPlayEnd = opts.onPlayEnd || null; // overrides built-in loop if set
+    this.beforePlay = opts.beforePlay || null; // optional async gate before take playback
     this.state = "idle";
+    this._gen = 0;            // bumped on every state change; used to detect
+                               // interruption during the async beforePlay gate
     this.stream = null;
     this.rec = null;          // MediaRecorder or WavCapture
     this.chunks = [];
@@ -153,6 +156,7 @@
 
   LoopRecorder.prototype._set = function (s) {
     this.state = s;
+    this._gen++;
     this.onState(s);
   };
 
@@ -299,7 +303,13 @@
       if (this.url) URL.revokeObjectURL(this.url);
       if (!blob || !blob.size) { this._set("idle"); return; }
       this.url = URL.createObjectURL(blob);
-      this._play();
+      // Optional async gate (e.g. A/B compare: speak the phrase first).
+      // Snapshot _gen now; if anything changes state before the gate
+      // resolves (halt/reset/re-record), skip the stale playback.
+      const gen = this._gen;
+      const proceed = () => { if (this._gen === gen) this._play(); };
+      if (this.beforePlay) Promise.resolve(this.beforePlay()).then(proceed, proceed);
+      else proceed();
     };
     if (this.rec instanceof WavCapture) {
       finish(this.rec.stop());
