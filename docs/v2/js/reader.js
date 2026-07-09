@@ -4,9 +4,6 @@
 (function () {
   "use strict";
 
-  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
   const qs = new URLSearchParams(location.search);
   const bookId = qs.get("book");
   const review = qs.get("review") === "1";   // practice starred phrases
@@ -332,6 +329,10 @@
   function speakCurrent() {
     if (!flat.length || !TTS.available()) return Promise.resolve(false);
     rec.halt();                      // never TTS into an open take
+    // Same rule for a check take: end it SILENTLY (endTake, not stop) so no
+    // result fires — otherwise the silence re-arm could start listening
+    // while the TTS is speaking and transcribe the voice.
+    if (checker && checker.state === "listening") checker.endTake();
     status("");
     return TTS.speak(curText(), meta.lang, prefs.ttsRate);
   }
@@ -447,12 +448,11 @@
       status("Listening… say the phrase.");
       checker.start();
     };
-    // "Hear the phrase first" — but NOT on the iOS first take: the delayed
-    // recognition.start() would fall outside the tap gesture and fail
-    // not-allowed. Once the persistent mic session is open (micOpen), the
-    // no-gesture restart works and TTS-first is safe again.
-    const ttsFirstOk = prefs.ttsFirst && TTS.available() && !(IOS && !checker.micOpen());
-    if (ttsFirstOk) {
+    // "Hear the phrase first" — config always wins, on every take (including
+    // miss-retries: a retry is just the same phrase run like a new one). If
+    // iOS blocks the delayed recognition start (no gesture), the checker's
+    // not-allowed path keeps the session and asks for a tap — TTS still plays.
+    if (prefs.ttsFirst && TTS.available()) {
       status("Listen…");
       TTS.speak(curText(), meta.lang, prefs.ttsRate).then(listen);
     } else listen();
@@ -472,7 +472,8 @@
   // stream makes a no-gesture restart work. Capped so an abandoned tab
   // doesn't listen forever (~6 takes ≈ a minute of patience).
   function rearmOnSilence() {
-    if (!checkActive() || prefs.after === "stop" || checkSilent >= 6) return false;
+    // Never re-arm while TTS is speaking — recognition would transcribe it.
+    if (!checkActive() || prefs.after === "stop" || checkSilent >= 6 || TTS.speaking()) return false;
     checkSilent++;
     checkAuto = true;
     status("Listening… say the phrase.");
@@ -512,44 +513,40 @@
     if (passed) { checkRetry = 0; status("✓ " + Math.round(best.score * 100) + "% — you said it."); }
     else {
       checkRetry++;
-      status(checkRetry >= 3 ? "Revealed — moving on." : "Try again — " + (3 - checkRetry) + " left.");
+      status(checkRetry >= 3 ? "Revealed." : "Try again — " + (3 - checkRetry) + " left.");
     }
-    // Playback: hear your own take on pass AND miss (on a miss, hearing
-    // yourself is how you notice what went wrong). Then, on a miss — or with
-    // "Compare with the voice" on — hear the correct phrase spoken.
-    const speakModel = () => ((!passed || prefs.abCompare) && TTS.available())
+    // Loop-mode playback shape, IDENTICAL for pass and miss:
+    //   take plays back (always, like the loop) -> abCompare? TTS -> continue.
+    // Only "continue" differs: pass = the after-pref; miss = same phrase
+    // again, run exactly like a new phrase (see checkNext).
+    const idxSnap = idx, stepSnap = sentenceStep;
+    const playTake = () => (res.takeUrl && checker.playbackEnabled())
+      ? checker.playTake() : Promise.resolve();
+    const speakModel = () => (prefs.abCompare && TTS.available())
       ? TTS.speak(curText(), meta.lang, prefs.ttsRate) : Promise.resolve();
-    const finish = () => checkNext(passed);
-    if (res.takeUrl && checker.playbackEnabled())
-      checker.playTake().then(speakModel).then(finish);   // take -> model -> next
-    else
-      speakModel().then(finish);
+    playTake().then(speakModel).then(() => {
+      // bail if the user navigated away during playback (loop does the same)
+      if (idx !== idxSnap || sentenceStep !== stepSnap) return;
+      checkNext(passed);
+    });
   }
 
-  // What happens after a scored take — driven entirely by the practice
-  // settings, so Check mode is as hands-free as the loop:
-  //   after = stop   -> wait for a tap (fully manual, both pass and miss).
-  //   after = repeat -> pass: listen to the same phrase again;
-  //                     miss: auto-retry (until the 3-try cap, then reveal).
-  //   after = next   -> pass: advance and listen to the next phrase;
-  //                     miss: auto-retry, and after the 3rd miss reveal +
-  //                           advance to keep moving.
-  // (On iOS the auto-listen can't arm the mic without a tap — see
-  // startCheckTake; the flow degrades to a "Tap ✓" prompt there.)
+  // "Continue" after a scored take. Pass and miss are IDENTICAL except for
+  // the target:
+  //   pass -> the after-pref (next: advance; repeat: same phrase; stop: wait)
+  //   miss -> the same phrase again, started exactly like a new phrase
+  //           (ttsFirst, hideText, autoStop all honored), until the 3-miss
+  //           cap; the reveal then continues as a pass would.
   function checkNext(passed) {
     if (prefs.after === "stop") return;
     const advance = () => {
       if (go(1, { keepMic: true })) startCheckTake(true);
       else status(review ? "End of the deck — well done!" : "End of the book — well read!");
     };
-    if (passed) {
-      if (prefs.after === "repeat") startCheckTake(true);
-      else advance();                       // "next"
-      return;
-    }
-    if (checkRetry < 3) { startCheckTake(true); return; }   // hands-free auto-retry
-    if (prefs.after === "next") advance();                  // revealed -> move on
-    // after = repeat on reveal: leave it revealed for a tap (no endless retries)
+    if (!passed && checkRetry < 3) { startCheckTake(true); return; }  // same phrase, fresh take
+    if (!passed) checkRetry = 0;                       // cap reached: revealed, continue as pass
+    if (prefs.after === "repeat") startCheckTake(true);
+    else advance();                                    // "next"
   }
 
   function onCheckError(kind, msg) {

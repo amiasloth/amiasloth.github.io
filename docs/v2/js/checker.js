@@ -140,25 +140,52 @@
     });
   };
 
+  // Mic failure policy: only a REAL permission denial is permanent. Anything
+  // else (device busy, teardown race, transient iOS audio-session weirdness)
+  // is retried on a later take — a one-off hiccup must never disable
+  // playback or the persistent session for the whole visit.
+  Checker.prototype._noteMicFail = function (err) {
+    var name = err && err.name;
+    if (name === "NotAllowedError" || name === "SecurityError") this._canPlayback = false;
+  };
+
   // ---- public: begin one check take (call the first one from a user tap) ----
-  // CRITICAL iOS ORDER: recognition.start() must run SYNCHRONOUSLY inside
-  // the user's tap on the first take — any getUserMedia promise or timeout
-  // before it destroys the gesture context and the start fails not-allowed
-  // (which used to release the mic and break the whole session). So:
-  //  - session already open  -> recorder starts sync, then recognition sync;
-  //  - first take            -> recognition starts sync; the playback-capture
-  //    stream is acquired AFTER the take ends (_finalize), so replay becomes
-  //    available from the next phrase on and never disturbs recognition.
+  // Same start order on ALL platforms (concurrent capture + recognition is
+  // verified working on iOS):
+  //  - session already open: recorder + recognition, both sync;
+  //  - first take: stream -> recorder -> brief beat -> recognition.
+  // If a platform ever refuses a recognition start on this path, the
+  // not-allowed handler keeps the session alive and asks for a tap — it
+  // degrades per-take, never silently changes configured behavior.
   Checker.prototype.start = function () {
     if (!SR || this._disabled || this.state === "listening") return;
     this._degraded = false;    // retry concurrency each take (until _ccFails caps)
     this._finals = [];
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
+    var self = this, gen = this._gen;
     if (this.playbackEnabled() && this._stream && this._stream.active) {
       this._startRecorder(this._stream);
+      this._startRecognition();
+      return;
     }
-    this._startRecognition();
+    if (!this.playbackEnabled()) {
+      this._startRecognition();
+      return;
+    }
+    this._ensureStream(gen).then(function (stream) {
+      if (self._gen !== gen) return;
+      if (stream) {
+        self._startRecorder(stream);
+        // brief beat so capture is really open before recognition
+        setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 120);
+      } else {
+        self._startRecognition();
+      }
+    }).catch(function (err) {
+      self._noteMicFail(err);
+      if (self._gen === gen) self._startRecognition();
+    });
   };
 
   Checker.prototype._startRecorder = function (stream) {
@@ -236,8 +263,8 @@
       return;
     }
     // audio-capture / aborted / unknown: degrade THIS take (recognition
-    // alone). Concurrency is retried on the next take; after 3 consecutive
-    // failures playbackEnabled() gives up for the session.
+    // alone). Concurrency is retried next take; 3 consecutive failures ->
+    // give up for the session; any success forgives past failures.
     if (!this._degraded && (this._mr || this.playbackEnabled())) {
       this._degraded = true;
       this._ccFails++;
@@ -323,11 +350,18 @@
   };
 
   // Open the persistent mic stream between takes if we don't hold it yet.
+  // Delayed a beat so it never races the recognition teardown (on iOS the
+  // mic is still "busy" right after a take ends -> NotReadableError, which
+  // must stay transient, not kill playback for the session).
   Checker.prototype._primeStream = function () {
     if (this._disabled || !this._canPlayback) return;
     if (this._stream && this._stream.active) return;
-    var self = this;
-    this._ensureStream(this._gen).catch(function () { self._canPlayback = false; });
+    var self = this, gen = this._gen;
+    setTimeout(function () {
+      if (self._gen !== gen) return;                       // a new take took over
+      if (self._stream && self._stream.active) return;
+      self._ensureStream(gen).catch(function (e) { self._noteMicFail(e); });
+    }, 300);
   };
 
   // ---- public: play the last take (user tap) ----
@@ -363,8 +397,13 @@
   };
 
   // ---- public: full stop — release the mic (leaving Check mode / hidden) ----
+  // Also clears the transient failure counters, so toggling Check mode is a
+  // true clean slate. (_canPlayback stays: it only latches on a REAL
+  // permission denial; _disabled stays: the service won't come back.)
   Checker.prototype.reset = function () {
     this._gen++;
+    this._ccFails = 0;
+    this._degraded = false;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     this._detachRec();
     this._stopRecorder();
