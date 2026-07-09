@@ -35,7 +35,43 @@
 
   var MAX_TAKE_SECONDS = 20;   // hard cap on captured audio per take
 
+  // Silence trim: the capture runs until recognition ends, and iOS's
+  // endpointer waits ~2s of silence before ending — so an untrimmed take
+  // replays ~2s of dead air. Conservative threshold: well below speech
+  // peaks (>0.1), above the typical noise floor (~0.01), plus padding so a
+  // soft first/last syllable never gets clipped.
+  var TRIM_THRESH = 0.02;
+  var TRIM_PAD_PRE = 0.15;     // seconds kept before the first loud sample
+  var TRIM_PAD_POST = 0.30;    // seconds kept after the last loud sample
+
   function noop() {}
+
+  // Drop leading/trailing silence from Float32 chunks. If nothing exceeds
+  // the threshold (whisper-quiet take), keep the audio untouched.
+  function trimSilence(chunks, totalLen, rate) {
+    var first = -1, last = -1, idx = 0, c, i;
+    for (c = 0; c < chunks.length; c++) {
+      var ch = chunks[c];
+      for (i = 0; i < ch.length; i++) {
+        if (ch[i] > TRIM_THRESH || ch[i] < -TRIM_THRESH) {
+          if (first < 0) first = idx + i;
+          last = idx + i;
+        }
+      }
+      idx += ch.length;
+    }
+    if (first < 0) return { chunks: chunks, len: totalLen };
+    var start = Math.max(0, first - Math.round(rate * TRIM_PAD_PRE));
+    var end = Math.min(totalLen, last + 1 + Math.round(rate * TRIM_PAD_POST));
+    var out = [], pos = 0;
+    for (c = 0; c < chunks.length && pos < end; c++) {
+      var ch2 = chunks[c];
+      var a = Math.max(0, start - pos), b = Math.min(ch2.length, end - pos);
+      if (b > a) out.push(a === 0 && b === ch2.length ? ch2 : ch2.subarray(a, b));
+      pos += ch2.length;
+    }
+    return { chunks: out, len: end - start };
+  }
 
   // Float32 chunks -> 16-bit mono WAV blob.
   function encodeWav(chunks, totalLen, rate) {
@@ -186,7 +222,8 @@
     if (!this._capLen || !this._ctx) { this._discardCapture(); return null; }
     var url = null;
     try {
-      var blob = encodeWav(this._capChunks, this._capLen, this._ctx.sampleRate);
+      var t = trimSilence(this._capChunks, this._capLen, this._ctx.sampleRate);
+      var blob = encodeWav(t.chunks, t.len, this._ctx.sampleRate);
       if (blob && blob.size) url = URL.createObjectURL(blob);
     } catch (e) { /* no playback for this take */ }
     this._discardCapture();
