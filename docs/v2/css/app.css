@@ -175,6 +175,15 @@ header.bar a, header.bar button.iconbtn {
   opacity: 0.35;
 }
 
+/* check-mode transcript diff: missed words underlined in red */
+.chunk .txt .miss {
+  color: var(--rec);
+  text-decoration: underline;
+  text-decoration-color: var(--rec);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+
 /* tap zones */
 .tapzone { position: absolute; top: 0; bottom: 0; width: 34%; z-index: 5; }
 .tapzone.left { left: 0; }

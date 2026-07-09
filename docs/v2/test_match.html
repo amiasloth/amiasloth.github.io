@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- Zzzpeak v2 — Phase 04 match.js unit tests. Open /v2/test_match.html;
+     green = all pass. Not linked from anywhere; self-contained except for
+     the real js/match.js it is testing. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>match.js tests</title>
+<style>
+  body { margin:0; padding:16px; background:#0f1115; color:#e6e8ec;
+         font:14px/1.5 ui-monospace, Menlo, monospace; }
+  h1 { font:600 18px -apple-system, system-ui, sans-serif; margin:0 0 12px; }
+  #tally { font:700 16px -apple-system, system-ui, sans-serif; padding:10px 12px;
+           border-radius:10px; margin-bottom:12px; }
+  .ok { color:#4ade80; } .bad { color:#f87171; }
+  .row { padding:2px 0; border-bottom:1px solid #171a20; white-space:pre-wrap; }
+</style>
+</head>
+<body>
+  <h1>match.js unit tests</h1>
+  <div id="tally">running…</div>
+  <div id="out"></div>
+<script src="js/match.js"></script>
+<script>
+(function () {
+  var out = document.getElementById("out"), tally = document.getElementById("tally");
+  var pass = 0, fail = 0;
+  var S = function (r, h) { return Match.score(r, h); };
+  var approx = function (a, b) { return Math.abs(a - b) < 1e-9; };
+  function t(name, cond) {
+    var d = document.createElement("div");
+    d.className = "row " + (cond ? "ok" : "bad");
+    d.textContent = (cond ? "✓ " : "✗ ") + name;
+    out.appendChild(d);
+    cond ? pass++ : fail++;
+  }
+
+  t("perfect (de)", approx(S("Ist das funktioniert?", "ist das funktioniert").score, 1));
+  t("total mismatch scores low", S("Der Wolf und die sieben Geißlein", "banana apple").score < 0.2);
+  t("umlauts kept & matched", approx(S("Über die Brücke", "über die brücke").score, 1));
+  t("ß vs ss", approx(S("Straße", "strasse").score, 1));
+  t("archaic Thür ~ Tür", S("Die Thür war offen", "die tür war offen").score === 1);
+  t("archaic daß ~ dass", approx(S("Ich weiß, daß es gut ist", "ich weiss dass es gut ist").score, 1));
+  t("archaic gieng ~ ging", S("Er gieng nach Haus", "er ging nach haus").score === 1);
+  t("number word drei == 3", approx(S("Ich habe drei Katzen", "ich habe 3 katzen").score, 1));
+  t("number word seven == 7", approx(S("The seven dwarves", "the 7 dwarves").score, 1));
+  (function () {
+    var r = S("Der schnelle braune Fuchs", "der braune fuchs");
+    t("one missed word → 3/4", approx(r.score, 3 / 4));
+    t("missed word marked, kept word not",
+      r.tokens.find(function (x){return x.display==="schnelle";}).ok === false &&
+      r.tokens.find(function (x){return x.display==="braune";}).ok === true);
+  })();
+  t("word-order slip → 2/3", approx(S("die schnelle Katze", "schnelle die katze").score, 2 / 3));
+  (function () {
+    var r = S("Hallo — Welt", "hallo welt");
+    t("punctuation token not scored", r.tokens.find(function (x){return x.display==="—";}).ok === null);
+    t("punctuation ignored in score", approx(r.score, 1));
+  })();
+  t("3/4 ≥ pass threshold", S("a b c d", "a b c").score >= Match.PASS);
+  t("2/4 < pass threshold", S("a b c d", "a b").score < Match.PASS);
+  (function () {
+    var r = S("zwei Wörter", "");
+    t("empty hypothesis → all miss", r.score === 0 && r.tokens.every(function (x){return x.ok===false;}));
+  })();
+  t("long word tolerates dist 2", Match.wordMatch("funktioniert", "funktionirt") === true);
+  t("short word rejects dist 2", Match.wordMatch("haus", "maul") === false);
+  t("case + trailing punctuation", approx(S("Guten Morgen!", "guten morgen").score, 1));
+
+  tally.className = fail ? "bad" : "ok";
+  tally.textContent = pass + " passed, " + fail + " failed";
+})();
+</script>
+</body>
+</html>

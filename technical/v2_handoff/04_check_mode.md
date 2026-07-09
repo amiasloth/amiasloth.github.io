@@ -139,3 +139,27 @@ record per-chunk pass/fail counts later — NOT in this phase.
 
 Commits: `v2: phase 04 milestone 0 — STT probe page` then
 `v2: phase 04 check mode (STT transcript diff, retry cap 3)`
+
+## Milestone 0 findings — iOS Safari (recorded 2026-07-09)
+
+Ran `docs/v2/probe.html?lang=de-DE` on a physical iPhone (Safari, over
+HTTPS, dictation enabled, built-in mic). Result:
+
+- **Recognition alone:** works. `interimResults` stream fine; final
+  transcript "Ist das funktioniert" at confidence 0.98.
+- **Concurrency (recorder + recognition):** **BOTH SURVIVE.** MediaRecorder
+  produced a playable `audio/mp4` blob (~96 KB) while SpeechRecognition
+  produced a final result — zero errors. Event order observed: recorder
+  `start` → recognition `start`/`audiostart` → `speechstart` → interim
+  results → `result FINAL` (conf 0.98) → `speechend` → recognition `end`
+  → recorder final `dataavailable` → blob.
+
+**Decision: ship Check mode WITH take playback on iOS** (`sttPlayback`
+capability ON). The auto-degrade path (retry recognition without the
+recorder) is kept as a safety net but is not expected to fire on iOS or
+desktop Chrome.
+
+Caveat noted during testing: playback was unreliable **only** when routed
+through a Bluetooth mic/headset (audio-session routing quirk, not a code
+bug); on the built-in mic/speaker record + playback worked cleanly. Not a
+blocker; worth a one-line UI hint if Bluetooth issues recur.

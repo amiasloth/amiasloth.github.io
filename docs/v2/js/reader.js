@@ -44,6 +44,13 @@
   let level = null;
   let sentenceStep = null;  // null | {start, end, t, e} — virtual full-sentence step
 
+  // ---- Check mode (Phase 04) ----
+  let checker = null;       // Checker instance (only if SpeechRecognition exists)
+  let checkRetry = 0;       // failed attempts on the current phrase (cap 3)
+  let checkHidden = false;  // recognition service unavailable this session
+  let checkDiffShown = false;
+  let checkAuto = false;    // current check take was auto-started (no user gesture)
+
   // ---------------- settings ----------------
 
   const prefs = {
@@ -56,6 +63,7 @@
     sentenceReplay: Store.getPref("sentenceReplay", false),
     sentenceShowText: Store.getPref("sentenceShowText", true),
     abCompare: Store.getPref("abCompare", false),
+    checkMode: Store.getPref("checkMode", false),
   };
 
   // ---------------- data ----------------
@@ -78,6 +86,19 @@
       ? "beginner" : meta.levels[0]);
     if (!meta.levels.includes(level)) level = meta.levels[0];
     if (!TTS.available()) el.tts.style.display = "none";
+    if (Checker.isSupported()) {
+      checker = new Checker({
+        lang: meta.lang,
+        onState: onCheckState,
+        onInterim: onCheckInterim,
+        onResult: onCheckResult,
+        onError: onCheckError,
+        onLevel: (v) => {
+          el.ring.style.opacity = v > 0.02 ? Math.min(1, v * 3).toFixed(2) : 0;
+          el.ring.style.transform = "scale(" + (1 + v * 0.25).toFixed(3) + ")";
+        },
+      });
+    }
     buildSettingsSheet();
     if (review) {
       el.levelBtn.style.display = "none";
@@ -87,6 +108,7 @@
       await loadLevel(level, true);
     }
     bind();
+    paintIdleButton();   // reflect persisted Check mode on the record button
   }
 
   /* group flat[] into sentences: a run of `cont` chunks ending at the
@@ -329,10 +351,9 @@
   const rec = new LoopRecorder({
     autoStop: prefs.autoStop,
     onState: (s) => {
-      el.rec.className = "recbtn " + (s === "idle" ? "" : s);
-      if (s === "recording") { el.recIcon.textContent = "◼"; el.recLabel.textContent = "stop"; }
-      else if (s === "playing") { el.recIcon.textContent = "▶"; el.recLabel.textContent = "listen"; }
-      else { el.recIcon.textContent = "●"; el.recLabel.textContent = "record"; }
+      if (s === "recording") { el.rec.className = "recbtn recording"; el.recIcon.textContent = "◼"; el.recLabel.textContent = "stop"; }
+      else if (s === "playing") { el.rec.className = "recbtn playing"; el.recIcon.textContent = "▶"; el.recLabel.textContent = "listen"; }
+      else { paintIdleButton(); }   // idle: "record" or "check" depending on mode
       if (s !== "recording") veil(false);   // reveal during playback / idle
       status(s === "recording"
         ? (prefs.autoStop ? "Read the phrase aloud — pausing ends the take."
@@ -381,6 +402,137 @@
     el.status.className = "statusline" + (isErr ? " err" : "");
   }
 
+  // ---------------- check mode ----------------
+
+  function checkActive() {
+    return prefs.checkMode && Checker.isSupported() && !checkHidden;
+  }
+
+  // Record button while Check mode is on shows "✓ check" when idle.
+  function paintIdleButton() {
+    el.rec.className = "recbtn";
+    if (checkActive()) { el.recIcon.textContent = "✓"; el.recLabel.textContent = "check"; }
+    else { el.recIcon.textContent = "●"; el.recLabel.textContent = "record"; }
+  }
+
+  // Begin a check take. `auto` = started without a fresh user gesture
+  // (hands-free after a pass); such starts may be blocked on iOS — see
+  // onCheckResult / onCheckError for the graceful fallback.
+  function startCheckTake(auto) {
+    if (!checker) return;
+    checkAuto = !!auto;
+    clearCheckDiff();
+    if (prefs.hideText) veil(true);   // recall: text stays hidden while listening
+    status("Listening… say the phrase.");
+    checker.start();
+  }
+
+  // A check take from a user tap: release the loop mic, unlock playback,
+  // then listen. Tapping again while listening stops early.
+  function onCheckTap() {
+    if (!checker) return;
+    if (checker.state === "listening") { checker.stop(); return; }
+    rec.reset();                 // the two mic systems never run at once
+    checker._unlock();           // inside the tap: unlock playback of the take
+    startCheckTake(false);
+  }
+
+  function onCheckState(s) {
+    if (s === "listening") {
+      el.rec.className = "recbtn recording";
+      el.recIcon.textContent = "◼"; el.recLabel.textContent = "stop";
+    } else paintIdleButton();
+  }
+
+  function onCheckInterim(text) {
+    if (checker && checker.state === "listening" && text) status("… " + text);
+  }
+
+  function onCheckResult(res) {
+    const auto = checkAuto;
+    if (!res.transcript) {   // nothing recognized: silence, or iOS blocked an auto-start
+      // Never counts as a retry. On an auto-start that couldn't arm the mic,
+      // just invite a tap; on a manual take, it means we didn't hear speech.
+      status(auto ? "Tap ✓ to continue." : "Didn't catch that — tap ✓ to try again.");
+      return;
+    }
+    const ref = curText();
+    let best = Match.score(ref, res.transcript);
+    (res.alternatives || []).forEach((alt) => {           // score the best alternative
+      const sc = Match.score(ref, alt);
+      if (sc.score > best.score) best = sc;
+    });
+    renderDiff(best.tokens);
+    const pct = Math.round(best.score * 100);
+    if (best.score >= Match.PASS) {
+      checkRetry = 0;
+      status("✓ " + pct + "% — you said it.");
+      const after = () => checkAfter();
+      if (res.takeUrl && checker.playbackEnabled()) checker.playTake().then(after);
+      else after();
+    } else {
+      checkRetry++;
+      if (checkRetry >= 3) status("Revealed — tap › to move on.");   // reveal + let them pass
+      else status("Try again — " + (3 - checkRetry) + " left.");
+    }
+  }
+
+  // After a PASS the practice settings apply just like the loop:
+  //   after = repeat -> listen to the same phrase again,
+  //   after = next   -> advance and listen to the next one (hands-free),
+  //   after = stop   -> stay put, diff stays up.
+  // "Record when you go to the next phrase" is handled in go() for manual
+  // navigation. NOTE: these auto-starts have no user gesture; on iOS that
+  // may be blocked — startCheckTake/onCheckResult degrade to "Tap ✓" then.
+  function checkAfter() {
+    if (prefs.after === "repeat") startCheckTake(true);
+    else if (prefs.after === "next") {
+      if (go(1, { keepMic: true })) startCheckTake(true);
+      else status(review ? "End of the deck — well done!" : "End of the book — well read!");
+    }
+    // "stop": remain idle
+  }
+
+  function onCheckError(kind, msg) {
+    veil(false);
+    if (kind === "unavailable") {   // recognition service gone: hide the feature this session
+      checkHidden = true;
+      prefs.checkMode = false;
+      Store.setPref("checkMode", false);
+      buildSettingsSheet();
+      paintIdleButton();
+      status(msg, true);
+      return;
+    }
+    // An auto-start that couldn't arm the mic (e.g. iOS wants a gesture):
+    // don't show the scary permission error — just invite a tap.
+    if (checkAuto && (kind === "mic" || kind === "generic")) {
+      status("Tap ✓ to continue.");
+      return;
+    }
+    status(msg, true);
+  }
+
+  // Render the transcript diff into the focus line: reference text verbatim,
+  // missed words marked. Reveals the text (in case hideText veiled it).
+  function renderDiff(tokens) {
+    const txt = el.zone.querySelector(".chunk.now .txt");
+    if (!txt) return;
+    txt.innerHTML = "";
+    tokens.forEach((tk, i) => {
+      const sp = document.createElement("span");
+      sp.textContent = (i ? " " : "") + tk.display;
+      if (tk.ok === false) sp.className = "miss";
+      txt.appendChild(sp);
+    });
+    veil(false);
+    checkDiffShown = true;
+  }
+
+  function clearCheckDiff() {
+    if (checkDiffShown) { checkDiffShown = false; render(); }
+  }
+
   // ---------------- navigation ----------------
 
   // Returns true if the navigation moved somewhere (a real chunk or the
@@ -389,6 +541,9 @@
   function go(delta, opts) {
     opts = opts || {};
     TTS.stop();
+    // Leaving a phrase in Check mode: end recognition, drop the diff, reset
+    // the retry counter. render() (below) redraws the focus line clean.
+    if (checkActive()) { if (checker) checker.reset(); checkRetry = 0; checkDiffShown = false; }
 
     // Leaving an active sentence step: next continues after it, prev
     // returns to its last (real) chunk. Either way the step ends.
@@ -402,7 +557,7 @@
         else rec.reset();
         idx = n;
         render();
-        if (!opts.keepMic && prefs.recordOnNext) { rec._unlock(); startTake(); }
+        autoStartOnNav(opts);
         return true;
       } else {
         sentenceStep = null;
@@ -423,7 +578,7 @@
         else rec.reset();
         sentenceStep = buildSentenceStep(c.sentStart, c.sentEnd);
         render();
-        if (!opts.keepMic && prefs.recordOnNext) { rec._unlock(); startTake(); }
+        autoStartOnNav(opts);
         return true;
       }
     }
@@ -434,12 +589,19 @@
     else rec.reset();
     idx = n;
     render();
-    // one-tap reading: advancing starts the next take immediately
-    if (!opts.keepMic && prefs.recordOnNext && delta > 0) {
-      rec._unlock();
-      startTake();
-    }
+    // one-tap reading: advancing starts the next take immediately (forward only)
+    if (delta > 0) autoStartOnNav(opts);
     return true;
+  }
+
+  // "Record when you go to the next phrase": on a manual forward move, arm
+  // the next take automatically — a CHECK take in Check mode, otherwise the
+  // classic loop take. Suppressed when the caller keeps the mic (the
+  // hands-free after-pref flows start their own take).
+  function autoStartOnNav(opts) {
+    if (opts.keepMic || !prefs.recordOnNext) return;
+    if (checkActive()) { if (checker) checker._unlock(); startCheckTake(false); }
+    else { rec._unlock(); startTake(); }
   }
 
   function bind() {
@@ -448,6 +610,7 @@
     document.querySelector(".tapzone.right").addEventListener("click", () => go(1));
     document.querySelector(".tapzone.left").addEventListener("click", () => go(-1));
     el.rec.addEventListener("click", () => {
+      if (checkActive()) { onCheckTap(); return; }
       if (!LoopRecorder.isSupported()) {
         status("Recording is not supported in this browser.", true);
         return;
@@ -475,7 +638,7 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") go(-1);
-      else if (e.key === "r" || e.key === "R") rec.toggle();
+      else if (e.key === "r" || e.key === "R") { if (checkActive()) onCheckTap(); else rec.toggle(); }
       else if (e.key === "l" || e.key === "L") speakCurrent();
       else if (e.key === "s" || e.key === "S") toggleStar();
     });
@@ -491,9 +654,9 @@
 
     // release mic when the page goes away / is hidden
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) { rec.reset(); TTS.stop(); }
+      if (document.hidden) { rec.reset(); if (checker) checker.reset(); TTS.stop(); }
     });
-    window.addEventListener("pagehide", () => { rec.reset(); TTS.stop(); });
+    window.addEventListener("pagehide", () => { rec.reset(); if (checker) checker.reset(); TTS.stop(); });
   }
 
   // ---------------- sheets ----------------
@@ -521,6 +684,14 @@
     prefs[name] = value;
     Store.setPref(name, value);
     if (name === "autoStop") rec.autoStop = value;
+    if (name === "checkMode") {   // switching modes: hand the mic over cleanly
+      if (checker) checker.reset();
+      rec.reset();
+      checkRetry = 0;
+      clearCheckDiff();
+      paintIdleButton();
+      status("");
+    }
     buildSettingsSheet();
   }
 
@@ -567,6 +738,11 @@
       });
       row.className = "raterow";
       box.appendChild(row);
+    }
+
+    if (Checker.isSupported() && !checkHidden) {
+      heading("Check mode (recall test)");
+      toggle("Check what you said", "Speak the phrase; the app checks your words against the text and marks any you missed. Up to 3 tries, then it reveals and lets you move on. Playback of your take is included where the device allows it.", "checkMode");
     }
 
     heading("After playback");
