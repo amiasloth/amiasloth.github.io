@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<!--
+  Zzzpeak v2 — Phase 04 Milestone 0: SpeechRecognition device probe.
+
+  A BARE, self-contained test page. Not linked from anywhere. No shared
+  CSS/JS so it can neither affect nor be affected by the rest of v2.
+
+  Purpose: find out how this device (esp. iOS Safari) handles the Web
+  Speech API SpeechRecognition, and whether it can run CONCURRENTLY with
+  a MediaRecorder capture. The result decides how Check mode ships:
+    - Both survive            -> Check mode WITH take playback.
+    - Recognition only        -> Check mode diff-only (sttPlayback off).
+    - Recognition unavailable -> Check mode hidden on this platform.
+
+  Usage: open  /v2/probe.html?lang=de-DE  (default de-DE). Tap the
+  buttons; read the log; report the summary lines back.
+
+  iOS prerequisites: Settings -> Siri & Search -> dictation must be ON;
+  mic permission must be granted; page must be HTTPS (GitHub Pages is).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zzzpeak STT probe</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 16px;
+    background: #0f1115; color: #e6e8ec;
+    font: 15px/1.45 -apple-system, system-ui, sans-serif;
+    -webkit-text-size-adjust: 100%;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { color: #9aa0aa; font-size: 13px; margin: 0 0 14px; }
+  .caps { font-size: 13px; margin: 0 0 14px; padding: 10px 12px;
+          background: #171a20; border-radius: 10px; }
+  .caps b { color: #fff; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  button {
+    appearance: none; border: 0; border-radius: 999px;
+    padding: 12px 16px; font-size: 15px; font-weight: 600;
+    background: #2b6cff; color: #fff;
+  }
+  button.sec { background: #2a2f3a; color: #e6e8ec; }
+  button:disabled { opacity: .4; }
+  .summary { font-size: 13px; padding: 10px 12px; border-radius: 10px;
+             background: #171a20; margin-bottom: 12px; white-space: pre-wrap; }
+  .ok { color: #4ade80; } .bad { color: #f87171; } .warn { color: #fbbf24; }
+  #log {
+    background: #05070b; border: 1px solid #1c2230; border-radius: 10px;
+    padding: 10px; height: 46vh; overflow: auto;
+    font: 12px/1.4 ui-monospace, Menlo, monospace; white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .note { color: #6b7280; font-size: 12px; margin-top: 12px; }
+  audio { width: 100%; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <h1>SpeechRecognition probe</h1>
+  <p class="sub">Phase 04 Milestone 0 · lang=<span id="langlabel">?</span></p>
+
+  <div class="caps" id="caps">checking capabilities…</div>
+
+  <div class="row">
+    <button id="btnRec">1 · Recognition alone</button>
+    <button id="btnBoth" class="sec">2 · Recorder + recognition</button>
+    <button id="btnStop" class="sec" disabled>Stop</button>
+  </div>
+  <div class="row">
+    <button id="btnPlay" class="sec" disabled>▶ Play last recording</button>
+    <button id="btnClear" class="sec">Clear log</button>
+  </div>
+
+  <div class="summary" id="summary">No run yet.</div>
+  <audio id="player" controls playsinline></audio>
+
+  <div id="log"></div>
+
+  <p class="note">
+    iOS: Settings → Siri &amp; Search → dictation must be ON, mic permission
+    granted, page over HTTPS. Speak the phrase right after tapping. Report the
+    summary lines and anything red in the log.
+  </p>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- params ----
+  var params = new URLSearchParams(location.search);
+  var LANG = params.get("lang") || "de-DE";
+  document.getElementById("langlabel").textContent = LANG;
+
+  // ---- elements ----
+  var elLog = document.getElementById("log");
+  var elSummary = document.getElementById("summary");
+  var elCaps = document.getElementById("caps");
+  var btnRec = document.getElementById("btnRec");
+  var btnBoth = document.getElementById("btnBoth");
+  var btnStop = document.getElementById("btnStop");
+  var btnPlay = document.getElementById("btnPlay");
+  var btnClear = document.getElementById("btnClear");
+  var player = document.getElementById("player");
+
+  // ---- logging ----
+  var t0 = 0;
+  function ms() { return t0 ? String(Math.round(performance.now() - t0)).padStart(5, " ") : "  ·  "; }
+  function log(msg, cls) {
+    var line = document.createElement("div");
+    line.textContent = ms() + "ms  " + msg;
+    if (cls) line.className = cls;
+    elLog.appendChild(line);
+    elLog.scrollTop = elLog.scrollHeight;
+  }
+  function summary(html) { elSummary.innerHTML = html; }
+  btnClear.addEventListener("click", function () { elLog.textContent = ""; });
+
+  // ---- capability detection ----
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  var hasSR = !!SR;
+  var hasMR = typeof MediaRecorder !== "undefined";
+  var hasGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+  function pickMime() {
+    if (!hasMR || !MediaRecorder.isTypeSupported) return null;
+    var types = ["audio/mp4", "audio/webm;codecs=opus", "audio/webm", "audio/ogg;codecs=opus"];
+    for (var i = 0; i < types.length; i++) {
+      try { if (MediaRecorder.isTypeSupported(types[i])) return types[i]; } catch (e) {}
+    }
+    return "";
+  }
+  var MIME = pickMime();
+
+  elCaps.innerHTML =
+    "SpeechRecognition: <b class='" + (hasSR ? "ok'>yes" : "bad'>NO") + "</b>" +
+    "  ·  MediaRecorder: <b class='" + (hasMR ? "ok'>yes" : "bad'>NO") + "</b>" +
+    "  ·  getUserMedia: <b class='" + (hasGUM ? "ok'>yes" : "bad'>NO") + "</b>" +
+    "<br>negotiated mime: <b>" + (MIME === null ? "none (WAV fallback)" : (MIME || "browser default")) + "</b>" +
+    "  ·  UA: <b>" + (navigator.userAgent || "?") + "</b>";
+
+  if (!hasSR) {
+    btnRec.disabled = true; btnBoth.disabled = true;
+    summary("<span class='bad'>SpeechRecognition is UNAVAILABLE on this browser.</span>\n" +
+            "Outcome: Check mode would hide itself on this platform.");
+  }
+
+  // ---- shared recognition wiring ----
+  var rec = null;             // active SpeechRecognition
+  var mediaRec = null;        // active MediaRecorder
+  var stream = null;          // active mic stream
+  var chunks = [];
+  var lastUrl = null;
+  var safety = null;
+  var run = null;             // per-session state
+
+  function resetButtons(running) {
+    btnRec.disabled = running || !hasSR;
+    btnBoth.disabled = running || !hasSR;
+    btnStop.disabled = !running;
+  }
+
+  function cleanupStream() {
+    if (mediaRec && mediaRec.state !== "inactive") { try { mediaRec.stop(); } catch (e) {} }
+    if (stream) { stream.getTracks().forEach(function (tr) { tr.stop(); }); stream = null; }
+  }
+
+  function endSession(reason) {
+    if (safety) { clearTimeout(safety); safety = null; }
+    resetButtons(false);
+    if (!run) return;
+    var r = run; run = null;
+    // If a recorder was involved, wait for its final data before summarizing.
+    if (r.withRecorder && mediaRec && mediaRec.state !== "inactive") {
+      mediaRec.addEventListener("stop", function () { finalize(r, reason); }, { once: true });
+      try { mediaRec.stop(); } catch (e) { finalize(r, reason); }
+    } else {
+      cleanupStream();
+      finalize(r, reason);
+    }
+  }
+
+  function finalize(r, reason) {
+    cleanupStream();
+    var gotResult = !!r.finalText || r.resultEvents > 0;
+    if (r.withRecorder) {
+      var blob = chunks.length ? new Blob(chunks, { type: (MIME || "") }) : null;
+      var blobOk = !!(blob && blob.size > 0);
+      if (blobOk) {
+        if (lastUrl) URL.revokeObjectURL(lastUrl);
+        lastUrl = URL.createObjectURL(blob);
+        player.src = lastUrl;
+        btnPlay.disabled = false;
+        log("recorder blob: " + blob.size + " bytes, type='" + (blob.type || "?") + "'", "ok");
+      } else {
+        log("recorder produced NO playable blob", "bad");
+      }
+      var both = gotResult && blobOk;
+      summary(
+        "<b>Concurrency run (" + reason + ")</b>\n" +
+        "recognition result: " + mark(gotResult) + "   (final: \"" + (r.finalText || "") + "\")\n" +
+        "recorder blob: " + mark(blobOk) + (blobOk ? "  (" + blob.size + " bytes)" : "") + "\n" +
+        "errors: " + (r.errors.length ? "<span class='bad'>" + r.errors.join(", ") + "</span>" : "none") + "\n\n" +
+        "<b>Verdict: " + (both
+          ? "<span class='ok'>BOTH SURVIVE → Check mode WITH playback.</span>"
+          : gotResult
+            ? "<span class='warn'>Recognition only → Check mode diff-only (sttPlayback off).</span>"
+            : "<span class='bad'>Recognition failed here → see errors above.</span>") + "</b>"
+      );
+    } else {
+      summary(
+        "<b>Recognition-alone run (" + reason + ")</b>\n" +
+        "result: " + mark(gotResult) + "   (final: \"" + (r.finalText || "") + "\")\n" +
+        "result events: " + r.resultEvents + "   ·   errors: " +
+          (r.errors.length ? "<span class='bad'>" + r.errors.join(", ") + "</span>" : "none") + "\n\n" +
+        "<b>Verdict: " + (gotResult
+          ? "<span class='ok'>Recognition works standalone.</span>"
+          : "<span class='bad'>No recognition result — check dictation setting / mic / errors.</span>") + "</b>"
+      );
+    }
+    log("— session end (" + reason + ") —");
+  }
+  function mark(b) { return b ? "<span class='ok'>YES</span>" : "<span class='bad'>NO</span>"; }
+
+  function startRecognition() {
+    rec = new SR();
+    rec.lang = LANG;
+    rec.continuous = false;
+    rec.interimResults = true;
+    try { rec.maxAlternatives = 3; } catch (e) {}
+
+    ["start", "audiostart", "soundstart", "speechstart",
+     "speechend", "soundend", "audioend"].forEach(function (ev) {
+      rec.addEventListener(ev, function () { log("recognition." + ev); });
+    });
+
+    rec.addEventListener("result", function (e) {
+      if (!run) return;
+      run.resultEvents++;
+      var interim = "", finalTxt = "";
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        var res = e.results[i];
+        var alt = res[0];
+        if (res.isFinal) {
+          finalTxt += alt.transcript;
+          var alts = [];
+          for (var a = 0; a < res.length; a++) alts.push("\"" + res[a].transcript + "\"");
+          log("result FINAL: \"" + alt.transcript.trim() + "\"  conf=" +
+              (alt.confidence != null ? alt.confidence.toFixed(2) : "?") +
+              "  alts=[" + alts.join(", ") + "]", "ok");
+        } else {
+          interim += alt.transcript;
+        }
+      }
+      if (finalTxt) run.finalText = (run.finalText + " " + finalTxt).trim();
+      if (interim) log("result interim: \"" + interim.trim() + "\"");
+    });
+
+    rec.addEventListener("nomatch", function () {
+      if (run) run.errors.push("nomatch");
+      log("recognition.nomatch", "warn");
+    });
+
+    rec.addEventListener("error", function (e) {
+      if (run) run.errors.push(e.error || "error");
+      log("recognition.error: " + (e.error || "?") + (e.message ? " — " + e.message : ""), "bad");
+    });
+
+    rec.addEventListener("end", function () {
+      log("recognition.end");
+      endSession("recognition ended");
+    });
+
+    try {
+      rec.start();
+      log("recognition.start() called (lang=" + LANG + ")");
+    } catch (e) {
+      log("recognition.start() threw: " + e, "bad");
+      endSession("start threw");
+    }
+  }
+
+  // ---- run 1: recognition alone ----
+  btnRec.addEventListener("click", function () {
+    t0 = performance.now();
+    chunks = []; btnPlay.disabled = true;
+    run = { withRecorder: false, finalText: "", resultEvents: 0, errors: [] };
+    resetButtons(true);
+    summary("Listening (recognition only)… speak now.");
+    log("=== RUN 1: recognition alone ===");
+    startRecognition();
+    safety = setTimeout(function () { log("safety timeout (12s)"); stopAll(); }, 12000);
+  });
+
+  // ---- run 2: recorder first, then recognition ----
+  btnBoth.addEventListener("click", function () {
+    if (!hasGUM || !hasMR) {
+      log("cannot run concurrency test: getUserMedia/MediaRecorder missing", "bad");
+      return;
+    }
+    t0 = performance.now();
+    chunks = []; btnPlay.disabled = true;
+    run = { withRecorder: true, finalText: "", resultEvents: 0, errors: [] };
+    resetButtons(true);
+    summary("Opening mic + recorder, then recognition… speak now.");
+    log("=== RUN 2: recorder + recognition (concurrency) ===");
+
+    navigator.mediaDevices.getUserMedia({ audio: true }).then(function (s) {
+      stream = s;
+      log("getUserMedia OK", "ok");
+      try {
+        mediaRec = MIME ? new MediaRecorder(s, { mimeType: MIME }) : new MediaRecorder(s);
+      } catch (e) {
+        log("MediaRecorder ctor threw, retrying default: " + e, "warn");
+        mediaRec = new MediaRecorder(s);
+      }
+      mediaRec.addEventListener("dataavailable", function (ev) {
+        if (ev.data && ev.data.size) { chunks.push(ev.data); log("recorder data: " + ev.data.size + "b"); }
+      });
+      mediaRec.addEventListener("error", function (ev) {
+        log("recorder.error: " + (ev.error && ev.error.name || ev.error || "?"), "bad");
+      });
+      mediaRec.start();
+      log("recorder.start() (state=" + mediaRec.state + ", mime='" + (mediaRec.mimeType || "?") + "')", "ok");
+      // Give the recorder a beat to actually open the session, then recognize.
+      setTimeout(function () {
+        if (!run) return;
+        startRecognition();
+        safety = setTimeout(function () { log("safety timeout (12s)"); stopAll(); }, 12000);
+      }, 250);
+    }).catch(function (err) {
+      log("getUserMedia FAILED: " + (err && err.name || err), "bad");
+      if (run) run.errors.push("getUserMedia:" + (err && err.name || err));
+      endSession("no mic");
+    });
+  });
+
+  // ---- stop / play ----
+  function stopAll() {
+    if (rec) { try { rec.stop(); } catch (e) { endSession("manual stop"); } }
+    else endSession("manual stop");
+  }
+  btnStop.addEventListener("click", stopAll);
+
+  btnPlay.addEventListener("click", function () {
+    if (!lastUrl) return;
+    player.play().then(function () { log("playback started", "ok"); })
+                 .catch(function (e) { log("playback blocked: " + e, "bad"); });
+  });
+})();
+</script>
+</body>
+</html>
