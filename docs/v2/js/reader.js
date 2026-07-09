@@ -340,14 +340,6 @@
         : s === "playing" ? afterHint()
         : "");
     },
-    beforePlay: () => {
-      // sentence step has its own fixed order (own take, then TTS —
-      // see onPlayEnd below), so skip the ab-compare pre-play here to
-      // avoid hearing TTS twice / out of order.
-      if (sentenceStep || !prefs.abCompare || !TTS.available()) return Promise.resolve();
-      status("Listen…");
-      return TTS.speak(curText(), meta.lang, prefs.ttsRate);
-    },
     onError: (msg) => { veil(false); status(msg, true); },
     onSpeechStart: () => {
       // during the sentence step, hideText only veils if sentenceShowText is off
@@ -355,13 +347,17 @@
       if (hide) veil(true);
     },
     onPlayEnd: () => {
-      // Sentence step: hear your own take (just finished), then hear the
+      // Compare-after: hear your own take (just finished), then hear the
       // correct TTS reading, THEN apply the after-playback pref — so the
-      // learner can notice what they got wrong before moving on.
-      if (sentenceStep) {
-        const step = sentenceStep;
+      // learner can notice what they got wrong before moving on. Always on
+      // for the sentence step; on normal chunks only when "Compare with
+      // the voice" (abCompare) is enabled.
+      if (sentenceStep || prefs.abCompare) {
+        const stepSnap = sentenceStep, idxSnap = idx;
         speakCurrent().then(() => {
-          if (sentenceStep !== step) return;   // step left/changed during TTS
+          // bail if the user moved on (sentence step ended/changed, or
+          // navigated to a different chunk) while TTS was playing
+          if (sentenceStep !== stepSnap || idx !== idxSnap) return;
           runAfter();
         });
         return;
