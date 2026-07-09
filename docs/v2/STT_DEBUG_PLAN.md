@@ -161,6 +161,82 @@ Explicitly also worth keeping from round 3 (they fix real bugs): config-driven T
 4. Read traces against H1–H7 → pick the row in Step 3 (or Step 4)
 5. One fix per commit, each re-verified on the device before the next
 
+## Device session 1 — 2026-07-09, iPhone, **at `05b9a4d` (pre-fix baseline)**, no overlay
+
+**Step 0 is answered: the take-2 failure exists at the baseline, BEFORE both fix
+commits. The revert path (Step 4) is dead for the iPhone symptoms — forward only.**
+
+Results:
+
+- **T1** (fresh, check off, loop): auto-stop works.
+- **T2** (same load, check toggled on→off, no check takes, loop): auto-stop works.
+- **T3** (fresh, check on, after=repeat): take 1 fully works — 100%, replay plays.
+  Take 2 (auto-started): interims print correctly, but never finalizes; pause →
+  "Listening… say the phrase" (re-arm); long silence → cap-out, check button returns,
+  no playback. Once this happens, even a manual ✓ tap never restores scoring/playback.
+- **T4** (fresh load, same config): first take doesn't pick up at all. **The wedge
+  survives page reload** → OS-level dictation/audio-session state, not JS state.
+- **T5**: abandoned; behavior inconsistent.
+
+What this kills / confirms (baseline code, so version-independent conclusions only):
+
+- **Revert is pointless** — take 2 breaks identically before the two commits.
+- **"Concurrent replay worked before" = take 1 only.** Take 1 at baseline scores AND
+  replays, so concurrent recorder+recognition CAN work on iPhone — H2/H3 not blanket-true.
+- **H1 dead** — take 2 auto-started without a gesture and heard speech (interims printed).
+- **Gesture-rescue dead** — a real ✓ tap doesn't fix a wedged session (rounds 2–3 assumption).
+- **Loop regression not reproduced** (T1/T2) — but T2 had zero check takes, so H5
+  (AudioContext churn) is untested, not killed. Retest: ≥6 check takes, THEN loop.
+
+**H8 (front-runner): from take 2 on, iOS delivers interims but never `isFinal`.**
+Take 1 (fresh stream, recognition 120 ms after recorder, inside the tap) finalizes;
+take 2 (reused persistent stream, no gesture) doesn't. No final → no score → no
+playback → apparent "no auto-stop".
+
+**Open contradiction to settle:** at `05b9a4d` there is no silence re-arm — an empty
+take prints "Tap ✓ to continue" and stops. The observed repeated "Listening… say the
+phrase" at that commit can only come from `checkNext`'s miss-auto-retry, which requires
+a FINAL that scored as a miss. So either (a) finals never come (H8) and the observed
+loop was something else (e.g. one long never-ending session with the status text
+misread), or (b) finals DO come but are garbled vs the correct-looking interims
+(H8b: bad finals, not missing finals), or **(c) finals come and PASS, and the broken
+piece is playback**: on a pass, baseline runs `playTake → speakModel → checkNext`; if
+`audio.play()` rejects (H4 — unlock lost on gestureless takes) `playTake` resolves
+`false` in milliseconds, so the "✓ N%" status is instantly overwritten by the next
+take's "Listening… say the phrase". From the user's seat (c) is indistinguishable from
+"never finalizes, no auto-stop, no playback" — but the take actually scored. (c) also
+explains "tap ✓ doesn't fix it" without any service wedge: checker's `_unlock` never
+retries after one failure (see Bugs list). Only the overlay separates (a)/(b)/(c): it
+needs per-result `isFinal`, every `status()` string with timestamps (to catch the
+flash), and `playTake`'s resolve/reject. The fixes differ completely — (a)/(b) touch
+recognition handling, (c) is purely the audio-unlock/playback path.
+
+**H9: system-level wedge.** T4's fresh-load failure means iOS's dictation service (or
+Safari's audio session) stays broken across reloads. Test protocol must control for it:
+force-quit Safari (or close the tab) between EVERY test run, and record whether Safari
+was killed since the last run. Without this, runs aren't comparable — this alone
+explains "inconsistent behavior".
+
+Overlay additions now required (Step 1 amendments):
+
+- log **every** `result` event with per-result `isFinal` flags and `resultIndex` — the
+  single most valuable discriminator for H8
+- log the last interim text seen, so we know what a fallback-to-interim would have scored
+- log safety-timer (12 s) fires vs natural `onend` vs `onerror`, with ordering
+- persist the trace in `sessionStorage` and re-render after reload — catches T4
+- log a per-pageload id + `navigator.userActivation.isActive` at every recognition start
+
+Candidate fixes IF H8 confirms (one commit each, device-tested, in this order):
+
+1. **Fallback-to-interim**: keep the latest interim; on end with no finals, score it.
+   Smallest change; converts the failure into a working take.
+2. **Own the endpointing**: the meter/analyser already runs on the persistent stream —
+   reuse loop-style VAD (~1 s trailing silence → `checker.stop()`) instead of trusting
+   iOS to endpoint. Makes check takes behave exactly like loop takes.
+3. **Discriminating experiment** (debug-flag only): release + re-acquire the stream per
+   take on iOS — tests whether the *persistent* stream is what breaks finalization after
+   take 1, i.e. whether the v1 trick and finals are mutually exclusive.
+
 ## Bugs found while reading (file for later; do NOT fix now)
 
 - `_finalize`'s "first take starts recognition-only" comment describes code that no longer exists — the stale comment is itself evidence of round-2/3 churn.
