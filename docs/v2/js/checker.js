@@ -1,18 +1,20 @@
 /* Zzzpeak v2 — Check mode engine (Phase 04).
  *
  * Owns the Web Speech API SpeechRecognition lifecycle and, where the
- * platform allows it (see probe / Milestone 0), a CONCURRENT MediaRecorder
- * capture so the user's take can be played back. Deliberately NOT built on
- * LoopRecorder — separate concern — but it obeys the same iOS rules:
- *   - start only from a user gesture,
- *   - negotiate the mime type (never assume webm),
- *   - one <audio> element, unlocked once inside the tap,
- *   - the two mic systems (this and LoopRecorder) never run at once; the
- *     reader reset()s the other before starting either.
+ * platform allows it, a concurrent MediaRecorder capture so the user's take
+ * can be played back. Deliberately NOT built on LoopRecorder, but it obeys
+ * the same iOS rules.
  *
- * Scoring lives in match.js; this module only produces the transcript,
- * its alternatives, and (optionally) a playable take URL, then hands them
- * back via onResult for the reader to score and render.
+ * PERSISTENT SESSION (the v1 trick): the getUserMedia mic stream is opened
+ * ONCE (from the first user tap) and kept alive across phrases — released
+ * only on reset() (leaving Check mode / page hidden). Each phrase reuses the
+ * open stream: a fresh MediaRecorder + a fresh recognition, no re-acquiring
+ * the mic. This is what lets the reader auto-continue hands-free WITHOUT a
+ * tap per phrase, including on iOS Safari (verified with probe_continuous:
+ * a no-gesture recognition restart on an already-open mic session works).
+ *
+ * Scoring lives in match.js; this module only produces the transcript, its
+ * alternatives, and (optionally) a playable take URL via onResult.
  */
 (function (global) {
   "use strict";
@@ -44,18 +46,17 @@
     this.onError = opts.onError || noop;     // (kind, message)  kind: mic|no-speech|unavailable|generic
 
     this.state = "idle";
-    this._rec = null;         // SpeechRecognition
-    this._mr = null;          // MediaRecorder
-    this._stream = null;
+    this._rec = null;         // SpeechRecognition (per take)
+    this._mr = null;          // MediaRecorder (per take)
+    this._stream = null;      // PERSISTENT mic stream (kept across takes)
     this._chunks = [];
     this._mime = pickMime();
     this._url = null;
     this._safety = null;
-    this._gen = 0;            // bumped each session; stale callbacks bail
+    this._gen = 0;            // bumped each take/reset; stale callbacks bail
     this._finals = [];        // final alternative transcripts (best first)
     this._disabled = false;   // recognition service unavailable this session
     this._degraded = false;   // concurrency failed once -> recognition only
-    // capability: playback needs a recorder AND a mic AND not-yet-degraded
     this._canPlayback = !!(navigator.mediaDevices &&
       navigator.mediaDevices.getUserMedia && typeof MediaRecorder !== "undefined");
 
@@ -71,7 +72,7 @@
 
   Checker.bcp = function (lang) {
     if (!lang) return "en-US";
-    if (lang.indexOf("-") > 0) return lang;      // already a BCP tag
+    if (lang.indexOf("-") > 0) return lang;
     var map = { de: "de-DE", en: "en-US" };
     return map[lang.toLowerCase()] || lang;
   };
@@ -79,6 +80,7 @@
   Checker.prototype.playbackEnabled = function () { return this._canPlayback && !this._degraded; };
   Checker.prototype.disabled = function () { return this._disabled; };
   Checker.prototype.hasTake = function () { return !!this._url; };
+  Checker.prototype.micOpen = function () { return !!(this._stream && this._stream.active); };
 
   Checker.prototype._set = function (s) { this.state = s; this._gen++; this.onState(s); };
 
@@ -87,10 +89,10 @@
     this._unlocked = true;
     this.audio.src = SILENCE;
     var p = this.audio.play();
-    if (p && p.catch) p.catch(function () {}.bind(this));
+    if (p && p.catch) p.catch(function () {});
   };
 
-  // ---- level meter (only when we hold a stream, i.e. playback path) ----
+  // ---- level meter (uses the persistent stream) ----
   Checker.prototype._startMeter = function () {
     if (!this.onLevel || !this._stream || this._analyser) return;
     try {
@@ -111,7 +113,7 @@
         self._meterRAF = requestAnimationFrame(tick);
       };
       tick();
-    } catch (e) { /* meter is best-effort */ }
+    } catch (e) { /* best-effort */ }
   };
 
   Checker.prototype._stopMeter = function () {
@@ -122,39 +124,56 @@
     if (this.onLevel) this.onLevel(0);
   };
 
-  // ---- public: begin a check take (call from a user tap) ----
+  // Reuse the open mic stream if we have one; otherwise acquire it once.
+  Checker.prototype._ensureStream = function (gen) {
+    var self = this;
+    if (this._stream && this._stream.active) return Promise.resolve(this._stream);
+    return navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true }
+    }).then(function (s) {
+      if (self._gen !== gen) { s.getTracks().forEach(function (t) { t.stop(); }); return null; }
+      self._stream = s;
+      return s;
+    });
+  };
+
+  // ---- public: begin one check take (call the first one from a user tap) ----
   Checker.prototype.start = function () {
     if (!SR || this._disabled || this.state === "listening") return;
     this._finals = [];
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
-    if (this.playbackEnabled()) this._startWithRecorder();
-    else this._startRecognition();
+    var self = this, gen = this._gen;
+    if (this.playbackEnabled()) {
+      this._ensureStream(gen).then(function (stream) {
+        if (self._gen !== gen) return;
+        if (stream) {
+          self._startRecorder(stream);
+          // brief beat so capture is really open before recognition
+          setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 120);
+        } else {
+          self._canPlayback = false;
+          self._startRecognition();
+        }
+      }).catch(function () {
+        self._canPlayback = false;                 // no mic for the recorder
+        if (self._gen === gen) self._startRecognition();
+      });
+    } else {
+      this._startRecognition();
+    }
   };
 
-  Checker.prototype._startWithRecorder = function () {
-    var self = this, gen = this._gen;
-    navigator.mediaDevices.getUserMedia({
-      audio: { echoCancellation: true, noiseSuppression: true }
-    }).then(function (stream) {
-      if (self._gen !== gen) { stream.getTracks().forEach(function (t) { t.stop(); }); return; }
-      self._stream = stream;
-      self._chunks = [];
-      try {
-        self._mr = self._mime ? new MediaRecorder(stream, { mimeType: self._mime })
-                              : new MediaRecorder(stream);
-      } catch (e) { self._mr = new MediaRecorder(stream); }
-      self._mr.ondataavailable = function (e) { if (e.data && e.data.size) self._chunks.push(e.data); };
-      try { self._mr.start(); } catch (e) {}
-      self._startMeter();
-      // small beat so the capture session is really open before recognition
-      setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 200);
-    }).catch(function (err) {
-      // No mic for the recorder: fall back to recognition-only (still useful).
-      self._canPlayback = false;
-      self._releaseStream();
-      if (self._gen === gen) self._startRecognition();
-    });
+  Checker.prototype._startRecorder = function (stream) {
+    this._chunks = [];
+    try {
+      this._mr = this._mime ? new MediaRecorder(stream, { mimeType: this._mime })
+                            : new MediaRecorder(stream);
+    } catch (e) { this._mr = new MediaRecorder(stream); }
+    var self = this;
+    this._mr.ondataavailable = function (e) { if (e.data && e.data.size) self._chunks.push(e.data); };
+    try { this._mr.start(); } catch (e) {}
+    this._startMeter();
   };
 
   Checker.prototype._startRecognition = function () {
@@ -194,45 +213,42 @@
   };
 
   Checker.prototype._onError = function (kind) {
-    // Service genuinely unavailable -> hide Check mode for the session.
     if (kind === "network" || kind === "service-not-allowed" || kind === "language-not-supported") {
       this._disabled = true;
-      this._teardown();
+      this.reset();                                // release the mic — feature hidden
       this.onError("unavailable", "Speech recognition isn't available here.");
       return;
     }
     if (kind === "not-allowed") {
-      this._teardown();
+      this.reset();
       this.onError("mic", "Microphone/dictation permission is needed. On iPhone: Settings → Siri & Search → enable dictation, and allow the mic.");
       return;
     }
     if (kind === "no-speech") {
-      this._teardown();
+      this._endTakeIdle();                         // keep the mic open for a quick retry
       this.onError("no-speech", "Didn't hear anything — tap to try again.");
       return;
     }
-    // audio-capture / aborted / unknown: if the recorder might be the cause,
-    // auto-degrade ONCE and retry recognition alone.
-    if (!this._degraded && (this._mr || this._stream)) {
+    // audio-capture / aborted / unknown: auto-degrade ONCE, retry recognition alone.
+    if (!this._degraded && (this._mr || this.playbackEnabled())) {
       this._degraded = true;
       this._canPlayback = false;
       this._detachRec();
-      this._releaseStream();
+      this._stopRecorder();
       this._stopMeter();
-      this._gen++;                 // invalidate the failed session's callbacks
+      this._gen++;
       var self = this, gen = this._gen;
       this.state = "listening";
       setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 50);
       return;
     }
-    this._teardown();
+    this._endTakeIdle();
     this.onError("generic", "Speech recognition failed — tap to try again.");
   };
 
   Checker.prototype._finalize = function () {
     var self = this, gen = this._gen;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
-    // best alternatives across final results: flatten, best (index 0) first
     var alternatives = [];
     for (var i = 0; i < this._finals.length; i++)
       for (var k = 0; k < this._finals[i].length; k++) alternatives.push(this._finals[i][k]);
@@ -240,9 +256,8 @@
 
     var done = function (takeUrl) {
       if (self._gen !== gen) return;
-      self._stopMeter();
-      self._releaseStream();
-      self._rec = null;
+      self._detachRec();
+      self._stopMeter();                           // stream stays OPEN for the next phrase
       self._set("idle");
       self.onResult({ transcript: transcript, alternatives: alternatives, takeUrl: takeUrl || null });
     };
@@ -251,20 +266,41 @@
       var mr = this._mr;
       mr.onstop = function () {
         var blob = self._chunks.length ? new Blob(self._chunks, { type: mr.mimeType || self._mime || "" }) : null;
+        self._mr = null;
         if (blob && blob.size) { self._url = URL.createObjectURL(blob); done(self._url); }
         else done(null);
       };
-      try { mr.stop(); } catch (e) { done(null); }
+      try { mr.stop(); } catch (e) { self._mr = null; done(null); }
     } else {
       done(null);
     }
   };
 
-  // ---- public: stop the current recognition (ends the session normally) ----
+  // ---- public: stop the current recognition (ends the take normally) ----
   Checker.prototype.stop = function () {
     if (this.state !== "listening") return;
     if (this._rec) { try { this._rec.stop(); } catch (e) { this._finalize(); } }
     else this._finalize();
+  };
+
+  // ---- public: end the current take but KEEP the mic open (used on nav
+  // between phrases so the persistent session survives, v1-style) ----
+  Checker.prototype.endTake = function () {
+    this._gen++;
+    if (this._safety) { clearTimeout(this._safety); this._safety = null; }
+    this._detachRec();
+    this._stopRecorder();
+    this._stopMeter();
+    this.state = "idle";
+    this.onState("idle");
+  };
+
+  Checker.prototype._endTakeIdle = function () {
+    if (this._safety) { clearTimeout(this._safety); this._safety = null; }
+    this._detachRec();
+    this._stopRecorder();
+    this._stopMeter();
+    this._set("idle");
   };
 
   // ---- public: play the last take (user tap) ----
@@ -283,33 +319,30 @@
 
   Checker.prototype._detachRec = function () {
     if (this._rec) {
-      this._rec.onresult = this._rec.onerror = this._rec.onend = null;
+      this._rec.onresult = this._rec.onerror = this._rec.onend = this._rec.onspeechstart = null;
       try { this._rec.abort(); } catch (e) {}
       this._rec = null;
     }
   };
 
-  Checker.prototype._releaseStream = function () {
+  Checker.prototype._stopRecorder = function () {
     if (this._mr && this._mr.state !== "inactive") { try { this._mr.stop(); } catch (e) {} }
     this._mr = null;
+    this._chunks = [];
+  };
+
+  Checker.prototype._releaseStream = function () {
     if (this._stream) { this._stream.getTracks().forEach(function (t) { t.stop(); }); this._stream = null; }
   };
 
-  Checker.prototype._teardown = function () {
-    if (this._safety) { clearTimeout(this._safety); this._safety = null; }
-    this._detachRec();
-    this._releaseStream();
-    this._stopMeter();
-    this._set("idle");
-  };
-
-  // ---- public: full stop, release everything (leaving Check mode / nav) ----
+  // ---- public: full stop — release the mic (leaving Check mode / hidden) ----
   Checker.prototype.reset = function () {
-    this._gen++;                 // invalidate any in-flight callbacks
+    this._gen++;
     if (this._safety) { clearTimeout(this._safety); this._safety = null; }
     this._detachRec();
-    this._releaseStream();
+    this._stopRecorder();
     this._stopMeter();
+    this._releaseStream();
     try { this.audio.pause(); } catch (e) {}
     this.audio.onended = null;
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }

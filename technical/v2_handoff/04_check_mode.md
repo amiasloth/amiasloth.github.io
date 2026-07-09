@@ -186,13 +186,23 @@ Check mode honours the same settings as the loop:
 - **Record when you go to the next phrase** — a manual next tap auto-starts
   the next check take.
 
-### iOS limitation (important)
+### iOS hands-free — persistent mic session
 
-All of the above is fully hands-free on **desktop**. On **iOS Safari**,
-Apple gates `SpeechRecognition.start()` on a user gesture — the mic will not
-arm itself without a tap. So on iOS the hands-free auto-listen (auto-retry,
-auto-advance-and-listen) cannot begin dictation on its own; the flow
-advances/scores but then shows **"Tap ✓ to continue"** instead of listening.
-Gesture-backed starts (the ✓ button, and "record on next" via a next tap)
-work on iOS. This is a platform constraint with no known browser workaround,
-not a bug.
+Earlier we assumed iOS gated every `recognition.start()` on a user gesture,
+which would block hands-free. A follow-up probe (`docs/v2/probe_continuous.html`)
+disproved that on the target iPhone: **both** a continuous session (mode A)
+**and** a no-gesture recognition restart on an already-open mic session
+(mode B) captured multiple phrases from a single tap.
+
+So the checker keeps the getUserMedia **mic stream open across phrases**
+(the same trick `recorder.js` uses for the loop) — opened once from the
+first ✓ tap, released only on leaving Check mode or when the page is hidden.
+Each phrase reuses the open stream with a fresh recorder + recognition; no
+re-acquiring the mic, no per-phrase gesture. Result: the after-pref flow
+(auto-retry on a miss, auto-advance-and-listen on a pass) runs fully
+hands-free on iOS as well as desktop.
+
+`checker.endTake()` ends a take but keeps the stream (used on navigation);
+`checker.reset()` releases the stream (leaving Check mode / page hidden).
+The "Tap ✓ to continue" path remains only as a genuine fallback if a start
+ever fails (e.g. a real permission error), not as the expected iOS flow.

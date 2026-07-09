@@ -570,9 +570,10 @@
   function go(delta, opts) {
     opts = opts || {};
     TTS.stop();
-    // Leaving a phrase in Check mode: end recognition, drop the diff, reset
-    // the retry counter. render() (below) redraws the focus line clean.
-    if (checkActive()) { if (checker) checker.reset(); checkRetry = 0; checkDiffShown = false; }
+    // Leaving a phrase in Check mode: end the current take but KEEP the mic
+    // open (persistent session), drop the diff, reset the retry counter.
+    // render() (below) redraws the focus line clean.
+    if (checkActive()) { if (checker) checker.endTake(); checkRetry = 0; checkDiffShown = false; }
 
     // Leaving an active sentence step: next continues after it, prev
     // returns to its last (real) chunk. Either way the step ends.
