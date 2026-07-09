@@ -1,5 +1,5 @@
 /* Zzzpeak service worker — app shell cache-first, book data stale-while-revalidate. */
-const VERSION = "zzzpeak-v4";
+const VERSION = "zzzpeak-v5";
 const SHELL = [
   "./",
   "./index.html",
@@ -35,6 +35,20 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
+
+  // v2 app: network-first, fall back to cache when offline.
+  if (url.pathname.includes("/v2/")) {
+    e.respondWith(
+      fetch(e.request)
+        .then((r) => {
+          if (r.ok)
+            caches.open(VERSION).then((c) => c.put(e.request, r.clone()));
+          return r;
+        })
+        .catch(() => caches.match(e.request).then((c) => c || Response.error()))
+    );
+    return;
+  }
 
   // book data: serve cached immediately, refresh in the background
   if (url.pathname.includes("/data/")) {
