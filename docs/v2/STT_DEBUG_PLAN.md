@@ -269,13 +269,37 @@ only recovery). Playback is innocent (B3). Gesture is irrelevant (H1 dead both
 directions). H3 dead (blob audible across sessions). H4 effectively dead
 (gestureless play works on an unlocked element).
 
-**Fix design (evidence-backed):** persistent stream + ONE capture per check
-session, never cycled; recognition restarted per take (proven B/B3); per-take
-playback sliced via WebAudio PCM → WAV blob per take (one AudioContext per
-session, shared with the meter — also satisfies H5's direction); playback through
-the already-unlocked audio element. Open item: B4 (TTS between sessions) pending
-on device — the app speaks TTS between takes; verify speechSynthesis is innocent
-before reworking checker.js.
+**B4 (TTS between sessions): innocent — with one condition.** First attempt: TTS
+silently never started (no onstart, 5 s timeouts) — gestureless first
+`speechSynthesis.speak()` is stuck on iOS. After adding the empty-utterance
+unlock inside the starting tap: TTS audible between every take, finals keep
+coming (restart-results ≥ 1), repeatable across runs WITHOUT force-quit, no
+cross-run poison, per-run blob contains exactly the spoken phrases.
+→ Latent app bug to check: the app's hands-free TTS may silently fail whenever
+no TTS ran from a tap first; `tts.js` needs the tap-unlock pattern.
+
+**Final matrix:** no-gesture restarts OK (B) · recorder cycling = POISON (B1) ·
+audio-element playback innocent w/ tap unlock (B3) · TTS innocent w/ tap unlock (B4).
+
+**Fix design (evidence-backed, checker.js rework):**
+
+1. On the first ✓ tap (session start): getUserMedia once (persistent stream,
+   already the case), ONE AudioContext for the whole session, unlock the audio
+   element AND speechSynthesis (empty utterance) — all inside the gesture.
+2. **Drop MediaRecorder from the checker entirely** — nothing left to cycle.
+   Per-take audio: WebAudio PCM capture (ScriptProcessor/AudioWorklet on the
+   session context, gated by a per-take flag) → WAV blob per take. The meter
+   uses the same context (also resolves H5's churn direction).
+3. Recognition: unchanged pattern — fresh SR per take, no-gesture restarts
+   (proven B/B3/B4). Degrade logic only for real recognition errors.
+4. `reset()` closes the context + releases the stream, as today.
+5. Device checkpoints between commits: (a) probe-style sanity — take 1 AND
+   take 2 with audible correct playback; (b) full T1–T5 script re-run.
+
+Residual risk (small): PCM capture concurrent with recognition across restarts
+wasn't explicitly probed — but the app's meter already runs an AudioContext
+source on the stream during recognition (take 1 works), and B-runs prove
+heavier concurrency. Checkpoint (a) covers it before anything else builds on it.
 
 ## Bugs found while reading (file for later; do NOT fix now)
 
