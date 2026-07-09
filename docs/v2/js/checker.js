@@ -56,7 +56,8 @@
     this._gen = 0;            // bumped each take/reset; stale callbacks bail
     this._finals = [];        // final alternative transcripts (best first)
     this._disabled = false;   // recognition service unavailable this session
-    this._degraded = false;   // concurrency failed once -> recognition only
+    this._degraded = false;   // concurrency failed on THIS take -> recognition only
+    this._ccFails = 0;        // consecutive concurrency failures (3 -> give up)
     this._canPlayback = !!(navigator.mediaDevices &&
       navigator.mediaDevices.getUserMedia && typeof MediaRecorder !== "undefined");
 
@@ -77,7 +78,9 @@
     return map[lang.toLowerCase()] || lang;
   };
 
-  Checker.prototype.playbackEnabled = function () { return this._canPlayback && !this._degraded; };
+  Checker.prototype.playbackEnabled = function () {
+    return this._canPlayback && !this._degraded && this._ccFails < 3;
+  };
   Checker.prototype.disabled = function () { return this._disabled; };
   Checker.prototype.hasTake = function () { return !!this._url; };
   Checker.prototype.micOpen = function () { return !!(this._stream && this._stream.active); };
@@ -138,30 +141,24 @@
   };
 
   // ---- public: begin one check take (call the first one from a user tap) ----
+  // CRITICAL iOS ORDER: recognition.start() must run SYNCHRONOUSLY inside
+  // the user's tap on the first take — any getUserMedia promise or timeout
+  // before it destroys the gesture context and the start fails not-allowed
+  // (which used to release the mic and break the whole session). So:
+  //  - session already open  -> recorder starts sync, then recognition sync;
+  //  - first take            -> recognition starts sync; the playback-capture
+  //    stream is acquired AFTER the take ends (_finalize), so replay becomes
+  //    available from the next phrase on and never disturbs recognition.
   Checker.prototype.start = function () {
     if (!SR || this._disabled || this.state === "listening") return;
+    this._degraded = false;    // retry concurrency each take (until _ccFails caps)
     this._finals = [];
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
-    var self = this, gen = this._gen;
-    if (this.playbackEnabled()) {
-      this._ensureStream(gen).then(function (stream) {
-        if (self._gen !== gen) return;
-        if (stream) {
-          self._startRecorder(stream);
-          // brief beat so capture is really open before recognition
-          setTimeout(function () { if (self._gen === gen) self._startRecognition(); }, 120);
-        } else {
-          self._canPlayback = false;
-          self._startRecognition();
-        }
-      }).catch(function () {
-        self._canPlayback = false;                 // no mic for the recorder
-        if (self._gen === gen) self._startRecognition();
-      });
-    } else {
-      this._startRecognition();
+    if (this.playbackEnabled() && this._stream && this._stream.active) {
+      this._startRecorder(this._stream);
     }
+    this._startRecognition();
   };
 
   Checker.prototype._startRecorder = function (stream) {
@@ -220,6 +217,15 @@
       return;
     }
     if (kind === "not-allowed") {
+      // If we already hold a live mic stream, this is NOT a permission
+      // denial — it's iOS refusing a recognition start outside a gesture.
+      // Keep the persistent session alive (it's what makes hands-free work)
+      // and just ask for a tap.
+      if (this._stream && this._stream.active) {
+        this._endTakeIdle();
+        this.onError("generic", "Tap ✓ to continue.");
+        return;
+      }
       this.reset();
       this.onError("mic", "Microphone/dictation permission is needed. On iPhone: Settings → Siri & Search → enable dictation, and allow the mic.");
       return;
@@ -229,10 +235,12 @@
       this.onError("no-speech", "Didn't hear anything — tap to try again.");
       return;
     }
-    // audio-capture / aborted / unknown: auto-degrade ONCE, retry recognition alone.
+    // audio-capture / aborted / unknown: degrade THIS take (recognition
+    // alone). Concurrency is retried on the next take; after 3 consecutive
+    // failures playbackEnabled() gives up for the session.
     if (!this._degraded && (this._mr || this.playbackEnabled())) {
       this._degraded = true;
-      this._canPlayback = false;
+      this._ccFails++;
       this._detachRec();
       this._stopRecorder();
       this._stopMeter();
@@ -259,6 +267,12 @@
       self._detachRec();
       self._stopMeter();                           // stream stays OPEN for the next phrase
       self._set("idle");
+      // PERSISTENT SESSION: if we don't hold the mic yet (first take starts
+      // recognition-only so the tap gesture isn't wasted on getUserMedia),
+      // open it NOW — between takes, where it can't disturb recognition.
+      // This is what keeps hands-free auto-restart working on iPhone, and
+      // enables take playback from the next phrase on.
+      self._primeStream();
       self.onResult({ transcript: transcript, alternatives: alternatives, takeUrl: takeUrl || null });
     };
 
@@ -267,7 +281,11 @@
       mr.onstop = function () {
         var blob = self._chunks.length ? new Blob(self._chunks, { type: mr.mimeType || self._mime || "" }) : null;
         self._mr = null;
-        if (blob && blob.size) { self._url = URL.createObjectURL(blob); done(self._url); }
+        if (blob && blob.size) {
+          self._ccFails = 0;                     // concurrency worked — forgive past failures
+          self._url = URL.createObjectURL(blob);
+          done(self._url);
+        }
         else done(null);
       };
       try { mr.stop(); } catch (e) { self._mr = null; done(null); }
@@ -301,6 +319,15 @@
     this._stopRecorder();
     this._stopMeter();
     this._set("idle");
+    this._primeStream();   // e.g. a silent first take must still open the session
+  };
+
+  // Open the persistent mic stream between takes if we don't hold it yet.
+  Checker.prototype._primeStream = function () {
+    if (this._disabled || !this._canPlayback) return;
+    if (this._stream && this._stream.active) return;
+    var self = this;
+    this._ensureStream(this._gen).catch(function () { self._canPlayback = false; });
   };
 
   // ---- public: play the last take (user tap) ----

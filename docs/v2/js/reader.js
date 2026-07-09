@@ -4,6 +4,9 @@
 (function () {
   "use strict";
 
+  const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
   const qs = new URLSearchParams(location.search);
   const bookId = qs.get("book");
   const review = qs.get("review") === "1";   // practice starred phrases
@@ -50,6 +53,7 @@
   let checkHidden = false;  // recognition service unavailable this session
   let checkDiffShown = false;
   let checkAuto = false;    // current check take was auto-started (no user gesture)
+  let checkSilent = 0;      // consecutive silent takes (hands-free re-arm cap)
 
   // ---------------- settings ----------------
 
@@ -94,6 +98,9 @@
         onResult: onCheckResult,
         onError: onCheckError,
         onSpeechStart: () => {
+          // The previous take's miss marks stay visible while we wait — only
+          // clear them once you actually start speaking again.
+          clearCheckDiff();
           // Hide the text only once you actually start speaking (like the
           // loop's VAD) — NOT the instant listening begins, so you can read.
           const hide = sentenceStep ? (prefs.hideText && !prefs.sentenceShowText) : prefs.hideText;
@@ -433,13 +440,19 @@
     TTS.stop();
     rec.reset();                 // the two mic systems never run at once (harmless if idle)
     checker._unlock();           // best-effort audio unlock for take playback
-    clearCheckDiff();            // clean, readable text while we wait for speech
+    // NOTE: the previous diff (miss marks) intentionally stays on screen
+    // while listening — it clears on speech start (see onSpeechStart).
     const listen = () => {
       if (!checkActive()) return;   // bailed out during TTS
       status("Listening… say the phrase.");
       checker.start();
     };
-    if (prefs.ttsFirst && TTS.available()) {   // "Hear the phrase first"
+    // "Hear the phrase first" — but NOT on the iOS first take: the delayed
+    // recognition.start() would fall outside the tap gesture and fail
+    // not-allowed. Once the persistent mic session is open (micOpen), the
+    // no-gesture restart works and TTS-first is safe again.
+    const ttsFirstOk = prefs.ttsFirst && TTS.available() && !(IOS && !checker.micOpen());
+    if (ttsFirstOk) {
       status("Listen…");
       TTS.speak(curText(), meta.lang, prefs.ttsRate).then(listen);
     } else listen();
@@ -448,8 +461,23 @@
   // A check take from a user tap. Tapping again while listening stops early.
   function onCheckTap() {
     if (!checker) return;
+    checkSilent = 0;
     if (checker.state === "listening") { checker.stop(); return; }
     startCheckTake(false);
+  }
+
+  // Hands-free patience: recognition ends itself after a few seconds of
+  // silence (continuous=false). While the flow is hands-free (after !=
+  // "stop"), quietly re-arm the mic instead of stopping — the persistent
+  // stream makes a no-gesture restart work. Capped so an abandoned tab
+  // doesn't listen forever (~6 takes ≈ a minute of patience).
+  function rearmOnSilence() {
+    if (!checkActive() || prefs.after === "stop" || checkSilent >= 6) return false;
+    checkSilent++;
+    checkAuto = true;
+    status("Listening… say the phrase.");
+    checker.start();
+    return true;
   }
 
   function onCheckState(s) {
@@ -467,11 +495,12 @@
     const auto = checkAuto;
     veil(false);
     if (!res.transcript) {   // nothing recognized: silence, or iOS blocked an auto-start
-      // Never counts as a retry and never auto-loops. On an auto-start that
-      // couldn't arm the mic, just invite a tap; manually, we didn't hear you.
+      // Hands-free: keep listening (re-arm) rather than stopping the flow.
+      if (rearmOnSilence()) return;
       status(auto ? "Tap ✓ to continue." : "Didn't catch that — tap ✓ to try again.");
       return;
     }
+    checkSilent = 0;
     const ref = curText();
     let best = Match.score(ref, res.transcript);
     (res.alternatives || []).forEach((alt) => {           // score the best alternative
@@ -485,12 +514,13 @@
       checkRetry++;
       status(checkRetry >= 3 ? "Revealed — moving on." : "Try again — " + (3 - checkRetry) + " left.");
     }
-    // "Compare with the voice": on a pass, hear your take then the phrase;
-    // on a miss, hear the correct phrase so you know the target.
-    const speakModel = () => (prefs.abCompare && TTS.available())
+    // Playback: hear your own take on pass AND miss (on a miss, hearing
+    // yourself is how you notice what went wrong). Then, on a miss — or with
+    // "Compare with the voice" on — hear the correct phrase spoken.
+    const speakModel = () => ((!passed || prefs.abCompare) && TTS.available())
       ? TTS.speak(curText(), meta.lang, prefs.ttsRate) : Promise.resolve();
     const finish = () => checkNext(passed);
-    if (passed && res.takeUrl && checker.playbackEnabled())
+    if (res.takeUrl && checker.playbackEnabled())
       checker.playTake().then(speakModel).then(finish);   // take -> model -> next
     else
       speakModel().then(finish);
@@ -530,6 +560,12 @@
       Store.setPref("checkMode", false);
       buildSettingsSheet();
       paintIdleButton();
+      status(msg, true);
+      return;
+    }
+    // Silence: in the hands-free flow, quietly keep listening.
+    if (kind === "no-speech") {
+      if (rearmOnSilence()) return;
       status(msg, true);
       return;
     }
@@ -573,7 +609,7 @@
     // Leaving a phrase in Check mode: end the current take but KEEP the mic
     // open (persistent session), drop the diff, reset the retry counter.
     // render() (below) redraws the focus line clean.
-    if (checkActive()) { if (checker) checker.endTake(); checkRetry = 0; checkDiffShown = false; }
+    if (checkActive()) { if (checker) checker.endTake(); checkRetry = 0; checkSilent = 0; checkDiffShown = false; }
 
     // Leaving an active sentence step: next continues after it, prev
     // returns to its last (real) chunk. Either way the step ends.
