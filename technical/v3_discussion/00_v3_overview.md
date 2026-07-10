@@ -207,6 +207,18 @@ bounds, any failure falls back to the script's hierarchy. Worst case =
 script quality. Hierarchy variant: one hierarchical annotation per
 sentence derives all levels consistently.
 
+**Experiment status (2026-07-10): implemented, awaiting lg run.**
+Candidate B + side-by-side comparison live in
+`technical/v3_chunking_test/` (`README.md` there; run
+`run_experiment.sh` on the build machine — needs `de_core_news_lg`).
+Smoke run (sm model) verified the machinery (0 reconstruction
+failures, levels nest by construction) and already shows the
+parse-independent wins: intermediate/advanced length CV 0.27/0.24 vs
+current 0.38/0.38, hard cap never exceeded beyond max+1, levels
+actually reach their target lengths. Boundary-quality judgment (and
+whether nesting visibly hurts) still requires the lg run — see
+`RESULTS.md` there.
+
 **Experiment plan (afternoon-sized, before any commitment):**
 run candidate B (script-only) on a few Kafka sections; produce a
 side-by-side diff against the current four chunkings; owner reads and
