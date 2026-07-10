@@ -38,6 +38,23 @@
   var Ctx = global.AudioContext || global.webkitAudioContext || null;
 
   var MAX_TAKE_SECONDS = 20;   // hard cap on captured audio per take
+  var SAFETY_MS = 12000;       // hard cap on listening per take
+
+  // LONG-TAKE SCALING: the full-sentence step joins several chunks, and all
+  // three fixed windows cut a long sentence mid-take — the 12s safety fires
+  // while you're still reading, the 1s VAD window trips on a breath/comma
+  // pause, and the 20s capture cap truncates the playback. Takes whose
+  // reference text exceeds LONG.words get proportionally wider windows;
+  // anything at or below the threshold keeps EXACTLY the tuned values.
+  var LONG = {
+    words: 12,           // scaling starts above this many reference words
+    silencePerWord: 50,  // +ms of VAD silence window per extra word
+    silenceMax: 1800,    // never exceed this (iOS itself endpoints ~2s)
+    safetyPerWord: 800,  // +ms of safety timer per extra word
+    safetyMax: 30000,
+    capPerWord: 0.8,     // +s of PCM capture per extra word
+    capMax: 45
+  };
 
   // Silence trim: the capture runs until recognition ends, and iOS's
   // endpointer waits ~2s of silence before ending — so an untrimmed take
@@ -155,6 +172,11 @@
     this._noise = 0.01;      // adaptive noise floor (peak level)
     this._vadTake = null;    // per-take VAD bookkeeping (null = disarmed)
 
+    // per-take windows — rescaled in start() from the reference word count
+    this._silenceMs = VAD.silenceMs;
+    this._safetyMs = SAFETY_MS;
+    this._capSec = MAX_TAKE_SECONDS;
+
     this.audio = new Audio();
     this.audio.setAttribute("playsinline", "");
     this.audio.preload = "auto";
@@ -209,7 +231,7 @@
       this._proc.onaudioprocess = function (e) {
         if (!self._capturing || !self._ctx) return;
         var d = e.inputBuffer.getChannelData(0);
-        if (self._capLen + d.length > self._ctx.sampleRate * MAX_TAKE_SECONDS) return;
+        if (self._capLen + d.length > self._ctx.sampleRate * self._capSec) return;
         self._capChunks.push(new Float32Array(d));
         self._capLen += d.length;
       };
@@ -305,7 +327,7 @@
     if (voiced) tk.lastVoice = now;
     if (now - tk.speechAt < VAD.minSpeechMs) return;
     if (!tk.interim) return;        // recognition hasn't heard anything yet
-    if (now - tk.lastVoice >= VAD.silenceMs) {
+    if (now - tk.lastVoice >= this._silenceMs) {   // per-take window (long-take scaled)
       tk.stopped = true;
       this.stop();
     }
@@ -343,10 +365,16 @@
   //    (probe-verified: restarts on a live session need no gesture and no delay);
   //  - first take: stream -> graph + capture -> brief beat -> recognition
   //    (the beat matches the take-1 pattern that always worked on device).
-  Checker.prototype.start = function () {
+  Checker.prototype.start = function (opts) {
     if (!SR || this._disabled || this.state === "listening") return;
     this._finals = [];
     this._lastInterim = "";
+    // Long-take scaling: opts.words = word count of the reference text.
+    // <= LONG.words (or no opts) leaves every window at its tuned default.
+    var extra = Math.max(0, ((opts && opts.words) || 0) - LONG.words);
+    this._silenceMs = Math.min(LONG.silenceMax, VAD.silenceMs + LONG.silencePerWord * extra);
+    this._safetyMs = Math.min(LONG.safetyMax, SAFETY_MS + LONG.safetyPerWord * extra);
+    this._capSec = Math.min(LONG.capMax, MAX_TAKE_SECONDS + LONG.capPerWord * extra);
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
     var self = this, gen = this._gen;
@@ -410,7 +438,7 @@
     catch (e) { this._onError("generic"); return; }
 
     if (this._safety) clearTimeout(this._safety);
-    this._safety = setTimeout(function () { if (self._gen === gen) self.stop(); }, 12000);
+    this._safety = setTimeout(function () { if (self._gen === gen) self.stop(); }, this._safetyMs);
   };
 
   Checker.prototype._onError = function (kind) {

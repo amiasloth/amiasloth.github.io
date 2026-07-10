@@ -158,6 +158,9 @@
    * active, otherwise the current chunk's. Route all TTS/record access
    * through these so the step is a drop-in replacement for flat[idx]. */
   function curText() { return sentenceStep ? sentenceStep.t : flat[idx].t; }
+  // Word count of the current reference text — long takes (the full-sentence
+  // step) get wider stop/safety windows; chunks stay on the tuned defaults.
+  function curWords() { return curText().trim().split(/\s+/).filter(Boolean).length; }
   function curEmoji() { return sentenceStep ? sentenceStep.e : flat[idx].e; }
 
   /* review mode: the deck is every starred phrase, across levels */
@@ -344,9 +347,9 @@
    * see onPlayEnd below. */
   function startTake() {
     if (!sentenceStep && prefs.ttsFirst && TTS.available()) {
-      speakCurrent().then(() => rec.record());
+      speakCurrent().then(() => rec.record({ words: curWords() }));
     } else {
-      rec.record();
+      rec.record({ words: curWords() });
     }
   }
 
@@ -447,7 +450,7 @@
     const listen = () => {
       if (!checkActive()) return;   // bailed out during TTS
       status("Listening… say the phrase.");
-      checker.start();
+      checker.start({ words: curWords() });
     };
     // "Hear the phrase first" — config always wins, on every take (including
     // miss-retries: a retry is just the same phrase run like a new one). If
@@ -478,7 +481,7 @@
     checkSilent++;
     checkAuto = true;
     status("Listening… say the phrase.");
-    checker.start();
+    checker.start({ words: curWords() });
     return true;
   }
 
@@ -702,7 +705,7 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); go(1); }
       else if (e.key === "ArrowLeft") go(-1);
-      else if (e.key === "r" || e.key === "R") { if (checkActive()) onCheckTap(); else rec.toggle(); }
+      else if (e.key === "r" || e.key === "R") { if (checkActive()) onCheckTap(); else rec.toggle({ words: curWords() }); }
       else if (e.key === "l" || e.key === "L") speakCurrent();
       else if (e.key === "s" || e.key === "S") toggleStar();
     });

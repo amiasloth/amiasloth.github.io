@@ -226,8 +226,8 @@
     if (voiced) tk.lastVoice = now;
     if (!this.autoStop) return;
     const spoke = now - tk.speechAt >= VAD.minSpeechMs;
-    if ((spoke && now - tk.lastVoice >= VAD.silenceMs) ||
-        now - tk.start >= VAD.maxTakeMs)
+    if ((spoke && now - tk.lastVoice >= (tk.silenceMs || VAD.silenceMs)) ||
+        now - tk.start >= (tk.maxMs || VAD.maxTakeMs))
       this.stopAndPlay();
   };
 
@@ -243,13 +243,13 @@
 
   /* Public: call from a user tap. idle -> record; playing -> re-record;
    * recording -> stop & play. */
-  LoopRecorder.prototype.toggle = function () {
+  LoopRecorder.prototype.toggle = function (opts) {
     this._unlock();
     if (this.state === "recording") this.stopAndPlay();
-    else this.record();
+    else this.record(opts);
   };
 
-  LoopRecorder.prototype.record = async function () {
+  LoopRecorder.prototype.record = async function (opts) {
     if (this.state === "recording") return;
     this._stopPlayback();
     try {
@@ -289,8 +289,14 @@
     }
     if (this.rec instanceof WavCapture) { /* already capturing */ }
     else this.rec.start();
+    // Long-take scaling (full-sentence step): a fixed 1s pause window trips
+    // on a breath mid-sentence and 30s can cut a slowly-read long sentence.
+    // opts.words = reference word count; <=12 words keeps the tuned defaults.
+    const extra = Math.max(0, ((opts && opts.words) || 0) - 12);
     this._take = { start: performance.now(), speech: false,
-                   voiceSince: 0, speechAt: 0, lastVoice: 0 };
+                   voiceSince: 0, speechAt: 0, lastVoice: 0,
+                   silenceMs: Math.min(1800, VAD.silenceMs + 50 * extra),
+                   maxMs: Math.min(45000, VAD.maxTakeMs + 800 * extra) };
     this._set("recording");
   };
 
