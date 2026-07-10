@@ -211,3 +211,34 @@ invariants on every run. Owner cases: s1-3 → no intermediate rung
 App contract: ladder for level L = [distinct rungs coarser than L] +
 [L's own chunks] + [whole sentence], deduped by cut-set equality —
 rungs ⊆ advanced ⊆ every finer level, so this works at any level.
+
+# Round 3 (owner feedback on v2-lg): two refinements, IMPLEMENTED
+
+## 1. Verb brackets beyond modals (s1-15 "auferlegt")
+
+The cut before "auferlegt" scored 85 as a clause edge: "auferlegt" is
+`oc` under "ist", and oc was blanket-listed as a clause dep. But
+"ist … auferlegt" is a passive verb BRACKET — one predicate, same as
+the modal bracket already excepted. Fix: is_verb_bracket() covers all
+analytic forms (participles + bare infinitives under a finite verb —
+perfect, passive, future, modal), and the right-bracket verb fuses
+LEFT. zu-infinitives keep clause status (cutting before "auf der
+rechten Seite zu schlafen" is good). tools/chunk.py has the same
+blind spot (excepts only VMFIN) but its merge gates masked it; the DP
+has no gates, so the scoring must know.
+
+Blast radius (sm, section I): 5–11% of sentences per level, sampled
+changes all improvements — "»Was ist mit mir geschehen?«" no longer
+split, "ich hätte längst gekündigt," whole, "ist noch nicht gänzlich
+aufgegeben," whole, "… diese Plage des Reisens auferlegt," whole.
+
+## 2. Ladder collapse of independent merges (s1-2, s3-2)
+
+Climbing the ladder, step F→M and step M→C commute when no chunk that
+C merges contains a boundary F→M removed — then M teaches nothing on
+the way to C. collapse_ladder() drops such rungs, so successive rungs
+always build on each other and progressive practice is less
+repetitive. s1-2: 3 rungs → 2 (advanced jumps straight to 16|8|14).
+Ladder depth across the book: was up to 8, now ≤ 3; the 108-word
+monster reads 12 chunks → 8 → 4 → 2 → sentence. All invariants still
+hold (0 nesting violations, 0 duplicates).

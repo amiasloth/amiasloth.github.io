@@ -123,6 +123,13 @@ def fuse_dir(t, cfg):
             and t.head.pos_ in VERBISH
             and (t.dep_ in cfg["subj_deps"] or t.dep_ in cfg["obj_deps"])):
         return "L"
+    # right bracket of an analytic verb form leans on its clause:
+    # "… diese Plage des Reisens auferlegt," must not be cut before
+    # "auferlegt" — the participle closes the "ist … auferlegt" bracket
+    if (t.dep_ == "oc" and t.tag_ in BRACKET_TAGS and t.head.i < t.i
+            and not any(c.dep_ == "pm" or c.tag_ == "PTKZU"
+                        for c in t.children)):
+        return "L"
     # modifier directly before what it modifies: "noch immer",
     # "panzerartig harten", "ein wenig"
     if t.pos_ in ("ADV", "NUM") and t.head.i == t.i + 1:
@@ -177,21 +184,32 @@ def valid_break(toks, k, cfg, dash_role):
 
 # --------------------------------------------------------------- clauses
 
-def is_modal_bracket(t):
-    """oc infinitive under a modal: one predicate, not a clause."""
-    return (t.dep_ == "oc" and t.head.tag_ == "VMFIN"
-            and t.tag_ in ("VVINF", "VAINF", "VMINF"))
+BRACKET_TAGS = {"VVPP", "VAPP", "VMPP", "VVINF", "VAINF", "VMINF"}
+
+
+def is_verb_bracket(t):
+    """oc participle/bare infinitive under a finite verb: an analytic
+    verb form ("kann … kommen", "hat … gesehen", "ist … auferlegt",
+    "wird … geöffnet") — ONE predicate, not a clause.  zu-infinitives
+    (VVIZU / with a pm child) stay clauses: cutting before "auf der
+    rechten Seite zu schlafen" is good.  Generalizes tools/chunk.py's
+    modal-only exception — its merge gates caught the non-modal cases;
+    the DP has no gates, so the scoring must know."""
+    return (t.dep_ == "oc" and t.tag_ in BRACKET_TAGS
+            and t.head.pos_ in VERBISH
+            and not any(c.dep_ == "pm" or c.tag_ == "PTKZU"
+                        for c in t.children))
 
 
 def is_clause_root(t, cfg):
     """A token heading a clause-like subtree (improved beyond
     tools/chunk.py: TIGER hangs adverbial clauses as plain `mo`)."""
     if t.dep_ in cfg["clause_deps"]:
-        return not is_modal_bracket(t)
+        return not is_verb_bracket(t)
     # verb-headed non-root subtree with its own subordinator or its own
     # finite verb = an embedded clause the label didn't announce
     if t.pos_ in VERBISH and t.dep_ not in ("ROOT",) \
-            and t.head.i != t.i and not is_modal_bracket(t):
+            and t.head.i != t.i and not is_verb_bracket(t):
         if any(c.dep_ in cfg["marker_deps"] for c in t.children):
             return True                 # "Als … erwachte", "wenn … hob"
         if t.tag_ in FINITE_TAGS and t.dep_ == "cj":
@@ -537,7 +555,34 @@ def progressive_rungs(sent, adv_cuts, strengths, wcount):
         if cuts and cuts != prev:
             rungs.append(cuts)
         prev = cuts
-    return rungs
+    return collapse_ladder(adv_cuts, rungs, n)
+
+
+def collapse_ladder(adv_cuts, rungs, n):
+    """Drop rungs whose merges are INDEPENDENT of the next coarser
+    step's merges (owner feedback round 3): climbing the ladder,
+    step F→M and step M→C commute when no chunk C merges contains a
+    boundary that F→M removed — then M teaches nothing on the way to C
+    and the learner can jump straight from F to C.  A rung survives
+    only if the next step merges something it built."""
+    seq = [set(adv_cuts)] + [set(r) for r in reversed(rungs)] + [set()]
+    i = 1
+    while i < len(seq) - 1:
+        F, M, C = seq[i - 1], seq[i], seq[i + 1]
+        removed_1 = F - M               # boundaries dissolved by F→M
+        removed_2 = M - C               # boundaries dissolved by M→C
+        cbounds = [0] + sorted(C) + [n]
+        interacts = False
+        for a, b in zip(cbounds, cbounds[1:]):
+            if any(a < k < b for k in removed_2) \
+                    and any(a < k < b for k in removed_1):
+                interacts = True        # C merges a chunk M's step built
+                break
+        if interacts:
+            i += 1
+        else:
+            del seq[i]                  # independent: jump F → C
+    return [sorted(c) for c in reversed(seq[1:-1])]
 
 
 # --------------------------------------------------------------- driver
