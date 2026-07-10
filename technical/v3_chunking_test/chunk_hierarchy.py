@@ -74,6 +74,45 @@ LEVELS = {
 VERBISH = {"VERB", "AUX"}
 FINITE_TAGS = {"VVFIN", "VAFIN", "VMFIN", "VBD", "VBZ", "VBP", "MD"}
 
+# Per-language labels that were German-literal in v1.  base.LANG_CFG holds
+# the config keyed by role (clause/coord/marker/... deps, quote sets); this
+# adds the few labels the strength layer still referenced by their raw
+# TIGER spelling.  Merged into cfg at load time so every function sees one
+# dict and English never diagnoses ghosts (see NEXT_SESSION_ENGLISH.md).
+HIER_CFG = {
+    "de": {
+        "bracket_dep": "oc",                       # right member of an analytic verb bracket
+        "bracket_tags": {"VVPP", "VAPP", "VMPP",   # participles / bare infinitives
+                         "VVINF", "VAINF", "VMINF"},
+        "inf_child_marks": {"pm"},                 # a zu-child keeps clause status
+        "inf_child_tags": {"PTKZU"},
+        "modifier_deps": {"mo"},                   # adverbial modifier -> weak edge
+        "sep_prefix_deps": {"svp"},                # separable verb prefix
+        "inf_rel_deps": {"rc", "acl", "relcl"},    # infinitive bound tight in a rel. clause
+        "clause_comma": True,                      # German commas are grammar-bearing
+        "copula_lemmas": set(),                    # German copulas: handled by the
+                                                   # verb-cluster / clause rules already
+    },
+    "en": {
+        "bracket_dep": None,                       # English has no verb-final bracket:
+        "bracket_tags": set(),                     # "has been seen" is contiguous, so
+        "inf_child_marks": set(),                  # the verb-cluster rule already covers it
+        "inf_child_tags": set(),
+        "modifier_deps": {"advmod", "npadvmod"},
+        "sep_prefix_deps": {"prt"},                # phrasal-verb particle ("set out")
+        "inf_rel_deps": {"acl", "relcl"},
+        "clause_comma": False,                     # English commas are prosodic/optional
+        "copula_lemmas": {"be"},                   # keep "be" with its predicate
+    },
+}
+
+
+def build_cfg(lang):
+    """base.LANG_CFG[lang] merged with the strength-layer labels above."""
+    cfg = dict(base.LANG_CFG[lang])
+    cfg.update(HIER_CFG[lang])
+    return cfg
+
 # DP cost weights
 W_LEN = 10.0          # squared relative deviation from target
 W_CUT = 8.0           # weak-break usage
@@ -92,6 +131,10 @@ CHEAP_STRONG_CUTS = True   # cuts at/above the level's pref strength
                            # cost 30% — separates intermediate from
                            # advanced on long sentences (owner approved
                            # after reading the lg before/after report)
+COPULA_BIND = True         # (English) a copula "be" keeps its predicate:
+                           # never strand "she was |" before "up to her
+                           # chin" / "so tired" / "a rabbit".  Off for
+                           # German (empty copula_lemmas), so a no-op there.
 
 
 # --------------------------------------------------------------- fusion
@@ -133,8 +176,10 @@ def fuse_dir(t, cfg):
     # right bracket of an analytic verb form leans on its clause:
     # "… diese Plage des Reisens auferlegt," must not be cut before
     # "auferlegt" — the participle closes the "ist … auferlegt" bracket
-    if (t.dep_ == "oc" and t.tag_ in BRACKET_TAGS and t.head.i < t.i
-            and not any(c.dep_ == "pm" or c.tag_ == "PTKZU"
+    if (cfg["bracket_dep"] and t.dep_ == cfg["bracket_dep"]
+            and t.tag_ in cfg["bracket_tags"] and t.head.i < t.i
+            and not any(c.dep_ in cfg["inf_child_marks"]
+                        or c.tag_ in cfg["inf_child_tags"]
                         for c in t.children)):
         return "L"
     # modifier directly before what it modifies: "noch immer",
@@ -161,6 +206,13 @@ def valid_break(toks, k, cfg, dash_role):
         return False
     # hyphenated compounds are atomic
     if prev.text == "-" or cur.text == "-":
+        return False
+    # never cut where the raw text has no whitespace: English contractions
+    # split into non-space-separated tokens ("wo|n't", "she|'d", "it|'s").
+    # A cut there would show a broken word; fusion usually forbids it too,
+    # but this is the parse-independent guarantee the handoff asked to add.
+    if not prev.is_punct and not cur.is_punct \
+            and prev.idx + len(prev.text) == cur.idx:
         return False
     # chunk may not start with punctuation, except an opening quote or
     # an OPENING dash (paired-dash logic)
@@ -191,20 +243,19 @@ def valid_break(toks, k, cfg, dash_role):
 
 # --------------------------------------------------------------- clauses
 
-BRACKET_TAGS = {"VVPP", "VAPP", "VMPP", "VVINF", "VAINF", "VMINF"}
-
-
-def is_verb_bracket(t):
-    """oc participle/bare infinitive under a finite verb: an analytic
-    verb form ("kann … kommen", "hat … gesehen", "ist … auferlegt",
-    "wird … geöffnet") — ONE predicate, not a clause.  zu-infinitives
-    (VVIZU / with a pm child) stay clauses: cutting before "auf der
-    rechten Seite zu schlafen" is good.  Generalizes tools/chunk.py's
-    modal-only exception — its merge gates caught the non-modal cases;
-    the DP has no gates, so the scoring must know."""
-    return (t.dep_ == "oc" and t.tag_ in BRACKET_TAGS
+def is_verb_bracket(t, cfg):
+    """Right member of an analytic verb form under a finite verb — ONE
+    predicate, not a clause.  German: oc participle/bare infinitive
+    ("kann … kommen", "hat … gesehen", "ist … auferlegt"); zu-infinitives
+    (with a pm/PTKZU child) stay clauses.  English has no verb-final
+    bracket (bracket_dep=None → always False): "has been seen" is
+    contiguous and the verb-cluster rule already keeps it whole."""
+    if not cfg["bracket_dep"]:
+        return False
+    return (t.dep_ == cfg["bracket_dep"] and t.tag_ in cfg["bracket_tags"]
             and t.head.pos_ in VERBISH
-            and not any(c.dep_ == "pm" or c.tag_ == "PTKZU"
+            and not any(c.dep_ in cfg["inf_child_marks"]
+                        or c.tag_ in cfg["inf_child_tags"]
                         for c in t.children))
 
 
@@ -212,14 +263,14 @@ def is_clause_root(t, cfg):
     """A token heading a clause-like subtree (improved beyond
     tools/chunk.py: TIGER hangs adverbial clauses as plain `mo`)."""
     if t.dep_ in cfg["clause_deps"]:
-        return not is_verb_bracket(t)
+        return not is_verb_bracket(t, cfg)
     # verb-headed non-root subtree with its own subordinator or its own
     # finite verb = an embedded clause the label didn't announce
     if t.pos_ in VERBISH and t.dep_ not in ("ROOT",) \
-            and t.head.i != t.i and not is_verb_bracket(t):
+            and t.head.i != t.i and not is_verb_bracket(t, cfg):
         if any(c.dep_ in cfg["marker_deps"] for c in t.children):
-            return True                 # "Als … erwachte", "wenn … hob"
-        if t.tag_ in FINITE_TAGS and t.dep_ == "cj":
+            return True                 # "Als … erwachte" / "because … came"
+        if t.tag_ in FINITE_TAGS and t.dep_ in cfg["conj_deps"]:
             return True                 # coordinated finite clause
     return False
 
@@ -232,6 +283,14 @@ def severs_verb_tail(toks, k, cfg):
     if pc is None or pc.pos_ not in VERBISH:
         return False
     benign = cfg["benign_tail"]
+    # A copula must keep its predicate: for a "be"-verb the complement to
+    # the right — PP ("up to her chin"), predicate adjective ("so tired"),
+    # or predicate nominal ("a rabbit") — is NOT a detachable adjunct, so
+    # those relations stop being benign.  English only (copula_lemmas is
+    # empty for German, whose copulas the verb-cluster/clause rules cover).
+    if COPULA_BIND and pc.lemma_ in cfg["copula_lemmas"]:
+        benign = benign - {"prep", "acomp", "attr", "oprd",
+                           "advmod", "npadvmod", "dep"}
     return any(not c.is_punct and c.i >= toks[k].i
                and c.dep_ not in benign for c in pc.children)
 
@@ -255,20 +314,22 @@ def dash_roles(toks):
 def comma_class(toks, k, cfg, clause_edge):
     """Strength of a cut right after a comma (position k)."""
     cur = toks[k]
-    # verb-second resumption: ", fand er sich" — the fronted clause
-    # ends, the main clause verb resumes.  Always a real seam.
-    if cur.tag_ in FINITE_TAGS and cur.pos_ in VERBISH:
-        return 85
     if k in clause_edge:
         return 85
-    # finite verb immediately BEFORE the comma: German verb-final
-    # clause just ended ("… ein wenig hob," / "… Träumen erwachte,").
-    # Parse-independent — protects the canonical cut even when the
-    # parser mis-hangs material on that verb.
-    pc = prev_content(toks, k)
-    if pc is not None and pc.i == toks[k - 1].i - 1 \
-            and pc.pos_ in VERBISH and pc.tag_ in FINITE_TAGS:
-        return 85
+    # German commas are grammar-bearing: a comma directly BEFORE or AFTER
+    # a finite verb is a clause seam (verb-second resumption ", fand er
+    # sich" / verb-final clause end "… hob,") — a parse-independent
+    # backstop that is WRONG for English, whose commas are prosodic
+    # ("However, he went", "He went, John said").  English clause commas
+    # are already caught by clause_edge (advcl/ccomp/relcl/mark subtrees),
+    # so this whole block is language-gated.
+    if cfg.get("clause_comma"):
+        if cur.tag_ in FINITE_TAGS and cur.pos_ in VERBISH:
+            return 85
+        pc = prev_content(toks, k)
+        if pc is not None and pc.i == toks[k - 1].i - 1 \
+                and pc.pos_ in VERBISH and pc.tag_ in FINITE_TAGS:
+            return 85
     # list comma inside a noun phrase: next content word is another
     # attributive adjective or a coordinated nominal — severing it from
     # its noun confuses ("gewölbten, braunen, | … Bauch")
@@ -332,7 +393,8 @@ def break_strengths(sent, cfg):
             re_ = push(hi + 1)          # NP right edge: the NP|verb seam
             if 0 < re_ < n:
                 right_edges[re_] = max(right_edges.get(re_, 0), 45)
-        elif t.dep_ == "mo" and t.pos_ != "ADP" and t.head.pos_ in VERBISH:
+        elif t.dep_ in cfg["modifier_deps"] and t.pos_ != "ADP" \
+                and t.head.pos_ in VERBISH:
             sig = 30
         elif t.dep_ not in cfg["fused_deps"]:
             sig = 20
@@ -390,11 +452,16 @@ def break_strengths(sent, cfg):
             s = max(s, cc)
         # ---- phrases
         if cur.pos_ == "ADP" and cur.left_edge.i == cur.i \
-                and cur.n_rights > 0 and cur.dep_ not in ("svp",):
-            noun_attached = cur.head.pos_ in ("NOUN", "PROPN", "PRON", "NUM")
-            s = max(s, 10 if noun_attached else 65)
+                and cur.n_rights > 0 and cur.dep_ not in cfg["sep_prefix_deps"]:
+            # verb-attached PP = detachable adjunct (65); noun-attached =
+            # tight (10).  A PP headed by a copula "be" is the PREDICATE,
+            # not an adjunct, so it binds tight too ("was | up to her chin"
+            # must not split).
+            tight = (cur.head.pos_ in ("NOUN", "PROPN", "PRON", "NUM")
+                     or (COPULA_BIND and cur.head.lemma_ in cfg["copula_lemmas"]))
+            s = max(s, 10 if tight else 65)
         if cur.tag_ in cfg["inf_tags"]:
-            s = max(s, 10 if cur.head.dep_ in ("rc", "acl", "relcl") else 65)
+            s = max(s, 10 if cur.head.dep_ in cfg["inf_rel_deps"] else 65)
         if cur.dep_ in cfg["phrase_deps"]:
             s = max(s, 60)
         # ---- NP / modifier / subtree edges
@@ -482,6 +549,14 @@ def desperation_cuts(toks, wcount, a, b, mx, cfg):
             continue
         if prev.idx + len(prev.text) == cur.idx:
             continue                    # not a whitespace word boundary
+        # desperation ignores fusion, but it must still never isolate a
+        # word-less span: a leading/interrupting em-dash ("— Why,",
+        # "mad — at least", "“ — as far") would otherwise become its own
+        # 0-word chunk.  The DP is immune (0-word = ∞ cost); this makes
+        # desperation immune too.  (Dialogue-dash-heavy Alice hit this;
+        # Kafka rarely leads with a dash, so German never surfaced it.)
+        if wcount(a, k) == 0 or wcount(k, b) == 0:
+            continue
         cands.append(k)
     if not cands:
         return []
@@ -725,7 +800,7 @@ def main():
     args = ap.parse_args()
 
     import spacy
-    cfg = base.LANG_CFG[args.lang]
+    cfg = build_cfg(args.lang)
     nlp = spacy.load(args.model or cfg["model"], disable=["ner"])
 
     text = base.clean(base.strip_gutenberg(

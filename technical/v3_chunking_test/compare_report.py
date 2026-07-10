@@ -141,36 +141,52 @@ th{text-align:left;color:#777;font-weight:normal;width:7em}
 .runt .n{color:#c60} .runt{outline:1px solid #e9b}
 .over{outline:2px solid #d33} .over .n{color:#d33;font-weight:bold}
 .half .ck{background:#fdf3e3}
+.ck.chg{background:#efe7fa!important;box-shadow:inset 0 -2px 0 #8a5cd0}
 .legend{font-size:.85em;color:#666}
 """
 
 
-def render_chunks(chunks, lvl, cls=""):
+def render_chunks(chunks, lvl, other_cuts=None, cls=""):
+    """Render a variant's chunks.  If `other_cuts` (the internal cut
+    offsets of the OTHER variant) is given, a chunk whose exact span is
+    NOT also a single chunk over there is marked `.chg` — so a merge
+    lights up the big chunk and the matching split lights up its pieces."""
     mn, mx = BOUNDS[lvl]
+    total = sum(len(norm(c)) for c in chunks)
+    allowed = (other_cuts | {0, total}) if other_cuts is not None else None
     parts = []
+    pos = 0
     for c in chunks:
         w = wc(c)
+        start, pos = pos, pos + len(norm(c))
         k = "ck"
         if w > mx:
             k += " over"
         elif w < mn:
             k += " runt"
+        if allowed is not None and (
+                start not in allowed or pos not in allowed
+                or any(start < b < pos for b in other_cuts)):
+            k += " chg"
         parts.append(f'<span class="{k}">{html.escape(c)} '
                      f'<span class="n">{w}</span></span>')
     return f'<span class="{cls}">' + "".join(parts) + "</span>"
 
 
-def render_section(title, cand_sents, base_per_sent, out_path, sec_no):
+def render_section(title, cand_sents, base_per_sent, out_path, sec_no,
+                   book="book"):
     rows = []
     for i, cs in enumerate(cand_sents):
         lvl_rows = []
         for lvl in LEVELS:
             cur = base_per_sent[lvl][i]
             cand = cs["levels"][lvl]
+            cur_cuts, cand_cuts = cut_offsets(cur), cut_offsets(cand)
             lvl_rows.append(
                 f"<tr><th>{lvl}</th>"
-                f'<td class="col">{render_chunks(cur, lvl)}</td>'
-                f'<td class="col b">{render_chunks(cand, lvl)}</td></tr>')
+                f'<td class="col">{render_chunks(cur, lvl, cand_cuts)}</td>'
+                f'<td class="col b">{render_chunks(cand, lvl, cur_cuts)}</td>'
+                f"</tr>")
         halves = ""
         for ri, rung in enumerate(cs.get("rungs") or []):
             hh = "".join(f'<span class="ck">{html.escape(h)} '
@@ -186,9 +202,11 @@ def render_section(title, cand_sents, base_per_sent, out_path, sec_no):
             + "".join(lvl_rows) + halves + "</table></div>")
     out_path.write_text(
         f"<!doctype html><meta charset='utf-8'><style>{CSS}</style>"
-        f"<h1>Die Verwandlung — section {sec_no} ({html.escape(title)}) — "
+        f"<h1>{html.escape(book)} — section {sec_no} ({html.escape(title)}) — "
         f"current vs candidate B</h1>"
         f"<p class='legend'>numbers = words per chunk · "
+        f"<span class='ck chg'>purple-underlined</span> chunk differs "
+        f"between current and candidate B · "
         f"<span class='ck over'>red</span> over level max · "
         f"<span class='ck runt'>pink</span> under level min · "
         f"<span class='ck' style='background:#fdf3e3'>orange</span> "
@@ -228,7 +246,8 @@ def main():
             mismatches += mism
 
         render_section(sec["title"], cs, base_per_sent,
-                       outdir / f"compare_section_{si + 1}.html", si + 1)
+                       outdir / f"compare_section_{si + 1}.html", si + 1,
+                       book=args.book)
 
         for lvl in LEVELS:
             agg[("current", lvl)] += base_per_sent[lvl]
@@ -264,7 +283,7 @@ def main():
     # ---------------- metrics.md
     lines = ["# Chunking experiment metrics — current vs candidate B",
              "",
-             f"Book: Die Verwandlung (kafka), "
+             f"Book: {args.book}, "
              f"{sum(len(s['sentences']) for s in cand['sections'])} sentences, "
              f"{len(cand['sections'])} sections. "
              f"Alignment mismatches: {mismatches} (should be 0).", "",
