@@ -142,3 +142,55 @@ Owner-flagged sentences after v2 (sm smoke run): 1 cuts at
 seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten
 Bauch, | …"; 3 cuts at "Beine | flimmerten"; 7 has no "—," chunk;
 11's rung cuts at the comma.
+
+# Rung diagnosis — owner review of the v2 lg run (round 2)
+
+Owner findings: s1-3 rung1 not nested with advanced; s1-10 rung2
+should be a more even 3-way; s1-12 rungs could be better; identical
+rungs must not repeat in the app. Levels themselves: acceptable.
+
+Scale of it (lg run, 512 sentences with rungs): 39% of rung ladders
+contain a cut that is NOT an advanced cut (no nesting); 224 sentences
+have a rung identical to the advanced chunking (pure repetition); 8%
+of first rungs are badly uneven (max/min part > 2.5).
+
+## Root cause: rungs are computed from RAW strengths, ignoring the
+## level hierarchy the DP already built
+
+progressive_rungs() re-derives cuts from scratch with a different,
+worse objective (greedy binary split, score = strength − 45·off-center):
+
+- **s1-3**: the off-center 65 PP ("hilflos ‖65‖ vor den Augen",
+  14|3) outscores the central 45 NP|verb seam (65−29.1=35.9 vs
+  45−13.2=31.8) — while the advanced DP had already correctly chosen
+  the 45 seam (11|6). Two pickers, two answers, no nesting.
+- **s1-10**: rung1 cuts at the zu-infinitive edge INSIDE the
+  denn-clause ("gewöhnt, ‖85‖ auf der rechten", 24|18, 85−6.4=78.6)
+  beating the top-level speech seam ("vergäße,« ‖90‖ dachte er",
+  13|29, 90−17.1=72.9). Flat strength − linear centeredness cannot
+  express "this seam is top-level, that one is subordinate" — but the
+  advanced cuts [11, 26, 38] already encode exactly that.
+- **s1-12**: greedy BINARY recursion can never produce an even 3-way
+  split, so rung2 strands a 4-word "und ließ erst ab," next to a
+  15-word piece.
+
+## Fix design: rungs = a merge ladder OVER the advanced chunks
+
+Choose rung cuts as SUBSETS of the advanced cut set (DP again, growing
+target per rung, e.g. ~half the sentence, then ~quarter, until the
+rung equals the advanced cuts — emit only DISTINCT intermediate
+steps). This gives, by construction:
+
+- nesting with EVERY level (rungs ⊆ advanced ⊆ intermediate ⊆ … —
+  moving up a rung = merging familiar advanced chunks);
+- no repetition (ladder stops before duplicating advanced; the app
+  appends the level's own chunks as the finest rung and the whole
+  sentence as the final one, deduping by cut-set equality);
+- evenness via the DP instead of greedy halving (s1-10 rung1 becomes
+  the 20|22 split at "denn", and a 3-way step is available);
+- boundary quality inherited from the advanced DP — one picker, one
+  answer.
+
+Checks for s1-3: only advanced cut = [12] → ladder is empty, rung =
+advanced = 11|6, shown once. Exactly the owner's "if rung1 is the
+same as advanced it is good, and it should not repeat".
