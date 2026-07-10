@@ -9,11 +9,11 @@ Case 1 — crossing-aware desperation (ADOPTED, default on):
     the fewest dependency edges cross (port of tools/chunk.py
     fallback_split).  This report shows every sentence it changes.
 
-Case 2 — cheap strong cuts (SUGGESTION, default off):
+Case 2 — cheap strong cuts (ADOPTED after owner review, default on):
     cuts at/above the level's pref strength cost 30%, so intermediate
-    stops shadowing advanced on long sentences.  This report shows the
-    formerly-identical sentences it separates, plus everything else it
-    touches.
+    stops shadowing advanced on long sentences.  This report shows
+    off-vs-on: CUR = flag off (old behavior), SUG = flag on (what now
+    ships).
 
 Run on the build machine (lg) for the real picture:
     python3 test_improvements.py --in ../../tools/build/kafka_utf8.txt \
@@ -124,7 +124,8 @@ def main():
 
     # ---------------- case 2
     print("\n" + "=" * 72)
-    print("CASE 2 — cheap strong cuts (suggestion, NOT adopted)")
+    print("CASE 2 — cheap strong cuts (ADOPTED; CUR = flag off, "
+          "SUG = flag on = shipping default)")
     print(f"  sentences changed: {len(case2)} of {n_sents}")
     per = {lvl: sum(1 for _, c, ch_, _ in case2 if c[lvl] != ch_[lvl])
            for lvl in LEVELS}

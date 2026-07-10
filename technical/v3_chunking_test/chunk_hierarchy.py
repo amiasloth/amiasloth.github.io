@@ -88,10 +88,10 @@ RUNG_MAX = 14         # sentences ≤ this get no progressive rung
 
 # feature flags (test_improvements.py toggles these to show diffs)
 DESP_CROSSINGS = True      # desperation cuts minimize crossing dep edges
-CHEAP_STRONG_CUTS = False  # suggestion #2: cuts at/above the level's
-                           # pref strength cost 30% — separates
-                           # intermediate from advanced on long
-                           # sentences (opt-in, owner to judge)
+CHEAP_STRONG_CUTS = True   # cuts at/above the level's pref strength
+                           # cost 30% — separates intermediate from
+                           # advanced on long sentences (owner approved
+                           # after reading the lg before/after report)
 
 
 # --------------------------------------------------------------- fusion
@@ -304,6 +304,20 @@ def break_strengths(sent, cfg):
             k += 1
         return k
 
+    # extended prenominal attributes are ONE phrase: no cut inside the
+    # subtree of an adjective/participle that modifies a noun to its
+    # right — "mit [vor Befriedigung tränenden] Augen", "[von bogen-
+    # förmigen Versteifungen geteilten] Bauch".  (The DP used to sneak
+    # a strength-5 cut in there under length pressure; desperation may
+    # still split truly oversized ones — it ignores fusion by design.)
+    attr_locked = set()
+    for t in toks:
+        if t.pos_ == "ADJ" and t.head.i > t.i \
+                and t.head.pos_ in ("NOUN", "PROPN"):
+            lo = t.left_edge.i - b0
+            for k in range(lo + 1, t.i - b0 + 1):
+                attr_locked.add(k)
+
     clause_edge, left_edges, right_edges = set(), {}, {}
     for t in toks:
         if t.is_punct or t.is_space:
@@ -327,6 +341,8 @@ def break_strengths(sent, cfg):
 
     out = {}
     for k in range(1, n):
+        if k in attr_locked:
+            continue
         if not valid_break(toks, k, cfg, droles):
             continue
         prev, cur = toks[k - 1], toks[k]

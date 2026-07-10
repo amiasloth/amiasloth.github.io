@@ -143,6 +143,29 @@ seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten
 Bauch, | …"; 3 cuts at "Beine | flimmerten"; 7 has no "—," chunk;
 11's rung cuts at the comma.
 
+# Round 4 final state (owner review of lg test_improvements report)
+
+- **Cheap strong cuts ADOPTED** (CHEAP_STRONG_CUTS = True): owner read
+  the lg before/after (378/892 sentences, mostly beginner) and judged
+  it good. Verified neutral at starter sizes (runts/oversize
+  unchanged) — the discount only redistributes cuts toward strong
+  seams.
+- **lg vs sm test reports**: qualitatively identical (case 1
+  starter-only, case 2 beginner-dominated, same example sentences);
+  lg just scales the counts (180 vs 45 / 378 vs 124) and separates
+  more shadow cases (16 vs 7).
+- **Extended-attribute lock added**: the "mit vor Befriedigung |
+  tränenden Augen" cut turned out to be a *valid* strength-5 cut the
+  DP took under length pressure (not a desperation cut — case 1
+  couldn't touch it, intermediate changes were 0). Root fix: no cut
+  inside the subtree of a prenominal adjective/participle (ADJ with
+  NOUN head to its right) — "vor Befriedigung tränenden", "von
+  bogenförmigen Versteifungen geteilten" are one attribute phrase.
+  Costs ~1pp extra starter runts next to locked attributes; meaning >
+  size regularity per the project bottom line. (sm cannot verify the
+  motivating sentence — it splits it mid-sentence and parses the
+  fragment with "tränenden" as ROOT; lg has the correct structure.)
+
 # Rung diagnosis — owner review of the v2 lg run (round 2)
 
 Owner findings: s1-3 rung1 not nested with advanced; s1-10 rung2
