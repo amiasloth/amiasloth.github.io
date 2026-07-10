@@ -1,4 +1,17 @@
-# Smoke-run results (preliminary — regenerate with lg before judging)
+# Smoke-run results
+
+> v2 UPDATE (after owner review + DIAGNOSIS.md): the strength scoring
+> was rewritten with tools/chunk.py's German rules ported and
+> improved. All owner-flagged regressions from the first lg run are
+> fixed in the sm smoke run. `out/` is currently the v2 sm run —
+> rerun `run_experiment.sh` (lg) to judge. v2 sm numbers: starter
+> fluctuation 0.84 vs current 0.98, intermediate CV 0.28 vs 0.38,
+> advanced CV 0.25 vs 0.38, nothing beyond max+1, 0 punct-only
+> chunks, rungs adaptive (111-word sentence → 4 rungs).
+
+Original v1 notes below (kept for history).
+
+# v1 smoke-run results (preliminary — regenerate with lg before judging)
 
 The committed `out/` was generated with **de_core_news_sm** (sandbox
 couldn't hold the lg model). The shipped baseline was parsed with

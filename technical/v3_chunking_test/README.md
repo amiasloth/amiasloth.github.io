@@ -66,8 +66,13 @@ to both sides.
 
 ## Files
 
-    chunk_hierarchy.py   candidate B implementation
+    chunk_hierarchy.py   candidate B implementation (v2: German rules
+                         ported from tools/chunk.py + improved — clause
+                         commas, comma classes, NP edges, dash pairing,
+                         fuse_dir, adaptive recursive rungs)
     compare_report.py    side-by-side HTML + metrics vs shipped data
     run_experiment.sh    driver
-    RESULTS.md           what a smoke run shows + how to read the output
+    DIAGNOSIS.md         owner review of the v1 lg run → root causes →
+                         v2 fixes
+    RESULTS.md           run notes + how to read the output
     out/                 generated (kept out of the repo's app dirs)

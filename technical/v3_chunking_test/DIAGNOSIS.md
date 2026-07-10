@@ -1,5 +1,10 @@
 # Diagnosis — owner review of the lg run (2026-07-10)
 
+> STATUS: all problems below are addressed in chunk_hierarchy.py v2
+> (see "v2 fixes" at the end of this file and RESULTS.md).
+> `out/` currently holds an sm smoke run again — rerun
+> `run_experiment.sh` with lg before judging boundaries.
+
 Verdict from review: candidate B improves sometimes (9, 11, variance,
 caps), regresses on specific boundaries (1, 2, 7, 8). Every regression
 traces to the STRENGTH SCORING, not to the DP or the nesting. That's
@@ -104,3 +109,36 @@ function. The strength function is exactly where tools/chunk.py's
 hard-won German rules belong (clause edges, comma classes, dash
 pairing, punct absorption, fusion). Port those into
 `break_strengths()`, keep DP + nesting untouched, rerun, re-judge.
+
+## v2 fixes (implemented after this diagnosis)
+
+1. Clause detection: verb-headed non-root subtrees with their own
+   subordinator/finite verb are clauses (covers TIGER mo-clauses);
+   modal brackets ("kann … kommen") exempted, as in tools/chunk.py.
+   Plus a parse-independent backstop: a comma directly before OR after
+   a finite verb is a clause seam (85) under any parse.
+2. Comma classes: clause 85 / apposition 60 / default 50 / NP-list 15,
+   and the list class CAPS generic edge signals (a "braunen," cut
+   can't sneak back in via a subtree edge).
+3. Subj/obj subtrees score BOTH edges, normalized past trailing
+   punctuation ("… dünnen Beine | flimmerten" is now a 45 seam).
+4. Paired dashes (open cuts before, close cuts after), punct-only
+   chunks impossible (0-word span = ∞ DP cost), punct-only "sentences"
+   (stray «) absorbed into neighbours.
+5. words = whitespace pieces containing a letter/digit.
+6. Full fuse_dir port: pronoun-after-verb ("stand er",
+   "verwandelte sich"), pronoun-before-verb, PTKNEG, ADV/NUM before
+   head, look-through-punct ("und, | weil"), hyphen compounds.
+7. Severed-verb penalty (gate B as a DP cost), exempt at seams ≥ 85 —
+   the parser sometimes mis-hangs objects on a clause-final verb.
+8. Progressive rungs: recursive + adaptive (strongest sufficiently-
+   central break until every part ≤ 14 words). The 111-word
+   "Wohnzimmertür" monster gets 4 rungs (2→4→8→11 parts); short
+   sentences get none. Rung picking now weighs centeredness, so
+   sentence 11 cuts at the comma.
+
+Owner-flagged sentences after v2 (sm smoke run): 1 cuts at
+"erwachte, |"; 2 reads "und sah, | wenn er den Kopf ein wenig hob, |
+seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten
+Bauch, | …"; 3 cuts at "Beine | flimmerten"; 7 has no "—," chunk;
+11's rung cuts at the comma.

@@ -74,7 +74,8 @@ def map_chunks_to_sentences(cand_sents, chunks):
 # ------------------------------------------------- metrics
 
 def wc(t):
-    return len(t.split())
+    """Words = whitespace pieces containing a letter/digit ("—," = 0)."""
+    return sum(1 for w in t.split() if any(ch.isalnum() for ch in w))
 
 
 def chunk_stats(sent_chunk_lists, lvl):
@@ -171,12 +172,12 @@ def render_section(title, cand_sents, base_per_sent, out_path, sec_no):
                 f'<td class="col">{render_chunks(cur, lvl)}</td>'
                 f'<td class="col b">{render_chunks(cand, lvl)}</td></tr>')
         halves = ""
-        if cs.get("halves") and wc(cs["text"]) > 12:
+        for ri, rung in enumerate(cs.get("rungs") or []):
             hh = "".join(f'<span class="ck">{html.escape(h)} '
                          f'<span class="n">{wc(h)}</span></span>'
-                         for h in cs["halves"])
-            halves = (f'<tr><th>halves rung</th><td></td>'
-                      f'<td class="col half">{hh}</td></tr>')
+                         for h in rung)
+            halves += (f'<tr><th>rung {ri + 1}</th><td></td>'
+                       f'<td class="col half">{hh}</td></tr>')
         rows.append(
             f'<div class="sent"><div class="stext">'
             f'{i + 1}. {html.escape(cs["text"])}</div>'
@@ -191,7 +192,7 @@ def render_section(title, cand_sents, base_per_sent, out_path, sec_no):
         f"<span class='ck over'>red</span> over level max · "
         f"<span class='ck runt'>pink</span> under level min · "
         f"<span class='ck' style='background:#fdf3e3'>orange</span> "
-        f"adaptive halves rung (long sentences, candidate B only)</p>"
+        f"adaptive progressive rungs (long sentences, candidate B only)</p>"
         + "".join(rows), encoding="utf-8")
 
 
