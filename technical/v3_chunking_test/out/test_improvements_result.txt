@@ -1,0 +1,56 @@
+========================================================================
+CASE 1 — crossing-aware desperation (adopted)
+  sentences changed: 180 of 892
+  per level: starter: 180, beginner: 17, intermediate: 0, advanced: 0
+
+  (20w) Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett
+    OLD/start: Als Gregor Samsa | eines Morgens | aus unruhigen Träumen erwachte, | fand er sich | in seinem Bett | zu einem | ungeheueren Ungeziefer verwandelt.
+    NEW/start: Als Gregor Samsa | eines Morgens | aus unruhigen Träumen erwachte, | fand er sich | in seinem Bett | zu einem ungeheueren Ungeziefer | verwandelt.
+
+  (38w) Er lag auf seinem panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, seine
+    OLD/start: Er lag | auf seinem | panzerartig harten Rücken | und sah, | wenn er den Kopf | ein wenig hob, | seinen gewölbten, braunen, | von bogenförmigen Versteifungen | geteilten Bauch, | auf dessen Höhe sich | die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch | erhalten konnte.
+    NEW/start: Er lag | auf seinem panzerartig | harten Rücken | und sah, | wenn er den Kopf | ein wenig hob, | seinen gewölbten, braunen, | von bogenförmigen Versteifungen | geteilten Bauch, | auf dessen Höhe sich | die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch | erhalten konnte.
+
+  (16w) Sein Zimmer, ein richtiges, nur etwas zu kleines Menschenzimmer, lag ruhig zwischen den vi
+    OLD/start: Sein Zimmer, | ein richtiges, | nur etwas | zu kleines Menschenzimmer, | lag ruhig | zwischen den | vier wohlbekannten Wänden.
+    NEW/start: Sein Zimmer, | ein richtiges, | nur etwas | zu kleines Menschenzimmer, | lag ruhig | zwischen den vier | wohlbekannten Wänden.
+
+  [referenced example] (35w) Ich hatte ursprünglich die Absicht, Ihnen das alles unter vier Augen zu sagen, aber da Sie
+    OLD/start: Ich hatte ursprünglich | die Absicht, | Ihnen das alles | unter vier Augen | zu sagen, | aber da | Sie mich hier | nutzlos | meine Zeit | versäumen lassen, | weiß ich nicht, | warum es nicht auch | Ihre Herren Eltern | erfahren sollen.
+    NEW/start: Ich hatte ursprünglich | die Absicht, | Ihnen das alles | unter vier Augen | zu sagen, | aber da Sie | mich hier | nutzlos | meine Zeit | versäumen lassen, | weiß ich nicht, | warum es nicht auch | Ihre Herren Eltern | erfahren sollen.
+
+========================================================================
+CASE 2 — cheap strong cuts (suggestion, NOT adopted)
+  sentences changed: 378 of 892
+  per level: starter: 42, beginner: 296, intermediate: 133, advanced: 70
+  intermediate==advanced (>12w) cases separated: 16
+
+  [side effect] (20w) Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett
+    CUR/begin: Als Gregor Samsa eines Morgens | aus unruhigen Träumen erwachte, | fand er sich | in seinem Bett | zu einem ungeheueren Ungeziefer verwandelt.
+    SUG/begin: Als Gregor Samsa | eines Morgens | aus unruhigen Träumen erwachte, | fand er sich | in seinem Bett | zu einem ungeheueren Ungeziefer verwandelt.
+
+  [side effect] (38w) Er lag auf seinem panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, seine
+    CUR/begin: Er lag | auf seinem panzerartig harten Rücken | und sah, | wenn er den Kopf | ein wenig hob, | seinen gewölbten, braunen, | von bogenförmigen Versteifungen geteilten Bauch, | auf dessen Höhe sich | die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch erhalten konnte.
+    CUR/inter: Er lag auf seinem panzerartig harten Rücken | und sah, | wenn er den Kopf ein wenig hob, | seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten Bauch, | auf dessen Höhe sich die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch erhalten konnte.
+    SUG/begin: Er lag | auf seinem panzerartig harten Rücken | und sah, | wenn er den Kopf | ein wenig hob, | seinen gewölbten, braunen, | von bogenförmigen Versteifungen | geteilten Bauch, | auf dessen Höhe sich | die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch erhalten konnte.
+    SUG/inter: Er lag auf seinem panzerartig harten Rücken | und sah, | wenn er den Kopf ein wenig hob, | seinen gewölbten, braunen, | von bogenförmigen Versteifungen geteilten Bauch, | auf dessen Höhe sich die Bettdecke, | zum gänzlichen Niedergleiten bereit, | kaum noch erhalten konnte.
+
+  [side effect] (7w) »Was ist mit mir geschehen?« dachte er.
+    CUR/begin: »Was ist mit mir geschehen?« | dachte er.
+    SUG/begin: »Was ist | mit mir geschehen?« | dachte er.
+
+  [shadow resolved] (35w) Nun, die Hoffnung ist noch nicht gänzlich aufgegeben, habe ich einmal das Geld beisammen, 
+    CUR/begin: Nun, die Hoffnung | ist noch nicht gänzlich aufgegeben, | habe ich einmal | das Geld beisammen, | um die Schuld der Eltern | an ihn abzuzahlen | — es dürfte noch | fünf bis sechs Jahre dauern — , | mache ich die Sache unbedingt.
+    CUR/inter: Nun, die Hoffnung ist noch nicht gänzlich aufgegeben, | habe ich einmal das Geld beisammen, | um die Schuld der Eltern an ihn abzuzahlen | — es dürfte noch fünf bis sechs Jahre dauern — , | mache ich die Sache unbedingt.
+    SUG/begin: Nun, die Hoffnung | ist noch nicht gänzlich aufgegeben, | habe ich einmal | das Geld beisammen, | um die Schuld der Eltern | an ihn abzuzahlen | — es dürfte noch | fünf bis sechs Jahre dauern — , | mache ich | die Sache unbedingt.
+    SUG/inter: Nun, die Hoffnung ist noch nicht gänzlich aufgegeben, | habe ich einmal das Geld beisammen, | um die Schuld der Eltern | an ihn abzuzahlen | — es dürfte noch fünf bis sechs Jahre dauern — , | mache ich die Sache unbedingt.
+
+  [shadow resolved] (13w) Man sah vom Bett aus, daß er auf vier Uhr richtig eingestellt war;
+    CUR/begin: Man sah vom Bett aus, | daß er auf vier Uhr | richtig eingestellt war;
+    SUG/begin: Man sah | vom Bett aus, | daß er auf vier Uhr | richtig eingestellt war;
+
+  [shadow resolved] (14w) Noch war Gregor hier und dachte nicht im geringsten daran, seine Familie zu verlassen.
+    CUR/inter: Noch war Gregor hier und dachte nicht | im geringsten daran, seine Familie zu verlassen.
+    CUR/advan: Noch war Gregor hier und dachte nicht | im geringsten daran, seine Familie zu verlassen.
+    SUG/inter: Noch war Gregor hier | und dachte nicht im geringsten daran, | seine Familie zu verlassen.
+    SUG/advan: Noch war Gregor hier und dachte nicht im geringsten daran, | seine Familie zu verlassen.

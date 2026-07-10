@@ -85,7 +85,7 @@
        10,
        13,
        16,
-       18
+       20
       ]
      },
      "levels": {
@@ -112,8 +112,8 @@
        "aus unruhigen Träumen erwachte,",
        "fand er sich",
        "in seinem Bett",
-       "zu einem",
-       "ungeheueren Ungeziefer verwandelt."
+       "zu einem ungeheueren Ungeziefer",
+       "verwandelt."
       ]
      },
      "rungs": []
@@ -219,7 +219,7 @@
       ],
       "starter": [
        2,
-       4,
+       5,
        7,
        10,
        14,
@@ -265,8 +265,8 @@
       ],
       "starter": [
        "Er lag",
-       "auf seinem",
-       "panzerartig harten Rücken",
+       "auf seinem panzerartig",
+       "harten Rücken",
        "und sah,",
        "wenn er den Kopf",
        "ein wenig hob,",
@@ -496,7 +496,7 @@
        8,
        12,
        14,
-       16
+       17
       ]
      },
      "levels": {
@@ -521,8 +521,8 @@
        "nur etwas",
        "zu kleines Menschenzimmer,",
        "lag ruhig",
-       "zwischen den",
-       "vier wohlbekannten Wänden."
+       "zwischen den vier",
+       "wohlbekannten Wänden."
       ]
      },
      "rungs": []
@@ -613,7 +613,7 @@
       ],
       "starter": [
        4,
-       6,
+       8,
        9,
        11,
        13,
@@ -655,8 +655,8 @@
       ],
       "starter": [
        "Über dem Tisch,",
-       "auf dem",
-       "eine auseinandergepackte Musterkollektion",
+       "auf dem eine auseinandergepackte",
+       "Musterkollektion",
        "von Tuchwaren",
        "ausgebreitet war",
        "— Samsa war Reisender — ,",
@@ -752,7 +752,7 @@
        16,
        18,
        23,
-       25,
+       27,
        28,
        31
       ]
@@ -788,8 +788,8 @@
        "und einer Pelzboa versehen,",
        "aufrecht dasaß",
        "und einen schweren Pelzmuff,",
-       "in dem",
-       "ihr ganzer Unterarm",
+       "in dem ihr ganzer",
+       "Unterarm",
        "verschwunden war,",
        "dem Beschauer entgegenhob."
       ]
@@ -1003,7 +1003,7 @@
        35,
        38,
        41,
-       43,
+       45,
        46
       ]
      },
@@ -1050,8 +1050,8 @@
        "auf der rechten Seite",
        "zu schlafen,",
        "konnte sich aber",
-       "in seinem",
-       "gegenwärtigen Zustand nicht",
+       "in seinem gegenwärtigen Zustand",
+       "nicht",
        "in diese Lage bringen."
       ]
      },
@@ -1092,13 +1092,14 @@
       ],
       "beginner": [
        3,
-       6,
+       5,
        10,
        12,
        16
       ],
       "starter": [
        3,
+       5,
        6,
        10,
        12,
@@ -1117,15 +1118,16 @@
       ],
       "beginner": [
        "Mit welcher Kraft",
-       "er sich auch",
-       "auf die rechte Seite",
+       "er sich",
+       "auch auf die rechte Seite",
        "warf,",
        "immer wieder schaukelte er",
        "in die Rückenlage zurück."
       ],
       "starter": [
        "Mit welcher Kraft",
-       "er sich auch",
+       "er sich",
+       "auch",
        "auf die rechte Seite",
        "warf,",
        "immer wieder schaukelte er",
@@ -1319,7 +1321,7 @@
       "starter": [
        5,
        8,
-       11,
+       13,
        14
       ]
      },
@@ -1339,8 +1341,8 @@
       "starter": [
        "»Ach Gott,«",
        "dachte er,",
-       "»was für",
-       "einen anstrengenden Beruf",
+       "»was für einen anstrengenden",
+       "Beruf",
        "habe ich gewählt!"
       ]
      },
@@ -1718,10 +1720,11 @@
        26,
        29,
        34,
-       37,
+       38,
        40,
        43,
-       46
+       45,
+       48
       ]
      },
      "levels": {
@@ -1768,11 +1771,12 @@
        "besser heben",
        "zu können;",
        "fand die juckende Stelle,",
-       "die mit lauter",
-       "kleinen weißen Pünktchen",
+       "die mit lauter kleinen",
+       "weißen Pünktchen",
        "besetzt war,",
-       "die er nicht",
-       "zu beurteilen verstand;"
+       "die er",
+       "nicht zu beurteilen",
+       "verstand;"
       ]
      },
      "rungs": [
@@ -1905,7 +1909,7 @@
       ],
       "starter": [
        3,
-       5
+       7
       ]
      },
      "levels": {
@@ -1921,8 +1925,8 @@
       ],
       "starter": [
        "Er glitt wieder",
-       "in seine",
-       "frühere Lage zurück."
+       "in seine frühere Lage",
+       "zurück."
       ]
      },
      "rungs": []
@@ -3941,7 +3945,7 @@
        24,
        29,
        32,
-       34,
+       33,
        38,
        40
       ]
@@ -3986,8 +3990,8 @@
        "durch den Hinweis",
        "auf den Krankenkassenarzt abschneiden,",
        "für den es",
-       "ja überhaupt",
-       "nur ganz gesunde,",
+       "ja",
+       "überhaupt nur ganz gesunde,",
        "aber arbeitsscheue",
        "Menschen gibt."
       ]
@@ -4106,7 +4110,8 @@
       "starter": [
        5,
        6,
-       9,
+       8,
+       11,
        12,
        16,
        18,
@@ -4136,8 +4141,9 @@
       "starter": [
        "Gregor fühlte sich tatsächlich,",
        "abgesehen",
-       "von einer nach",
-       "dem langen Schlaf",
+       "von einer",
+       "nach dem langen",
+       "Schlaf",
        "wirklich überflüssigen Schläfrigkeit,",
        "ganz wohl",
        "und hatte sogar",
@@ -4585,7 +4591,7 @@
        53,
        57,
        62,
-       64
+       66
       ]
      },
      "levels": {
@@ -4644,8 +4650,8 @@
        "um sie im Nachklang",
        "derart zu zerstören,",
        "daß man nicht wußte,",
-       "ob man",
-       "recht gehört hatte."
+       "ob man recht gehört",
+       "hatte."
       ]
      },
      "rungs": [
@@ -5002,7 +5008,7 @@
        34
       ],
       "starter": [
-       2,
+       4,
        5,
        6,
        9,
@@ -5043,8 +5049,8 @@
        "aber mit der Faust."
       ],
       "starter": [
-       "Aber durch",
-       "das kleine Gespräch",
+       "Aber durch das kleine",
+       "Gespräch",
        "waren",
        "die anderen Familienmitglieder",
        "darauf aufmerksam geworden,",
@@ -5140,7 +5146,7 @@
        7
       ],
       "starter": [
-       2,
+       4,
        5,
        7
       ]
@@ -5159,8 +5165,8 @@
        "nochmals mit tieferer Stimme:"
       ],
       "starter": [
-       "Und nach",
-       "einer kleinen Weile",
+       "Und nach einer kleinen",
+       "Weile",
        "mahnte er",
        "nochmals mit tieferer Stimme:"
       ]
@@ -5540,7 +5546,7 @@
       ],
       "starter": [
        3,
-       5,
+       7,
        9,
        11,
        14,
@@ -5566,8 +5572,8 @@
       ],
       "starter": [
        "Der Vater kehrte",
-       "auch zu",
-       "seinem Frühstück zurück,",
+       "auch zu seinem Frühstück",
+       "zurück,",
        "die Schwester",
        "aber flüsterte:",
        "»Gregor, mach auf,",
@@ -5795,7 +5801,7 @@
        31,
        33,
        36,
-       38
+       40
       ]
      },
      "levels": {
@@ -5837,8 +5843,8 @@
        "im Bett",
        "würde er",
        "mit dem Nachdenken",
-       "zu keinem",
-       "vernünftigen Ende kommen."
+       "zu keinem vernünftigen Ende",
+       "kommen."
       ]
      },
      "rungs": [
@@ -6249,7 +6255,7 @@
       "starter": [
        4,
        7,
-       10
+       9
       ]
      },
      "levels": {
@@ -6268,8 +6274,8 @@
       "starter": [
        "Aber weiterhin wurde es",
        "schwierig, besonders",
-       "weil er so",
-       "ungemein breit war."
+       "weil er",
+       "so ungemein breit war."
       ]
      },
      "rungs": []
@@ -6727,7 +6733,7 @@
        19,
        22,
        26,
-       29,
+       30,
        32,
        35,
        38,
@@ -6774,8 +6780,8 @@
        "aber dieser untere Teil,",
        "den er übrigens",
        "noch nicht gesehen hatte",
-       "und von dem",
-       "er sich auch",
+       "und von dem er",
+       "sich auch",
        "keine rechte Vorstellung",
        "machen konnte,",
        "erwies sich",
@@ -7331,7 +7337,7 @@
        42
       ],
       "starter": [
-       2,
+       3,
        5,
        6,
        9,
@@ -7340,7 +7346,7 @@
        19,
        20,
        25,
-       27,
+       28,
        30,
        34,
        36,
@@ -7378,8 +7384,8 @@
        "nicht verletzt werden sollte."
       ],
       "starter": [
-       "Aber als",
-       "er den Kopf",
+       "Aber als er",
+       "den Kopf",
        "endlich",
        "außerhalb des Bettes",
        "in der freien Luft",
@@ -7387,8 +7393,8 @@
        "bekam er Angst,",
        "weiter",
        "auf diese Weise vorzurücken,",
-       "denn wenn",
-       "er sich schließlich",
+       "denn wenn er",
+       "sich schließlich",
        "so fallen ließ,",
        "mußte geradezu",
        "ein Wunder geschehen",
@@ -7683,7 +7689,7 @@
        45,
        47,
        49,
-       51,
+       52,
        54,
        60,
        62,
@@ -7754,8 +7760,8 @@
        "daß er unmöglich",
        "im Bett",
        "bleiben könne",
-       "und daß",
-       "es das Vernünftigste",
+       "und daß es",
+       "das Vernünftigste",
        "sei, alles zu opfern,",
        "wenn auch",
        "nur die kleinste Hoffnung",
@@ -9247,7 +9253,8 @@
       "starter": [
        2,
        4,
-       7,
+       5,
+       9,
        11,
        13,
        16,
@@ -9296,8 +9303,9 @@
       "starter": [
        "sie hätten",
        "ihre Arme",
-       "nur unter seinen",
-       "gewölbten Rücken schieben,",
+       "nur",
+       "unter seinen gewölbten Rücken",
+       "schieben,",
        "ihn so",
        "aus dem Bett",
        "schälen,",
@@ -10038,7 +10046,7 @@
        7,
        10,
        13,
-       16,
+       15,
        19,
        20
       ]
@@ -10069,8 +10077,8 @@
        "dazu verurteilt,",
        "bei einer Firma",
        "zu dienen,",
-       "wo man bei",
-       "der kleinsten Versäumnis",
+       "wo man",
+       "bei der kleinsten Versäumnis",
        "gleich",
        "den größten Verdacht faßte?"
       ]
@@ -10542,7 +10550,7 @@
        9,
        12,
        15,
-       17,
+       19,
        21,
        24,
        27
@@ -10577,8 +10585,8 @@
        "in welche Gregor",
        "durch diese Überlegungen",
        "versetzt wurde,",
-       "als infolge",
-       "eines richtigen Entschlusses,",
+       "als infolge eines richtigen",
+       "Entschlusses,",
        "schwang er sich",
        "mit aller Macht",
        "aus dem Bett."
@@ -11148,7 +11156,7 @@
        18
       ],
       "starter": [
-       2,
+       4,
        5,
        8,
        10,
@@ -11178,8 +11186,8 @@
        "und ließ seine Lackstiefel knarren."
       ],
       "starter": [
-       "Aber wie",
-       "zur rohen Antwort",
+       "Aber wie zur rohen",
+       "Antwort",
        "auf diese Frage",
        "machte jetzt",
        "der Prokurist",
@@ -11540,7 +11548,7 @@
       ],
       "starter": [
        4,
-       6
+       8
       ]
      },
      "levels": {
@@ -11557,8 +11565,8 @@
       ],
       "starter": [
        "Wir wissen nicht,",
-       "was wir",
-       "ihm sagen sollen."
+       "was wir ihm sagen",
+       "sollen."
       ]
      },
      "rungs": []
@@ -13825,7 +13833,7 @@
        22
       ],
       "starter": [
-       2,
+       4,
        6,
        10,
        12,
@@ -13856,8 +13864,8 @@
        "gut sofort weggeschickt werden."
       ],
       "starter": [
-       "Aber wegen",
-       "dieser kleinen Unhöflichkeit,",
+       "Aber wegen dieser kleinen",
+       "Unhöflichkeit,",
        "für die sich ja",
        "später leicht",
        "eine passende Ausrede",
@@ -14221,7 +14229,7 @@
        24,
        30,
        33,
-       35
+       36
       ]
      },
      "levels": {
@@ -14261,8 +14269,8 @@
        "und versäumen",
        "— dies nur nebenbei erwähnt —",
        "Ihre geschäftlichen Pflichten",
-       "in einer",
-       "eigentlich unerhörten Weise."
+       "in einer eigentlich",
+       "unerhörten Weise."
       ]
      },
      "rungs": [
@@ -14908,7 +14916,7 @@
        9,
        12,
        15,
-       17,
+       18,
        20,
        21,
        23,
@@ -14949,8 +14957,8 @@
        "Ihnen das alles",
        "unter vier Augen",
        "zu sagen,",
-       "aber da",
-       "Sie mich hier",
+       "aber da Sie",
+       "mich hier",
        "nutzlos",
        "meine Zeit",
        "versäumen lassen,",
@@ -16958,7 +16966,7 @@
       "starter": [
        4,
        5,
-       7,
+       9,
        11,
        15,
        19,
@@ -16986,8 +16994,8 @@
       "starter": [
        "Zuerst glitt er nun",
        "einigemale",
-       "von dem",
-       "glatten Kasten ab,",
+       "von dem glatten Kasten",
+       "ab,",
        "aber endlich gab er",
        "sich einen letzten Schwung",
        "und stand",
@@ -18126,7 +18134,7 @@
        7,
        11,
        15,
-       17,
+       19,
        20
       ]
      },
@@ -18155,8 +18163,8 @@
        "offen gelassen,",
        "wie es in Wohnungen",
        "zu sein pflegt,",
-       "in denen",
-       "ein großes Unglück",
+       "in denen ein großes",
+       "Unglück",
        "geschehen ist."
       ]
      },
@@ -18711,7 +18719,7 @@
        46
       ],
       "beginner": [
-       3,
+       4,
        7,
        11,
        16,
@@ -18725,7 +18733,7 @@
        46
       ],
       "starter": [
-       3,
+       4,
        7,
        11,
        14,
@@ -18761,8 +18769,8 @@
        "sich nicht mehr getraute."
       ],
       "beginner": [
-       "Um für die",
-       "sich nähernden entscheidenden Besprechungen",
+       "Um für die sich",
+       "nähernden entscheidenden Besprechungen",
        "eine möglichst klare Stimme",
        "zu bekommen, hustete er",
        "ein wenig ab, allerdings bemüht,",
@@ -18776,8 +18784,8 @@
        "sich nicht mehr getraute."
       ],
       "starter": [
-       "Um für die",
-       "sich nähernden entscheidenden Besprechungen",
+       "Um für die sich",
+       "nähernden entscheidenden Besprechungen",
        "eine möglichst klare Stimme",
        "zu bekommen,",
        "hustete er",
@@ -19696,7 +19704,7 @@
        22,
        25,
        30,
-       32
+       31
       ]
      },
      "levels": {
@@ -19731,8 +19739,8 @@
        "hätten sie",
        "rufen sollen,",
        "»immer nur heran,",
-       "fest an",
-       "das Schloß heran!«"
+       "fest",
+       "an das Schloß heran!«"
       ]
      },
      "rungs": [
@@ -20391,7 +20399,7 @@
       "starter": [
        2,
        5,
-       7,
+       9,
        11,
        13,
        16,
@@ -20428,8 +20436,8 @@
       "starter": [
        "Er mußte",
        "sich erst langsam",
-       "um den",
-       "einen Türflügel herumdrehen,",
+       "um den einen Türflügel",
+       "herumdrehen,",
        "und zwar",
        "sehr vorsichtig,",
        "wenn er nicht",
@@ -20861,7 +20869,7 @@
        6,
        9,
        11,
-       13,
+       15,
        16,
        19,
        21,
@@ -20923,8 +20931,8 @@
        "— sie stand hier",
        "trotz der Anwesenheit",
        "des Prokuristen",
-       "mit von",
-       "der Nacht her",
+       "mit von der Nacht",
+       "her",
        "noch aufgelösten,",
        "hoch sich",
        "sträubenden Haaren —",
@@ -21407,7 +21415,7 @@
        15,
        18,
        21,
-       23,
+       24,
        26
       ]
      },
@@ -21440,8 +21448,8 @@
        "endlosen, grauschwarzen Hauses",
        "— es war",
        "ein Krankenhaus —",
-       "mit seinen",
-       "hart die Front",
+       "mit seinen hart",
+       "die Front",
        "durchbrechenden regelmäßigen Fenstern;"
       ]
      },
@@ -21756,7 +21764,7 @@
        34
       ],
       "starter": [
-       2,
+       1,
        5,
        9,
        13,
@@ -21795,8 +21803,8 @@
        "und Uniform verlangte."
       ],
       "starter": [
-       "Gerade an",
-       "der gegenüberliegenden Wand",
+       "Gerade",
+       "an der gegenüberliegenden Wand",
        "hing eine Photographie Gregors",
        "aus seiner Militärzeit,",
        "die ihn als Leutnant",
@@ -22485,7 +22493,7 @@
        9,
        13,
        17,
-       19,
+       18,
        22,
        24,
        28,
@@ -22533,8 +22541,8 @@
        "zu arbeiten,",
        "aber dann ist gerade",
        "der richtige Zeitpunkt,",
-       "sich an",
-       "die früheren Leistungen",
+       "sich",
+       "an die früheren Leistungen",
        "zu erinnern",
        "und zu bedenken,",
        "daß man später,",
@@ -23659,17 +23667,19 @@
        4,
        10,
        13,
-       16,
+       15,
        20,
        22,
        25
       ],
       "starter": [
        4,
-       7,
+       5,
+       6,
        10,
        13,
-       16,
+       15,
+       19,
        20,
        22,
        25
@@ -23691,19 +23701,21 @@
        "Aber der Prokurist hatte",
        "sich schon bei den ersten Worten",
        "Gregors abgewendet,",
-       "und nur über",
-       "die zuckende Schulter hinweg",
+       "und nur",
+       "über die zuckende Schulter hinweg",
        "sah er",
        "mit aufgeworfenen Lippen",
        "nach Gregor zurück."
       ],
       "starter": [
        "Aber der Prokurist hatte",
-       "sich schon bei",
-       "den ersten Worten",
+       "sich",
+       "schon",
+       "bei den ersten Worten",
        "Gregors abgewendet,",
-       "und nur über",
-       "die zuckende Schulter hinweg",
+       "und nur",
+       "über die zuckende Schulter",
+       "hinweg",
        "sah er",
        "mit aufgeworfenen Lippen",
        "nach Gregor zurück."
@@ -23934,9 +23946,9 @@
       "starter": [
        3,
        6,
-       8,
+       10,
        12,
-       14,
+       15,
        17,
        19,
        24,
@@ -23974,10 +23986,10 @@
       "starter": [
        "Schon war er",
        "im Vorzimmer,",
-       "und nach",
-       "der plötzlichen Bewegung,",
-       "mit der",
-       "er zum letztenmal",
+       "und nach der plötzlichen",
+       "Bewegung,",
+       "mit der er",
+       "zum letztenmal",
        "den Fuß",
        "aus dem Wohnzimmer zog,",
        "hätte man",
@@ -24356,7 +24368,7 @@
       ],
       "starter": [
        2,
-       4,
+       3,
        7,
        11,
        13,
@@ -24401,8 +24413,8 @@
       ],
       "starter": [
        "sie hatten",
-       "sich in",
-       "den langen Jahren",
+       "sich",
+       "in den langen Jahren",
        "die Überzeugung gebildet,",
        "daß Gregor",
        "in diesem Geschäft",
@@ -25223,7 +25235,7 @@
        4,
        9,
        13,
-       15
+       17
       ]
      },
      "levels": {
@@ -25246,8 +25258,8 @@
        "fiel aber sofort,",
        "nach einem Halt suchend,",
        "mit einem kleinen Schrei",
-       "auf seine",
-       "vielen Beinchen nieder."
+       "auf seine vielen Beinchen",
+       "nieder."
       ]
      },
      "rungs": []
@@ -25639,7 +25651,8 @@
        13,
        16,
        21,
-       24,
+       22,
+       23,
        27,
        32,
        34,
@@ -25697,8 +25710,9 @@
        "vor verhaltener Bewegung,",
        "gar nicht weit",
        "von seiner Mutter entfernt,",
-       "ihr gerade gegenüber",
-       "auf dem Boden",
+       "ihr",
+       "gerade",
+       "gegenüber auf dem Boden",
        "lag, sprang diese,",
        "die doch",
        "so ganz",
@@ -25940,7 +25954,7 @@
        31,
        36,
        39,
-       41,
+       42,
        44,
        46,
        49,
@@ -25994,8 +26008,8 @@
        "und schien",
        "gar nicht zu merken,",
        "daß neben ihr",
-       "aus der",
-       "umgeworfenen großen Kanne",
+       "aus der umgeworfenen",
+       "großen Kanne",
        "der Kaffee",
        "in vollem Strome",
        "auf den Teppich",
@@ -26109,7 +26123,7 @@
       "starter": [
        3,
        7,
-       9
+       8
       ]
      },
      "levels": {
@@ -26128,8 +26142,8 @@
       "starter": [
        "Der Prokurist war",
        "ihm für einen Augenblick",
-       "ganz aus",
-       "dem Sinn gekommen;"
+       "ganz",
+       "aus dem Sinn gekommen;"
       ]
      },
      "rungs": []
@@ -26443,7 +26457,7 @@
        2,
        6,
        8,
-       10
+       12
       ]
      },
      "levels": {
@@ -26463,8 +26477,8 @@
        "das Kinn",
        "auf dem Geländer,",
        "sah er",
-       "noch zum",
-       "letzten Male zurück."
+       "noch zum letzten Male",
+       "zurück."
       ]
      },
      "rungs": []
@@ -29212,11 +29226,11 @@
        3,
        5,
        7,
-       10,
+       9,
        14,
        18,
        21,
-       23
+       25
       ]
      },
      "levels": {
@@ -29243,12 +29257,12 @@
        "da gab ihm",
        "der Vater",
        "von hinten",
-       "einen jetzt wahrhaftig",
-       "erlösenden starken Stoß,",
+       "einen jetzt",
+       "wahrhaftig erlösenden starken Stoß,",
        "und er flog,",
        "heftig blutend,",
-       "weit in",
-       "sein Zimmer hinein."
+       "weit in sein Zimmer",
+       "hinein."
       ]
      },
      "rungs": [
@@ -29361,7 +29375,7 @@
       "starter": [
        4,
        6,
-       8
+       9
       ]
      },
      "levels": {
@@ -29380,8 +29394,8 @@
       "starter": [
        "Erst in der Abenddämmerung",
        "erwachte Gregor",
-       "aus seinem",
-       "schweren ohnmachtähnlichen Schlaf."
+       "aus seinem schweren",
+       "ohnmachtähnlichen Schlaf."
       ]
      },
      "rungs": []
@@ -29610,7 +29624,7 @@
        8,
        10,
        13,
-       15,
+       17,
        18,
        21,
        25
@@ -29644,8 +29658,8 @@
        "lag bleich hier",
        "und da",
        "auf der Zimmerdecke",
-       "und auf",
-       "den höheren Teilen",
+       "und auf den höheren",
+       "Teilen",
        "der Möbel,",
        "aber unten bei Gregor",
        "war es finster."
@@ -29929,7 +29943,7 @@
        12,
        16,
        19,
-       22,
+       23,
        26,
        28
       ]
@@ -29963,8 +29977,8 @@
        "schwer verletzt worden",
        "— es war fast",
        "ein Wunder,",
-       "daß nur eines",
-       "verletzt worden war —",
+       "daß nur eines verletzt",
+       "worden war —",
        "und schleppte",
        "leblos nach."
       ]
@@ -30220,7 +30234,7 @@
        17,
        21,
        23,
-       25,
+       24,
        28
       ]
      },
@@ -30257,8 +30271,8 @@
        "als am Morgen,",
        "und gleich tauchte er",
        "seinen Kopf",
-       "fast bis",
-       "über die Augen",
+       "fast",
+       "bis über die Augen",
        "in die Milch hinein."
       ]
      },
@@ -30455,7 +30469,7 @@
       "starter": [
        3,
        7,
-       9,
+       10,
        12,
        14,
        18,
@@ -30523,8 +30537,8 @@
       "starter": [
        "nicht nur,",
        "daß ihm das Essen",
-       "wegen seiner",
-       "heiklen linken Seite",
+       "wegen seiner heiklen",
+       "linken Seite",
        "Schwierigkeiten machte",
        "— und er konnte",
        "nur essen,",
@@ -30789,7 +30803,7 @@
       "starter": [
        3,
        6,
-       8,
+       9,
        11,
        13,
        16,
@@ -30820,8 +30834,8 @@
       "starter": [
        "Nun vielleicht war",
        "dieses Vorlesen,",
-       "von dem",
-       "ihm die Schwester",
+       "von dem ihm",
+       "die Schwester",
        "immer erzählte",
        "und schrieb,",
        "in der letzten Zeit",
@@ -31010,7 +31024,7 @@
        47
       ],
       "starter": [
-       3,
+       5,
        6,
        8,
        12,
@@ -31023,7 +31037,7 @@
        36,
        39,
        42,
-       44,
+       45,
        47
       ]
      },
@@ -31062,8 +31076,8 @@
        "hatte verschaffen können."
       ],
       "starter": [
-       "»Was für",
-       "ein stilles Leben",
+       "»Was für ein stilles",
+       "Leben",
        "die Familie",
        "doch führte,«",
        "sagte sich Gregor",
@@ -31075,8 +31089,8 @@
        "daß er seinen Eltern",
        "und seiner Schwester",
        "ein solches Leben",
-       "in einer",
-       "so schönen Wohnung",
+       "in einer so",
+       "schönen Wohnung",
        "hatte verschaffen können."
       ]
      },
@@ -31327,7 +31341,8 @@
        5,
        9,
        13,
-       16,
+       17,
+       18,
        19,
        21
       ]
@@ -31357,8 +31372,9 @@
        "während des langen Abends",
        "wurde die eine Seitentüre",
        "und einmal die andere",
-       "bis zu einer",
-       "kleinen Spalte geöffnet",
+       "bis zu einer kleinen",
+       "Spalte",
+       "geöffnet",
        "und rasch",
        "wieder geschlossen;"
       ]
@@ -31912,6 +31928,7 @@
        24,
        29,
        32,
+       34,
        36,
        38,
        41
@@ -31958,7 +31975,8 @@
        "und die Schwester",
        "so lange wachgeblieben waren,",
        "denn wie man",
-       "genau hören konnte,",
+       "genau hören",
+       "konnte,",
        "entfernten sich",
        "jetzt alle drei",
        "auf den Fußspitzen."
@@ -32322,23 +32340,24 @@
        103
       ],
       "starter": [
-       2,
+       3,
        6,
-       8,
+       10,
        12,
        16,
        19,
        22,
-       24,
+       25,
        27,
        30,
        34,
        38,
        40,
        42,
-       46,
+       43,
+       47,
        49,
-       52,
+       51,
        55,
        57,
        61,
@@ -32418,24 +32437,25 @@
        "zu werden."
       ],
       "starter": [
-       "Aber das",
-       "hohe freie Zimmer,",
-       "in dem",
-       "er gezwungen war,",
+       "Aber das hohe",
+       "freie Zimmer,",
+       "in dem er gezwungen",
+       "war,",
        "flach auf dem Boden",
        "zu liegen,",
        "ängstigte ihn,",
-       "ohne daß",
-       "er die Ursache",
+       "ohne daß er",
+       "die Ursache",
        "herausfinden konnte,",
        "denn es war ja",
        "sein seit fünf Jahren",
        "von ihm",
        "bewohntes Zimmer",
-       "— und mit einer",
-       "halb unbewußten Wendung",
-       "und nicht ohne",
-       "eine leichte Scham",
+       "—",
+       "und mit einer halb",
+       "unbewußten Wendung",
+       "und nicht",
+       "ohne eine leichte Scham",
        "eilte er",
        "unter das Kanapee,",
        "wo er sich, trotzdem",
@@ -32626,7 +32646,7 @@
        7,
        11,
        14,
-       16,
+       17,
        19,
        23,
        27,
@@ -32701,8 +32721,8 @@
        "die ganze Nacht,",
        "die er zum Teil",
        "im Halbschlaf,",
-       "aus dem",
-       "ihn der Hunger",
+       "aus dem ihn",
+       "der Hunger",
        "immer wieder aufschreckte,",
        "verbrachte, zum Teil",
        "aber in Sorgen",
@@ -33336,7 +33356,7 @@
        31
       ],
       "starter": [
-       2,
+       4,
        6,
        10,
        14,
@@ -33372,8 +33392,8 @@
        "die ihm besser entsprach?"
       ],
       "starter": [
-       "Ob sie",
-       "wohl bemerken würde,",
+       "Ob sie wohl bemerken",
+       "würde,",
        "daß er die Milch",
        "stehen gelassen hatte,",
        "und zwar",
@@ -33497,7 +33517,7 @@
        32,
        34,
        36,
-       39,
+       38,
        42,
        44
       ]
@@ -33546,8 +33566,8 @@
        "sich der Schwester",
        "zu Füßen",
        "zu werfen",
-       "und sie um",
-       "irgend etwas Gutes",
+       "und sie",
+       "um irgend etwas Gutes",
        "zum Essen",
        "zu bitten."
       ]
@@ -33913,7 +33933,7 @@
        7,
        10,
        14,
-       16,
+       15,
        19
       ]
      },
@@ -33940,8 +33960,8 @@
        "um seinen Geschmack",
        "zu prüfen,",
        "eine ganze Auswahl,",
-       "alles auf",
-       "einer alten Zeitung",
+       "alles",
+       "auf einer alten Zeitung",
        "ausgebreitet."
       ]
      },
@@ -34007,7 +34027,7 @@
       ],
       "starter": [
        5,
-       7,
+       8,
        10
       ]
      },
@@ -34026,8 +34046,8 @@
       ],
       "starter": [
        "Knochen vom Nachtmahl her,",
-       "die von",
-       "festgewordener weißer Sauce",
+       "die von festgewordener",
+       "weißer Sauce",
        "umgeben waren;"
       ]
      },
@@ -34375,7 +34395,8 @@
        23,
        27,
        33,
-       37,
+       35,
+       40,
        42
       ],
       "starter": [
@@ -34390,7 +34411,9 @@
        27,
        30,
        33,
-       37,
+       35,
+       36,
+       40,
        42
       ]
      },
@@ -34419,8 +34442,9 @@
        "und drehte sogar",
        "den Schlüssel um,",
        "damit nur Gregor merken könne,",
-       "daß er es sich",
-       "so behaglich machen dürfe,",
+       "daß er",
+       "es sich so behaglich machen",
+       "dürfe,",
        "wie er wolle."
       ],
       "starter": [
@@ -34435,8 +34459,10 @@
        "den Schlüssel um,",
        "damit nur Gregor",
        "merken könne,",
-       "daß er es sich",
-       "so behaglich machen dürfe,",
+       "daß er",
+       "es",
+       "sich so behaglich machen",
+       "dürfe,",
        "wie er wolle."
       ]
      },
@@ -34618,7 +34644,7 @@
        16,
        19,
        23,
-       26,
+       25,
        30,
        34,
        36,
@@ -34634,12 +34660,13 @@
        16,
        19,
        23,
+       25,
        26,
        30,
        34,
        36,
        41,
-       43,
+       44,
        46,
        48
       ]
@@ -34670,8 +34697,8 @@
        "er fühlte keine Behinderung mehr,",
        "er staunte darüber",
        "und dachte daran,",
-       "wie er vor",
-       "mehr als einem Monat",
+       "wie er",
+       "vor mehr als einem Monat",
        "sich mit dem Messer",
        "ganz wenig",
        "in den Finger geschnitten,",
@@ -34687,13 +34714,14 @@
        "keine Behinderung mehr,",
        "er staunte darüber",
        "und dachte daran,",
-       "wie er vor",
+       "wie er",
+       "vor",
        "mehr als einem Monat",
        "sich mit dem Messer",
        "ganz wenig",
        "in den Finger geschnitten,",
-       "und wie",
-       "ihm diese Wunde",
+       "und wie ihm",
+       "diese Wunde",
        "noch vorgestern",
        "genug wehgetan hatte."
       ]
@@ -35136,7 +35164,7 @@
        17,
        20,
        23,
-       25,
+       27,
        29
       ]
      },
@@ -35173,8 +35201,8 @@
        "auf der gleichen Stelle,",
        "als die Schwester",
        "zum Zeichen,",
-       "daß er",
-       "sich zurückziehen solle,",
+       "daß er sich zurückziehen",
+       "solle,",
        "langsam den Schlüssel umdrehte."
       ]
      },
@@ -35376,7 +35404,7 @@
        21,
        24,
        27,
-       29,
+       31,
        32,
        36,
        40,
@@ -35426,8 +35454,8 @@
        "im Zimmer war,",
        "unter dem Kanapee",
        "zu bleiben,",
-       "denn von",
-       "dem reichlichen Essen",
+       "denn von dem reichlichen",
+       "Essen",
        "hatte sich sein Leib",
        "ein wenig gerundet,",
        "und er konnte dort",
@@ -35577,7 +35605,7 @@
       "starter": [
        3,
        5,
-       7,
+       9,
        11,
        15,
        18,
@@ -35590,7 +35618,7 @@
        39,
        41,
        44,
-       46,
+       47,
        49,
        54,
        56,
@@ -35639,8 +35667,8 @@
       "starter": [
        "Unter kleinen Erstickungsanfällen",
        "sah er",
-       "mit etwas",
-       "hervorgequollenen Augen zu,",
+       "mit etwas hervorgequollenen Augen",
+       "zu,",
        "wie die nichtsahnende Schwester",
        "mit einem Besen",
        "nicht nur",
@@ -35652,8 +35680,8 @@
        "auch diese",
        "nicht mehr",
        "zu gebrauchen,",
-       "und wie",
-       "sie alles hastig",
+       "und wie sie",
+       "alles hastig",
        "in einen Kübel schüttete,",
        "den sie",
        "mit einem Holzdeckel",
@@ -35881,7 +35909,7 @@
        17,
        20,
        23,
-       26,
+       25,
        30,
        33,
        35,
@@ -35931,8 +35959,8 @@
        "wenn die Eltern",
        "und das Dienstmädchen",
        "noch schliefen,",
-       "das zweitemal nach",
-       "dem allgemeinen Mittagessen,",
+       "das zweitemal",
+       "nach dem allgemeinen Mittagessen,",
        "denn dann schliefen",
        "die Eltern",
        "gleichfalls noch",
@@ -36291,7 +36319,7 @@
       ],
       "starter": [
        3,
-       5,
+       4,
        8,
        10,
        14,
@@ -36300,10 +36328,12 @@
        22,
        26,
        29,
+       31,
        33,
        37,
        42,
-       45,
+       44,
+       47,
        49,
        53,
        55,
@@ -36362,8 +36392,8 @@
       ],
       "starter": [
        "Mit welchen Ausreden",
-       "man an",
-       "jenem ersten Vormittag",
+       "man",
+       "an jenem ersten Vormittag",
        "den Arzt",
        "und den Schlosser wieder",
        "aus der Wohnung",
@@ -36371,11 +36401,13 @@
        "konnte Gregor",
        "gar nicht erfahren,",
        "denn da er",
-       "nicht verstanden wurde,",
+       "nicht verstanden",
+       "wurde,",
        "dachte niemand daran,",
        "auch die Schwester nicht,",
-       "daß er die",
-       "anderen verstehen könne,",
+       "daß er",
+       "die anderen verstehen",
+       "könne,",
        "und so mußte er",
        "sich,",
        "wenn die Schwester",
@@ -36497,7 +36529,7 @@
        26,
        30,
        34,
-       36
+       37
       ]
      },
      "levels": {
@@ -36539,8 +36571,8 @@
        "erhaschte Gregor",
        "manchmal eine Bemerkung,",
        "die freundlich gemeint war",
-       "oder so",
-       "gedeutet werden konnte."
+       "oder so gedeutet",
+       "werden konnte."
       ]
      },
      "rungs": [
@@ -36829,7 +36861,7 @@
        20,
        24,
        26,
-       28,
+       27,
        31,
        34,
        37
@@ -36873,8 +36905,8 @@
        "und wo er nun",
        "einmal Stimmen hörte,",
        "lief er",
-       "gleich zu",
-       "der betreffenden Tür",
+       "gleich",
+       "zu der betreffenden Tür",
        "und drückte sich",
        "mit ganzem Leib",
        "an sie."
@@ -36946,7 +36978,7 @@
        19
       ],
       "starter": [
-       2,
+       1,
        5,
        7,
        10,
@@ -36976,8 +37008,8 @@
        "von ihm handelte."
       ],
       "starter": [
-       "Besonders in",
-       "der ersten Zeit",
+       "Besonders",
+       "in der ersten Zeit",
        "gab es",
        "kein Gespräch,",
        "das nicht irgendwie",
@@ -37039,7 +37071,8 @@
        7,
        9,
        12,
-       15
+       14,
+       17
       ]
      },
      "levels": {
@@ -37064,8 +37097,9 @@
        "bei allen Mahlzeiten",
        "Beratungen darüber",
        "zu hören,",
-       "wie man sich",
-       "jetzt verhalten solle;"
+       "wie man",
+       "sich jetzt verhalten",
+       "solle;"
       ]
      },
      "rungs": []
@@ -37349,7 +37383,7 @@
        4,
        8,
        15,
-       18,
+       19,
        22,
        24,
        29,
@@ -37371,7 +37405,7 @@
        8,
        11,
        15,
-       18,
+       19,
        22,
        24,
        29,
@@ -37383,16 +37417,17 @@
        45,
        48,
        51,
-       53,
+       55,
        57,
-       60,
+       59,
+       62,
        64,
        67,
        70,
        73,
        75,
        80,
-       82,
+       81,
        85
       ]
      },
@@ -37426,8 +37461,8 @@
        "Auch hatte das Dienstmädchen",
        "gleich am ersten Tag",
        "— es war nicht ganz klar,",
-       "was und wieviel",
-       "sie von dem Vorgefallenen",
+       "was und wieviel sie",
+       "von dem Vorgefallenen",
        "wußte —",
        "kniefällig die Mutter gebeten,",
        "sie sofort zu entlassen,",
@@ -37449,8 +37484,8 @@
        "gleich am ersten Tag",
        "— es war",
        "nicht ganz klar,",
-       "was und wieviel",
-       "sie von dem Vorgefallenen",
+       "was und wieviel sie",
+       "von dem Vorgefallenen",
        "wußte —",
        "kniefällig die Mutter gebeten,",
        "sie sofort",
@@ -37461,17 +37496,18 @@
        "dankte sie",
        "für die Entlassung",
        "unter Tränen,",
-       "wie für",
-       "die größte Wohltat,",
-       "die man ihr",
-       "hier erwiesen hatte,",
+       "wie für die größte",
+       "Wohltat,",
+       "die man",
+       "ihr hier erwiesen",
+       "hatte,",
        "und gab,",
        "ohne daß man",
        "es von ihr",
        "verlangte,",
        "einen fürchterlichen Schwur ab,",
-       "niemandem auch",
-       "nur das geringste",
+       "niemandem",
+       "auch nur das geringste",
        "zu verraten."
       ]
      },
@@ -37653,7 +37689,8 @@
       ],
       "starter": [
        5,
-       8,
+       7,
+       10,
        11,
        14,
        18
@@ -37679,8 +37716,9 @@
       ],
       "starter": [
        "Immer wieder hörte Gregor,",
-       "wie der eine",
-       "den anderen vergebens",
+       "wie der",
+       "eine den anderen",
+       "vergebens",
        "zum Essen aufforderte",
        "und keine andere Antwort",
        "bekam, als:"
@@ -38176,7 +38214,7 @@
        8,
        10,
        15,
-       18,
+       17,
        22,
        24,
        29
@@ -38187,7 +38225,8 @@
        8,
        10,
        15,
-       18,
+       17,
+       21,
        22,
        24,
        26,
@@ -38215,8 +38254,8 @@
        "vom Tische auf",
        "und holte",
        "aus seiner kleinen Wertheimkassa,",
-       "die er aus",
-       "dem vor fünf Jahren",
+       "die er",
+       "aus dem vor fünf Jahren",
        "erfolgten Zusammenbruch",
        "seines Geschäftes gerettet hatte,",
        "irgendeinen Beleg oder irgendein Vormerkbuch."
@@ -38227,8 +38266,9 @@
        "vom Tische auf",
        "und holte",
        "aus seiner kleinen Wertheimkassa,",
-       "die er aus",
-       "dem vor fünf Jahren",
+       "die er",
+       "aus dem vor fünf",
+       "Jahren",
        "erfolgten Zusammenbruch",
        "seines Geschäftes",
        "gerettet hatte,",
@@ -38621,7 +38661,7 @@
        10,
        13,
        17,
-       20,
+       19,
        23,
        26,
        29
@@ -38657,8 +38697,8 @@
        "alles daranzusetzen,",
        "um die Familie",
        "das geschäftliche Unglück,",
-       "das alle in",
-       "eine vollständige Hoffnungslosigkeit",
+       "das alle",
+       "in eine vollständige Hoffnungslosigkeit",
        "gebracht hatte,",
        "möglichst rasch vergessen",
        "zu lassen."
@@ -38820,7 +38860,7 @@
        43,
        45,
        47,
-       49,
+       50,
        52,
        53,
        55,
@@ -38883,8 +38923,8 @@
        "der Provision",
        "zu Bargeld",
        "verwandelten,",
-       "das der",
-       "erstaunten und beglückten",
+       "das der erstaunten",
+       "und beglückten",
        "Familie",
        "zu Hause",
        "auf den Tisch",
@@ -39004,7 +39044,7 @@
        6,
        9,
        13,
-       15,
+       14,
        20,
        23,
        28,
@@ -39049,8 +39089,8 @@
        "schöne Zeiten gewesen,",
        "und niemals nachher",
        "hatten sie sich,",
-       "wenigstens in",
-       "diesem Glanze, wiederholt,",
+       "wenigstens",
+       "in diesem Glanze, wiederholt,",
        "trotzdem Gregor später",
        "so viel Geld verdiente,",
        "daß er den Aufwand",
@@ -39744,7 +39784,7 @@
        22
       ],
       "starter": [
-       2,
+       1,
        5,
        8,
        10,
@@ -39774,8 +39814,8 @@
        "und horchte."
       ],
       "starter": [
-       "Solche in",
-       "seinem gegenwärtigen Zustand",
+       "Solche",
+       "in seinem gegenwärtigen Zustand",
        "ganz nutzlose Gedanken",
        "gingen ihm",
        "durch den Kopf,",
@@ -39908,7 +39948,7 @@
        27,
        29,
        33,
-       35,
+       37,
        39,
        43,
        45
@@ -39958,8 +39998,8 @@
        "sofort wieder fest,",
        "denn selbst",
        "das kleine Geräusch,",
-       "das er",
-       "damit verursacht hatte,",
+       "das er damit verursacht",
+       "hatte,",
        "war nebenan gehört worden",
        "und hatte",
        "alle verstummen lassen."
@@ -40263,7 +40303,7 @@
        56,
        60,
        64,
-       66,
+       67,
        69,
        72,
        74
@@ -40335,8 +40375,8 @@
        "ganz kleines Vermögen",
        "aus der alten Zeit",
        "noch vorhanden war,",
-       "das die",
-       "nicht angerührten Zinsen",
+       "das die nicht",
+       "angerührten Zinsen",
        "in der Zwischenzeit",
        "ein wenig",
        "hatten anwachsen lassen."
@@ -40455,7 +40495,8 @@
        26,
        30,
        32,
-       35
+       33,
+       37
       ]
      },
      "levels": {
@@ -40495,8 +40536,9 @@
        "für sich behalten — ,",
        "nicht vollständig aufgebraucht worden",
        "und hatte",
-       "sich zu einem",
-       "kleinen Kapital angesammelt."
+       "sich",
+       "zu einem kleinen Kapital",
+       "angesammelt."
       ]
      },
      "rungs": [
@@ -40698,7 +40740,7 @@
        15,
        20,
        24,
-       26,
+       27,
        29,
        33,
        38,
@@ -40749,8 +40791,8 @@
        "gegenüber dem Chef",
        "weiter abgetragen haben können,",
        "und jener Tag,",
-       "an dem",
-       "er diesen Posten",
+       "an dem er",
+       "diesen Posten",
        "hätte loswerden können,",
        "wäre weit näher gewesen,",
        "aber jetzt war es",
@@ -41399,7 +41441,7 @@
        18,
        21,
        25,
-       27,
+       29,
        30,
        32,
        35
@@ -41442,8 +41484,8 @@
        "der eine Wanderung",
        "durch die Wohnung",
        "schon Anstrengung verursachte,",
-       "und die",
-       "jeden zweiten Tag",
+       "und die jeden zweiten",
+       "Tag",
        "in Atembeschwerden",
        "auf dem Sofa",
        "beim offenen Fenster verbrachte?"
@@ -41591,7 +41633,7 @@
        9,
        12,
        17,
-       19,
+       21,
        22,
        24,
        28,
@@ -41600,7 +41642,7 @@
        39,
        42,
        47,
-       49,
+       51,
        52,
        55,
        59
@@ -41651,8 +41693,8 @@
        "die noch",
        "ein Kind war",
        "mit ihren siebzehn Jahren,",
-       "und der",
-       "ihre bisherige Lebensweise",
+       "und der ihre bisherige",
+       "Lebensweise",
        "so sehr",
        "zu gönnen war,",
        "die daraus bestanden hatte,",
@@ -41660,8 +41702,8 @@
        "zu kleiden, lange",
        "zu schlafen,",
        "in der Wirtschaft mitzuhelfen,",
-       "an ein",
-       "paar bescheidenen Vergnügungen",
+       "an ein paar bescheidenen",
+       "Vergnügungen",
        "sich zu beteiligen",
        "und vor allem Violine",
        "zu spielen?"
@@ -41884,7 +41926,7 @@
       ],
       "starter": [
        4,
-       6,
+       8,
        10,
        13,
        15,
@@ -41911,8 +41953,8 @@
       ],
       "starter": [
        "Oft lag er dort",
-       "die ganzen",
-       "langen Nächte über,",
+       "die ganzen langen Nächte",
+       "über,",
        "schlief keinen Augenblick",
        "und scharrte",
        "nur stundenlang",
@@ -42343,7 +42385,7 @@
        51,
        54,
        56,
-       58,
+       60,
        61,
        65
       ]
@@ -42409,8 +42451,8 @@
        "von seinem Fenster aus",
        "in eine Einöde",
        "zu schauen",
-       "in welcher",
-       "der graue Himmel",
+       "in welcher der graue",
+       "Himmel",
        "und die graue Erde",
        "ununterscheidbar sich vereinigten."
       ]
@@ -42670,7 +42712,7 @@
       ],
       "starter": [
        2,
-       4,
+       3,
        7,
        11,
        14,
@@ -42705,8 +42747,8 @@
       ],
       "starter": [
        "Hätte Gregor",
-       "nur mit",
-       "der Schwester sprechen",
+       "nur",
+       "mit der Schwester sprechen",
        "und ihr für alles",
        "danken können,",
        "was sie für ihn",
@@ -43358,7 +43400,7 @@
        15,
        19,
        24,
-       27,
+       30,
        32,
        37,
        43
@@ -43371,7 +43413,8 @@
        15,
        19,
        24,
-       27,
+       26,
+       30,
        32,
        37,
        41,
@@ -43403,8 +43446,8 @@
        "und wußte doch sehr gut,",
        "daß sie ihn gewiß",
        "gerne damit verschont hätte,",
-       "wenn es ihr",
-       "nur möglich gewesen wäre,",
+       "wenn es ihr nur möglich gewesen",
+       "wäre,",
        "sich in einem Zimmer,",
        "in dem sich Gregor befand,",
        "bei geschlossenem Fenster aufzuhalten."
@@ -43417,8 +43460,9 @@
        "sehr gut,",
        "daß sie ihn gewiß",
        "gerne damit verschont hätte,",
-       "wenn es ihr",
-       "nur möglich gewesen wäre,",
+       "wenn es",
+       "ihr nur möglich gewesen",
+       "wäre,",
        "sich in einem Zimmer,",
        "in dem sich Gregor",
        "befand,",
@@ -43770,7 +43814,7 @@
        2,
        4,
        8,
-       10,
+       12,
        14,
        17,
        20,
@@ -43817,8 +43861,8 @@
        "Es wäre",
        "für Gregor",
        "nicht unerwartet gewesen,",
-       "wenn sie",
-       "nicht eingetreten wäre,",
+       "wenn sie nicht eingetreten",
+       "wäre,",
        "da er sie",
        "durch seine Stellung",
        "verhinderte,",
@@ -44153,7 +44197,7 @@
        12,
        15,
        20,
-       22,
+       23,
        25,
        29,
        32,
@@ -44203,8 +44247,8 @@
        "unerträglich war",
        "und ihr auch",
        "weiterhin unerträglich bleiben müsse,",
-       "und daß",
-       "sie sich wohl",
+       "und daß sie",
+       "sich wohl",
        "sehr überwinden mußte,",
        "vor dem Anblick",
        "auch nur",
@@ -44352,7 +44396,7 @@
        26,
        29,
        32,
-       34,
+       36,
        38,
        41,
        45,
@@ -44412,8 +44456,8 @@
        "das Leintuch",
        "auf das Kanapee",
        "und ordnete es",
-       "in einer",
-       "solchen Weise an,",
+       "in einer solchen Weise",
+       "an,",
        "daß er nun",
        "gänzlich verdeckt war,",
        "und daß die Schwester,",
@@ -44632,7 +44676,7 @@
       ],
       "starter": [
        3,
-       6,
+       5,
        10,
        13,
        15,
@@ -44710,8 +44754,8 @@
       ],
       "starter": [
        "Wäre dieses Leintuch",
-       "ihrer Meinung nach",
-       "nicht nötig gewesen,",
+       "ihrer Meinung",
+       "nach nicht nötig gewesen,",
        "dann hätte sie",
        "es ja",
        "entfernen können,",
@@ -44846,11 +44890,11 @@
        33,
        38,
        44,
-       48,
+       47,
        52
       ],
       "starter": [
-       2,
+       3,
        5,
        9,
        14,
@@ -44864,7 +44908,8 @@
        38,
        41,
        44,
-       48,
+       47,
+       51,
        52
       ]
      },
@@ -44898,13 +44943,13 @@
        "der Schwester völlig anerkannten,",
        "während sie sich bisher häufig",
        "über die Schwester geärgert hatten,",
-       "weil sie ihnen als",
-       "ein etwas nutzloses Mädchen",
+       "weil sie ihnen",
+       "als ein etwas nutzloses Mädchen",
        "erschienen war."
       ],
       "starter": [
-       "In den",
-       "ersten vierzehn Tagen",
+       "In den ersten",
+       "vierzehn Tagen",
        "konnten es die Eltern",
        "nicht über sich bringen,",
        "zu ihm hereinzukommen,",
@@ -44917,8 +44962,9 @@
        "häufig",
        "über die Schwester",
        "geärgert hatten,",
-       "weil sie ihnen als",
-       "ein etwas nutzloses Mädchen",
+       "weil sie ihnen",
+       "als ein etwas nutzloses",
+       "Mädchen",
        "erschienen war."
       ]
      },
@@ -45056,7 +45102,7 @@
        16,
        19,
        22,
-       24,
+       26,
        28,
        30,
        34,
@@ -45065,7 +45111,8 @@
        41,
        43,
        46,
-       49,
+       48,
+       51,
        53,
        56,
        59
@@ -45115,8 +45162,8 @@
        "vor Gregors Zimmer,",
        "während die Schwester",
        "dort aufräumte,",
-       "und kaum",
-       "war sie herausgekommen,",
+       "und kaum war sie",
+       "herausgekommen,",
        "mußte sie",
        "ganz genau erzählen,",
        "wie es",
@@ -45124,8 +45171,9 @@
        "aussah,",
        "was Gregor",
        "gegessen hatte,",
-       "wie er sich",
-       "diesmal benommen hatte,",
+       "wie er",
+       "sich diesmal benommen",
+       "hatte,",
        "und ob vielleicht",
        "eine kleine Besserung",
        "zu bemerken war."
@@ -45226,7 +45274,7 @@
        22,
        24,
        28,
-       30
+       31
       ]
      },
      "levels": {
@@ -45262,8 +45310,8 @@
        "mit Vernunftgründen zurück,",
        "denen Gregor",
        "sehr aufmerksam zuhörte,",
-       "und die",
-       "er vollständig billigte."
+       "und die er",
+       "vollständig billigte."
       ]
      },
      "rungs": [
@@ -45334,7 +45382,7 @@
       "starter": [
        4,
        9,
-       11,
+       12,
        15,
        19,
        22,
@@ -45365,8 +45413,8 @@
       "starter": [
        "Später aber mußte man",
        "sie mit Gewalt zurückhalten,",
-       "und wenn",
-       "sie dann rief:",
+       "und wenn sie",
+       "dann rief:",
        "»Laßt mich doch",
        "zu Gregor,",
        "er ist ja",
@@ -45619,7 +45667,7 @@
        4,
        6,
        10,
-       12,
+       11,
        15,
        17,
        20,
@@ -45660,8 +45708,8 @@
        "doch alles",
        "viel besser",
        "als die Schwester,",
-       "die trotz",
-       "all ihrem Mute",
+       "die",
+       "trotz all ihrem Mute",
        "doch nur",
        "ein Kind war",
        "und im letzten Grunde",
@@ -45917,7 +45965,7 @@
        31,
        34,
        36,
-       38,
+       40,
        42,
        44,
        46,
@@ -45988,8 +46036,8 @@
        "auch nicht viel,",
        "das ruhige Liegen",
        "ertrug er",
-       "schon während",
-       "der Nacht schwer,",
+       "schon während der Nacht",
+       "schwer,",
        "das Essen",
        "machte ihm",
        "bald nicht mehr",
@@ -46216,12 +46264,12 @@
       "starter": [
        4,
        8,
-       11,
+       12,
        15,
        19,
        23,
        27,
-       30,
+       29,
        33,
        35,
        39
@@ -46257,13 +46305,13 @@
       "starter": [
        "ein leichtes Schwingen ging",
        "durch den Körper,",
-       "und in der",
-       "fast glücklichen Zerstreutheit,",
+       "und in der fast",
+       "glücklichen Zerstreutheit,",
        "in der sich Gregor",
        "dort oben befand,",
        "konnte es geschehen,",
-       "daß er zu",
-       "seiner eigenen Überraschung",
+       "daß er",
+       "zu seiner eigenen Überraschung",
        "sich losließ",
        "und auf den Boden",
        "klatschte."
@@ -46342,7 +46390,8 @@
        12,
        14,
        18,
-       21
+       21,
+       23
       ]
      },
      "levels": {
@@ -46374,7 +46423,8 @@
        "als früher",
        "und beschädigte sich selbst",
        "bei einem so",
-       "großen Falle nicht."
+       "großen Falle",
+       "nicht."
       ]
      },
      "rungs": [
@@ -46869,7 +46919,7 @@
        3,
        6,
        9,
-       11,
+       12,
        14,
        17,
        19,
@@ -46920,8 +46970,8 @@
        "das Dienstmädchen hätte",
        "ihr ganz gewiß",
        "nicht geholfen,",
-       "denn dieses",
-       "etwa sechzehnjährige Mädchen",
+       "denn dieses etwa",
+       "sechzehnjährige Mädchen",
        "harrte zwar tapfer",
        "seit Entlassung",
        "der früheren Köchin aus,",
@@ -47695,7 +47745,7 @@
       ],
       "starter": [
        4,
-       6,
+       7,
        9,
        11,
        14,
@@ -47710,7 +47760,7 @@
        39,
        42,
        45,
-       47
+       49
       ]
      },
      "levels": {
@@ -47747,8 +47797,8 @@
       ],
       "starter": [
        "Gregor hörte nun,",
-       "wie die",
-       "zwei schwachen Frauen",
+       "wie die zwei",
+       "schwachen Frauen",
        "den immerhin",
        "schweren alten Kasten",
        "von seinem Platze rückten,",
@@ -47762,8 +47812,8 @@
        "der Mutter",
        "zu hören,",
        "welche fürchtete,",
-       "daß sie",
-       "sich überanstrengen werde."
+       "daß sie sich überanstrengen",
+       "werde."
       ]
      },
      "rungs": [
@@ -47970,7 +48020,7 @@
        64
       ],
       "starter": [
-       2,
+       1,
        5,
        9,
        11,
@@ -48037,8 +48087,8 @@
        "ein Gefallen geschehe."
       ],
       "starter": [
-       "Wohl nach",
-       "schon viertelstündiger Arbeit",
+       "Wohl",
+       "nach schon viertelstündiger Arbeit",
        "sagte die Mutter,",
        "man solle",
        "den Kasten",
@@ -48488,7 +48538,7 @@
        39,
        41,
        45,
-       47,
+       48,
        50,
        53,
        58,
@@ -48567,8 +48617,8 @@
        "auch nur",
        "den Klang",
        "der Stimme höre,",
-       "denn daß",
-       "er die Worte",
+       "denn daß er",
+       "die Worte",
        "nicht verstand,",
        "davon war sie überzeugt,",
        "»und ist es nicht",
@@ -48703,7 +48753,7 @@
        12,
        16,
        19,
-       21,
+       22,
        25,
        28,
        31,
@@ -48752,8 +48802,8 @@
        "das Zimmer",
        "genau in dem Zustand",
        "zu erhalten,",
-       "in dem",
-       "es früher war,",
+       "in dem es",
+       "früher war,",
        "damit Gregor,",
        "wenn er wieder",
        "zu uns zurückkommt,",
@@ -49788,7 +49838,8 @@
       "starter": [
        3,
        7,
-       10,
+       9,
+       12,
        13,
        15,
        18,
@@ -49819,8 +49870,9 @@
       "starter": [
        "Es war natürlich",
        "nicht nur kindlicher Trotz",
-       "und das in",
-       "der letzten Zeit",
+       "und das",
+       "in der letzten",
+       "Zeit",
        "so unerwartet",
        "und schwer erworbene",
        "Selbstvertrauen,",
@@ -50913,7 +50965,7 @@
        19,
        21,
        23,
-       25,
+       27,
        28,
        31,
        33,
@@ -50964,8 +51016,8 @@
        "und so eilte",
        "Gregor erschrocken",
        "im Rückwärtslauf",
-       "bis an",
-       "das andere Ende",
+       "bis an das andere",
+       "Ende",
        "des Kanapees,",
        "konnte es",
        "aber nicht",
@@ -51303,7 +51355,8 @@
        18,
        21,
        24,
-       27,
+       26,
+       29,
        31,
        33,
        35,
@@ -51392,8 +51445,9 @@
        "ein paar Möbel",
        "umgestellt würden,",
        "wirkte doch,",
-       "wie er sich",
-       "bald eingestehen mußte,",
+       "wie er",
+       "sich bald eingestehen",
+       "mußte,",
        "dieses Hin-",
        "und Hergehen",
        "der Frauen,",
@@ -51753,7 +51807,7 @@
        2,
        6,
        10,
-       12,
+       13,
        16,
        19,
        21,
@@ -51825,8 +51879,8 @@
        "lockerten jetzt",
        "den schon im Boden",
        "fest eingegrabenen Schreibtisch,",
-       "an dem",
-       "er als Handelsakademiker,",
+       "an dem er",
+       "als Handelsakademiker,",
        "als Bürgerschüler,",
        "ja sogar",
        "schon als Volksschüler",
@@ -52047,7 +52101,7 @@
        12,
        14,
        18,
-       20,
+       21,
        25,
        27,
        29,
@@ -52127,8 +52181,8 @@
        "stützten sich gerade",
        "im Nebenzimmer",
        "an den Schreibtisch,",
-       "um ein",
-       "wenig zu verschnaufen — ,",
+       "um ein wenig",
+       "zu verschnaufen — ,",
        "wechselte viermal",
        "die Richtung",
        "des Laufes,",
@@ -52354,7 +52408,7 @@
       ],
       "starter": [
        2,
-       4,
+       3,
        7,
        9
       ]
@@ -52374,8 +52428,8 @@
       ],
       "starter": [
        "Sie hatten",
-       "sich nicht",
-       "viel Ruhe gegönnt",
+       "sich",
+       "nicht viel Ruhe gegönnt",
        "und kamen",
        "schon wieder;"
       ]
@@ -53470,7 +53524,7 @@
        5,
        8,
        11,
-       13,
+       14,
        16,
        19
       ]
@@ -53498,8 +53552,8 @@
        "ins Nebenzimmer,",
        "um irgendeine Essenz",
        "zu holen,",
-       "mit der",
-       "sie die Mutter",
+       "mit der sie",
+       "die Mutter",
        "aus ihrer Ohnmacht",
        "wecken könnte;"
       ]
@@ -54418,7 +54472,7 @@
        32,
        35,
        39,
-       41
+       40
       ]
      },
      "levels": {
@@ -54463,8 +54517,8 @@
        "das ganze Zimmer",
        "schon um ihn",
        "zu drehen anfing,",
-       "mitten auf",
-       "den großen Tisch."
+       "mitten",
+       "auf den großen Tisch."
       ]
      },
      "rungs": [
@@ -55230,7 +55284,7 @@
        3,
        6,
        10,
-       12,
+       13,
        15,
        17
       ]
@@ -55257,8 +55311,8 @@
        "Deshalb mußte Gregor",
        "den Vater jetzt",
        "zu besänftigen suchen,",
-       "denn ihn",
-       "aufzuklären hatte er",
+       "denn ihn aufzuklären",
+       "hatte er",
        "weder Zeit",
        "noch Möglichkeit."
       ]
@@ -55857,7 +55911,7 @@
       "starter": [
        3,
        7,
-       9,
+       11,
        13,
        15,
        17,
@@ -55898,8 +55952,8 @@
       "starter": [
        "allerdings hatte er",
        "in der letzten Zeit",
-       "über dem",
-       "neuartigen Herumkriechen versäumt,",
+       "über dem neuartigen Herumkriechen",
+       "versäumt,",
        "sich so",
        "wie früher",
        "um die Vorgänge",
@@ -56251,7 +56305,7 @@
        13,
        16,
        19,
-       22,
+       24,
        26,
        30,
        32,
@@ -56275,24 +56329,26 @@
        13,
        16,
        19,
-       22,
+       21,
+       24,
        26,
        30,
        32,
-       34,
+       36,
        37,
        39,
        43,
-       46,
+       45,
        49,
        52,
        54,
        58,
        62,
        64,
-       66,
+       68,
        69,
        72,
+       74,
        76,
        80,
        83,
@@ -56333,8 +56389,8 @@
        "sondern zum Zeichen der Freude",
        "nur die Arme",
        "gehoben hatte,",
-       "und der bei",
-       "den seltenen gemeinsamen Spaziergängen",
+       "und der bei den seltenen",
+       "gemeinsamen Spaziergängen",
        "an ein paar Sonntagen",
        "im Jahr",
        "und an den höchsten Feiertagen",
@@ -56358,25 +56414,27 @@
        "der Freude",
        "nur die Arme",
        "gehoben hatte,",
-       "und der bei",
-       "den seltenen gemeinsamen Spaziergängen",
+       "und der",
+       "bei den seltenen",
+       "gemeinsamen Spaziergängen",
        "an ein paar Sonntagen",
        "im Jahr",
-       "und an",
-       "den höchsten Feiertagen",
+       "und an den höchsten",
+       "Feiertagen",
        "zwischen Gregor",
        "und der Mutter,",
-       "die schon an",
-       "und für sich",
+       "die schon",
+       "an und für sich",
        "langsam gingen,",
        "immer noch",
        "ein wenig langsamer,",
        "in seinen alten Mantel",
        "eingepackt,",
-       "mit stets",
-       "vorsichtig aufgesetztem Krückstock",
+       "mit stets vorsichtig aufgesetztem",
+       "Krückstock",
        "sich vorwärts arbeitete",
-       "und, wenn er",
+       "und,",
+       "wenn er",
        "etwas sagen wollte,",
        "fast immer stillstand",
        "und seine Begleitung",
@@ -56486,7 +56544,7 @@
        12
       ],
       "starter": [
-       2,
+       3,
        5,
        9,
        12
@@ -56509,8 +56567,8 @@
        "der Bankinstitute tragen;"
       ],
       "starter": [
-       "in eine",
-       "straffe blaue Uniform",
+       "in eine straffe",
+       "blaue Uniform",
        "mit Goldknöpfen gekleidet,",
        "wie sie Diener",
        "der Bankinstitute tragen;"
@@ -56544,7 +56602,7 @@
        9
       ],
       "starter": [
-       2,
+       3,
        5,
        7,
        9
@@ -56564,8 +56622,8 @@
        "sein starkes Doppelkinn;"
       ],
       "starter": [
-       "über dem",
-       "hohen steifen Kragen",
+       "über dem hohen",
+       "steifen Kragen",
        "des Rockes",
        "entwickelte sich",
        "sein starkes Doppelkinn;"
@@ -57314,7 +57372,7 @@
        4,
        6,
        10,
-       12,
+       13,
        15,
        17,
        18,
@@ -57351,8 +57409,8 @@
        "So machten sie mehrmals",
        "die Runde",
        "um das Zimmer,",
-       "ohne daß",
-       "sich etwas Entscheidendes",
+       "ohne daß sich",
+       "etwas Entscheidendes",
        "ereignete,",
        "ja",
        "ohne daß das Ganze",
@@ -57657,7 +57715,7 @@
        5,
        8,
        11,
-       13,
+       12,
        16,
        20
       ]
@@ -57687,8 +57745,8 @@
        "sich schon bemerkbar",
        "zu machen,",
        "wie er ja",
-       "auch in",
-       "seiner früheren Zeit",
+       "auch",
+       "in seiner früheren Zeit",
        "keine ganz vertrauenswürdige Lunge",
        "besessen hatte."
       ]
@@ -58826,19 +58884,19 @@
        105
       ],
       "starter": [
-       2,
+       1,
        5,
        9,
        12,
        14,
        17,
-       19,
+       21,
        22,
        26,
        29,
        32,
        36,
-       39,
+       38,
        42,
        45,
        47,
@@ -58928,20 +58986,20 @@
        "von Gregors Leben bat."
       ],
       "starter": [
-       "Nur mit",
-       "dem letzten Blick",
+       "Nur",
+       "mit dem letzten Blick",
        "sah er noch,",
        "wie die Tür",
        "seines Zimmers",
        "aufgerissen wurde,",
-       "und vor",
-       "der schreienden Schwester",
+       "und vor der schreienden",
+       "Schwester",
        "die Mutter hervoreilte,",
        "im Hemd,",
        "denn die Schwester",
        "hatte sie entkleidet,",
-       "um ihr in",
-       "der Ohnmacht Atemfreiheit",
+       "um ihr",
+       "in der Ohnmacht Atemfreiheit",
        "zu verschaffen,",
        "wie dann",
        "die Mutter",
@@ -59156,7 +59214,8 @@
        11,
        12,
        17,
-       20,
+       19,
+       22,
        24,
        27,
        32,
@@ -59233,8 +59292,9 @@
        "über einen Monat",
        "litt",
        "— der Apfel blieb,",
-       "da ihn niemand",
-       "zu entfernen wagte,",
+       "da ihn",
+       "niemand zu entfernen",
+       "wagte,",
        "als sichtbares Andenken",
        "im Fleische sitzen — ,",
        "schien selbst",
@@ -59557,7 +59617,7 @@
        49,
        51,
        52,
-       55,
+       54,
        58,
        60,
        64,
@@ -59670,8 +59730,8 @@
        "für diese Verschlimmerung",
        "seines Zustandes",
        "einen",
-       "seiner Meinung nach",
-       "vollständig genügenden Ersatz",
+       "seiner Meinung",
+       "nach vollständig genügenden Ersatz",
        "dadurch,",
        "daß immer gegen Abend",
        "die Wohnzimmertür,",
@@ -60715,10 +60775,10 @@
        27,
        30,
        32,
-       34,
+       35,
        37,
        40,
-       42,
+       44,
        45,
        47,
        49
@@ -60770,11 +60830,11 @@
        "auf dieses",
        "über und über",
        "fleckige,",
-       "mit seinen",
-       "stets geputzten Goldknöpfen",
+       "mit seinen stets",
+       "geputzten Goldknöpfen",
        "leuchtende Kleid,",
-       "in dem",
-       "der alte Mann",
+       "in dem der alte",
+       "Mann",
        "höchst unbequem",
        "und doch",
        "ruhig schlief."
@@ -61118,7 +61178,7 @@
        33,
        35,
        37,
-       39,
+       38,
        42,
        45,
        47,
@@ -61173,8 +61233,8 @@
        "trotzdem er regelmäßig einschlief,",
        "und war",
        "dann überdies",
-       "nur mit",
-       "der größten Mühe",
+       "nur",
+       "mit der größten Mühe",
        "zu bewegen,",
        "den Sessel",
        "mit dem Bett",
@@ -61843,7 +61903,8 @@
        67
       ],
       "starter": [
-       3,
+       1,
+       2,
        6,
        8,
        12,
@@ -61909,8 +61970,9 @@
        "zu sein."
       ],
       "starter": [
-       "« Und auf",
-       "die beiden Frauen",
+       "«",
+       "Und",
+       "auf die beiden Frauen",
        "gestützt,",
        "erhob er sich,",
        "umständlich, als sei er",
@@ -61982,7 +62044,7 @@
       ],
       "beginner": [
        2,
-       5,
+       8,
        10,
        14,
        17
@@ -61990,6 +62052,8 @@
       "starter": [
        2,
        5,
+       7,
+       8,
        10,
        14,
        17
@@ -62008,8 +62072,8 @@
       ],
       "beginner": [
        "Wer hatte",
-       "in dieser abgearbeiteten",
-       "und übermüdeten Familie Zeit,",
+       "in dieser abgearbeiteten und übermüdeten Familie",
+       "Zeit,",
        "sich um Gregor mehr",
        "zu kümmern,",
        "als unbedingt nötig war?"
@@ -62017,7 +62081,9 @@
       "starter": [
        "Wer hatte",
        "in dieser abgearbeiteten",
-       "und übermüdeten Familie Zeit,",
+       "und übermüdeten",
+       "Familie",
+       "Zeit,",
        "sich um Gregor mehr",
        "zu kümmern,",
        "als unbedingt nötig war?"
@@ -62481,7 +62547,7 @@
        14,
        16,
        20,
-       22,
+       24,
        26,
        29
       ]
@@ -62515,8 +62581,8 @@
        "für die gegenwärtigen Verhältnisse",
        "allzugroße Wohnung",
        "nicht verlassen konnte,",
-       "da es",
-       "nicht auszudenken war,",
+       "da es nicht auszudenken",
+       "war,",
        "wie man Gregor",
        "übersiedeln sollte."
       ]
@@ -62745,7 +62811,8 @@
        20,
        23,
        26,
-       29,
+       28,
+       31,
        32
       ]
      },
@@ -62782,8 +62849,9 @@
        "daß sie",
        "mit einem Unglück",
        "geschlagen war,",
-       "wie niemand sonst",
-       "im ganzen Verwandten-",
+       "wie niemand",
+       "sonst im ganzen",
+       "Verwandten-",
        "und Bekanntenkreis."
       ]
      },
@@ -63749,7 +63817,7 @@
        47,
        49,
        53,
-       55,
+       56,
        59,
        61,
        64,
@@ -63834,8 +63902,8 @@
        "flüchtige Erinnerung,",
        "eine Kassiererin",
        "aus einem Hutgeschäft,",
-       "um die",
-       "er sich ernsthaft,",
+       "um die er",
+       "sich ernsthaft,",
        "aber zu",
        "langsam beworben hatte",
        "— sie alle",
@@ -64025,7 +64093,7 @@
        24,
        27,
        29,
-       31,
+       33,
        35,
        38,
        41,
@@ -64093,8 +64161,8 @@
        "über die schlechte Wartung",
        "erfüllte ihn,",
        "und trotzdem",
-       "er sich",
-       "nichts vorstellen konnte,",
+       "er sich nichts vorstellen",
+       "konnte,",
        "worauf er Appetit",
        "gehabt hätte,",
        "machte er",
@@ -64690,7 +64758,7 @@
        3,
        5,
        9,
-       11,
+       12,
        14
       ]
      },
@@ -64714,8 +64782,8 @@
        "Aber er hätte",
        "wohl wochenlang",
        "dort bleiben können,",
-       "ohne daß",
-       "sich die Schwester",
+       "ohne daß sich",
+       "die Schwester",
        "gebessert hätte;"
       ]
      },
@@ -64870,7 +64938,7 @@
       "starter": [
        3,
        5,
-       7,
+       8,
        11,
        13,
        16,
@@ -64905,8 +64973,8 @@
       "starter": [
        "Dabei wachte sie",
        "mit einer",
-       "an ihr",
-       "ganz neuen Empfindlichkeit,",
+       "an ihr ganz",
+       "neuen Empfindlichkeit,",
        "die überhaupt",
        "die ganze Familie",
        "ergriffen hatte, darüber,",
@@ -65058,7 +65126,7 @@
        42,
        45,
        46,
-       48
+       49
       ]
      },
      "levels": {
@@ -65112,8 +65180,8 @@
        "auf dem Kanapee — ,",
        "aber die Strafe",
        "blieb",
-       "für die",
-       "Mutter nicht aus."
+       "für die Mutter",
+       "nicht aus."
       ]
      },
      "rungs": [
@@ -65266,7 +65334,8 @@
        17,
        21,
        24,
-       28,
+       26,
+       29,
        31,
        34,
        39,
@@ -65323,8 +65392,9 @@
        "als sie,",
        "aufs höchste beleidigt,",
        "ins Wohnzimmer lief",
-       "und, trotz der",
-       "beschwörend erhobenen Hände",
+       "und,",
+       "trotz der beschwörend",
+       "erhobenen Hände",
        "der Mutter,",
        "in einen Weinkrampf ausbrach,",
        "dem die Eltern",
@@ -65356,10 +65426,11 @@
       "advanced": [],
       "intermediate": [],
       "beginner": [
-       3
+       6
       ],
       "starter": [
-       3
+       3,
+       6
       ]
      },
      "levels": {
@@ -65370,12 +65441,13 @@
        "bis auch sie sich zu rühren anfingen;"
       ],
       "beginner": [
-       "bis auch sie",
-       "sich zu rühren anfingen;"
+       "bis auch sie sich zu rühren",
+       "anfingen;"
       ],
       "starter": [
        "bis auch sie",
-       "sich zu rühren anfingen;"
+       "sich zu rühren",
+       "anfingen;"
       ]
      },
      "rungs": []
@@ -66050,7 +66122,7 @@
       ],
       "starter": [
        4,
-       6,
+       8,
        9,
        11,
        14,
@@ -66082,8 +66154,8 @@
       ],
       "starter": [
        "Diese alte Witwe,",
-       "die in",
-       "ihrem langen Leben",
+       "die in ihrem langen",
+       "Leben",
        "mit Hilfe",
        "ihres starken Knochenbaues",
        "das Ärgste",
@@ -67844,7 +67916,7 @@
        23,
        25,
        29,
-       32,
+       31,
        35,
        40,
        45,
@@ -67891,8 +67963,8 @@
        "auf Ordnung,",
        "nicht nur",
        "in ihrem Zimmer,",
-       "sondern, da",
-       "sie sich nun",
+       "sondern,",
+       "da sie sich nun",
        "einmal hier eingemietet hatten,",
        "in der ganzen Wirtschaft,",
        "also",
@@ -68552,11 +68624,11 @@
        24,
        27,
        30,
-       33,
+       32,
        36,
        39,
        42,
-       44,
+       43,
        47,
        51,
        56,
@@ -68637,12 +68709,12 @@
        "hinauszuwerfen, tatsächlich",
        "aber blieben sie",
        "dort liegen,",
-       "wohin sie durch",
-       "den ersten Wurf",
+       "wohin sie",
+       "durch den ersten Wurf",
        "gekommen waren,",
        "wenn nicht Gregor",
-       "sich durch",
-       "das Rumpelzeug wand",
+       "sich",
+       "durch das Rumpelzeug wand",
        "und es in Bewegung",
        "brachte, zuerst gezwungen,",
        "weil kein sonstiger Platz",
@@ -68833,11 +68905,11 @@
        33,
        36,
        40,
-       42,
+       44,
        46,
        49,
        52,
-       54,
+       55,
        57,
        59,
        62
@@ -68895,12 +68967,12 @@
        "der Tür,",
        "hatte er doch",
        "schon manche Abende,",
-       "an denen",
-       "sie geöffnet war,",
+       "an denen sie geöffnet",
+       "war,",
        "nicht ausgenützt,",
        "sondern war,",
-       "ohne daß",
-       "es die Familie",
+       "ohne daß es",
+       "die Familie",
        "merkte,",
        "im dunkelsten Winkel",
        "seines Zimmers gelegen."
@@ -69444,7 +69516,7 @@
        48,
        52,
        57,
-       61,
+       60,
        65
       ],
       "starter": [
@@ -69453,7 +69525,7 @@
        8,
        11,
        14,
-       16,
+       15,
        20,
        25,
        29,
@@ -69466,6 +69538,7 @@
        52,
        54,
        57,
+       60,
        61,
        65
       ]
@@ -69509,8 +69582,8 @@
        "noch auf der Schüssel,",
        "offenbar um festzustellen,",
        "ob es mürbe genug sei",
-       "und ob es nicht",
-       "etwa in die Küche",
+       "und ob es",
+       "nicht etwa in die Küche",
        "zurückgeschickt werden solle."
       ],
       "starter": [
@@ -69519,8 +69592,8 @@
        "über die vor sie",
        "hingestellten Schüsseln,",
        "als wollten sie",
-       "sie vor",
-       "dem Essen prüfen,",
+       "sie",
+       "vor dem Essen prüfen,",
        "und tatsächlich zerschnitt der,",
        "welcher in der Mitte",
        "saß",
@@ -69532,7 +69605,8 @@
        "offenbar um festzustellen,",
        "ob es",
        "mürbe genug sei",
-       "und ob es nicht",
+       "und ob es",
+       "nicht",
        "etwa in die Küche",
        "zurückgeschickt werden solle."
       ]
@@ -69989,12 +70063,12 @@
        28,
        33,
        37,
-       41,
+       40,
        46
       ],
       "starter": [
        5,
-       8,
+       7,
        11,
        13,
        15,
@@ -70003,8 +70077,9 @@
        28,
        33,
        37,
+       40,
        41,
-       43,
+       44,
        46
       ]
      },
@@ -70034,14 +70109,14 @@
        "Gregor gezeigt werden sollte,",
        "daß man Zähne brauche,",
        "um zu essen,",
-       "und daß man auch",
-       "mit den schönsten zahnlosen Kiefern",
+       "und daß man",
+       "auch mit den schönsten zahnlosen Kiefern",
        "nichts ausrichten könne."
       ],
       "starter": [
        "Sonderbar schien es Gregor,",
-       "daß man aus",
-       "allen mannigfachen Geräuschen",
+       "daß man",
+       "aus allen mannigfachen Geräuschen",
        "des Essens",
        "immer wieder",
        "ihre kauenden Zähne heraushörte,",
@@ -70049,9 +70124,10 @@
        "Gregor gezeigt werden sollte,",
        "daß man Zähne brauche,",
        "um zu essen,",
-       "und daß man auch",
-       "mit den",
-       "schönsten zahnlosen Kiefern",
+       "und daß man",
+       "auch",
+       "mit den schönsten",
+       "zahnlosen Kiefern",
        "nichts ausrichten könne."
       ]
      },
@@ -70356,7 +70432,7 @@
        15,
        19,
        23,
-       25,
+       27,
        28
       ]
      },
@@ -70390,8 +70466,8 @@
        "hatte eine Zeitung hervorgezogen,",
        "den zwei anderen je",
        "ein Blatt gegeben,",
-       "und nun",
-       "lasen sie zurückgelehnt",
+       "und nun lasen sie",
+       "zurückgelehnt",
        "und rauchten."
       ]
      },
@@ -70464,7 +70540,8 @@
        15,
        18,
        21,
-       24
+       24,
+       26
       ]
      },
      "levels": {
@@ -70497,7 +70574,8 @@
        "auf den Fußspitzen",
        "zur Vorzimmertür,",
        "in der sie",
-       "aneinandergedrängt stehen blieben."
+       "aneinandergedrängt stehen",
+       "blieben."
       ]
      },
      "rungs": [
@@ -70565,7 +70643,7 @@
       ],
       "starter": [
        2,
-       4,
+       3,
        7,
        10,
        15,
@@ -70594,8 +70672,8 @@
       ],
       "starter": [
        "Man mußte",
-       "sie von",
-       "der Küche aus",
+       "sie",
+       "von der Küche aus",
        "gehört haben,",
        "denn der Vater rief:",
        "»Ist den Herren",
@@ -71083,7 +71161,7 @@
        13,
        18,
        22,
-       24,
+       23,
        27
       ]
      },
@@ -71117,8 +71195,8 @@
        "die Höflichkeit",
        "gegen die Zimmerherren übertrieben,",
        "wagten gar nicht,",
-       "sich auf",
-       "ihre eigenen Sessel",
+       "sich",
+       "auf ihre eigenen Sessel",
        "zu setzen;"
       ]
      },
@@ -71761,7 +71839,7 @@
        19,
        23,
        25,
-       27,
+       29,
        30,
        33,
        35,
@@ -71816,8 +71894,8 @@
        "denn infolge des Staubes,",
        "der in seinem Zimmer",
        "überall lag",
-       "und bei",
-       "der kleinsten Bewegung",
+       "und bei der kleinsten",
+       "Bewegung",
        "umherflog, war",
        "auch er",
        "ganz staubbedeckt;",
@@ -72500,7 +72578,7 @@
        30,
        32,
        36,
-       38
+       37
       ]
      },
      "levels": {
@@ -72545,8 +72623,8 @@
        "die ganze Vorführung satt",
        "und ließen",
        "sich nur aus Höflichkeit",
-       "noch in",
-       "ihrer Ruhe stören."
+       "noch",
+       "in ihrer Ruhe stören."
       ]
      },
      "rungs": [
@@ -72993,7 +73071,7 @@
        3,
        7,
        9,
-       11
+       12
       ]
      },
      "levels": {
@@ -73015,8 +73093,8 @@
        "Ihm war,",
        "als zeige sich ihm",
        "der Weg",
-       "zu der",
-       "ersehnten unbekannten Nahrung."
+       "zu der ersehnten",
+       "unbekannten Nahrung."
       ]
      },
      "rungs": []
@@ -73119,7 +73197,7 @@
        34,
        36,
        38,
-       40
+       42
       ]
      },
      "levels": {
@@ -73163,8 +73241,8 @@
        "denn niemand lohnte hier",
        "das Spiel",
        "so,",
-       "wie er",
-       "es lohnen wollte."
+       "wie er es lohnen",
+       "wollte."
       ]
      },
      "rungs": [
@@ -73788,7 +73866,8 @@
        12,
        14,
        15,
-       18,
+       16,
+       20,
        21,
        24,
        29,
@@ -73833,8 +73912,9 @@
        "der Rührung ausbrechen,",
        "und Gregor",
        "würde",
-       "sich bis zu",
-       "ihrer Achsel erheben",
+       "sich",
+       "bis zu ihrer Achsel",
+       "erheben",
        "und ihren Hals",
        "küssen, den sie,",
        "seitdem sie ins Geschäft",
@@ -74160,10 +74240,10 @@
        14,
        17,
        20,
-       23,
+       22,
        26,
        28,
-       30,
+       29,
        33
       ]
      },
@@ -74202,11 +74282,11 @@
        "zu vertreiben,",
        "vorerst die Zimmerherren",
        "zu beruhigen,",
-       "trotzdem diese gar",
-       "nicht aufgeregt waren",
+       "trotzdem diese",
+       "gar nicht aufgeregt waren",
        "und Gregor",
-       "sie mehr",
-       "als das Violinspiel",
+       "sie",
+       "mehr als das Violinspiel",
        "zu unterhalten schien."
       ]
      },
@@ -74413,7 +74493,7 @@
        13,
        17,
        19,
-       22,
+       23,
        27,
        32,
        37
@@ -74424,7 +74504,7 @@
        13,
        17,
        19,
-       22,
+       23,
        27,
        32,
        35,
@@ -74452,8 +74532,8 @@
        "man wußte nicht mehr,",
        "ob über das Benehmen",
        "des Vaters",
-       "oder über die",
-       "ihnen jetzt aufgehende Erkenntnis,",
+       "oder über die ihnen",
+       "jetzt aufgehende Erkenntnis,",
        "ohne es zu wissen,",
        "einen solchen Zimmernachbar wie Gregor",
        "besessen zu haben."
@@ -74464,8 +74544,8 @@
        "man wußte nicht mehr,",
        "ob über das Benehmen",
        "des Vaters",
-       "oder über die",
-       "ihnen jetzt aufgehende Erkenntnis,",
+       "oder über die ihnen",
+       "jetzt aufgehende Erkenntnis,",
        "ohne es zu wissen,",
        "einen solchen Zimmernachbar",
        "wie Gregor",
@@ -74753,7 +74833,7 @@
       "beginner": [
        4,
        7,
-       11,
+       10,
        15,
        20,
        23,
@@ -74778,12 +74858,14 @@
        2,
        4,
        7,
-       11,
+       10,
+       13,
        15,
        20,
        23,
        27,
        30,
+       32,
        33,
        36,
        39,
@@ -74838,8 +74920,8 @@
       "beginner": [
        "Inzwischen hatte die Schwester",
        "die Verlorenheit,",
-       "in die sie nach",
-       "dem plötzlich abgebrochenen Spiel",
+       "in die sie",
+       "nach dem plötzlich abgebrochenen Spiel",
        "verfallen war, überwunden,",
        "hatte sich,",
        "nachdem sie eine Zeitlang",
@@ -74864,13 +74946,15 @@
        "Inzwischen hatte",
        "die Schwester",
        "die Verlorenheit,",
-       "in die sie nach",
-       "dem plötzlich abgebrochenen Spiel",
+       "in die sie",
+       "nach dem plötzlich",
+       "abgebrochenen Spiel",
        "verfallen war, überwunden,",
        "hatte sich,",
        "nachdem sie eine Zeitlang",
        "in den lässig",
-       "hängenden Händen Violine",
+       "hängenden Händen",
+       "Violine",
        "und Bogen gehalten",
        "und weiter,",
        "als spiele sie noch,",
@@ -74967,7 +75051,7 @@
       ],
       "starter": [
        3,
-       5,
+       7,
        8,
        10,
        12,
@@ -74999,8 +75083,8 @@
       ],
       "starter": [
        "Man sah,",
-       "wie unter",
-       "den geübten Händen",
+       "wie unter den geübten",
+       "Händen",
        "der Schwester",
        "die Decken",
        "und Polster",
@@ -75600,7 +75684,7 @@
       "starter": [
        3,
        8,
-       10,
+       12,
        14,
        19,
        22,
@@ -75647,8 +75731,8 @@
       "starter": [
        "Ich werde natürlich",
        "auch für die Tage,",
-       "die ich",
-       "hier gewohnt habe,",
+       "die ich hier gewohnt",
+       "habe,",
        "nicht das Geringste bezahlen,",
        "dagegen werde ich",
        "es mir noch überlegen,",
@@ -75989,7 +76073,8 @@
       "starter": [
        4,
        6,
-       9,
+       7,
+       8,
        13,
        17,
        21,
@@ -76022,8 +76107,9 @@
       "starter": [
        "es sah aus,",
        "als strecke",
-       "er sich zu",
-       "seinem gewöhnlichen Abendschläfchen,",
+       "er",
+       "sich",
+       "zu seinem gewöhnlichen Abendschläfchen,",
        "aber das starke Nicken",
        "seines wie haltlosen Kopfes",
        "zeigte,",
@@ -76088,7 +76174,7 @@
        2,
        6,
        11,
-       13,
+       14,
        16
       ]
      },
@@ -76113,8 +76199,8 @@
        "Gregor war",
        "die ganze Zeit still",
        "auf dem Platz gelegen,",
-       "auf dem",
-       "ihn die Zimmerherren",
+       "auf dem ihn",
+       "die Zimmerherren",
        "ertappt hatten."
       ]
      },
@@ -76188,7 +76274,7 @@
        8,
        10,
        11,
-       13,
+       12,
        16,
        18,
        20,
@@ -76222,8 +76308,8 @@
        "seines Planes,",
        "vielleicht aber",
        "auch",
-       "die durch",
-       "das viele Hungern",
+       "die",
+       "durch das viele Hungern",
        "verursachte Schwäche",
        "machten es",
        "ihm unmöglich,",
@@ -76288,7 +76374,7 @@
       "starter": [
        2,
        6,
-       8,
+       7,
        11,
        13,
        15,
@@ -76317,8 +76403,8 @@
       "starter": [
        "Er fürchtete",
        "mit einer gewissen Bestimmtheit",
-       "schon für",
-       "den nächsten Augenblick",
+       "schon",
+       "für den nächsten Augenblick",
        "einen allgemeinen",
        "über ihn",
        "sich entladenden Zusammensturz",
@@ -77142,7 +77228,7 @@
        35,
        40,
        43,
-       45
+       47
       ]
      },
      "levels": {
@@ -77190,8 +77276,8 @@
        "der Zimmerherren her",
        "auf dem Tische standen,",
        "und sah bisweilen",
-       "auf den",
-       "stillen Gregor hin."
+       "auf den stillen Gregor",
+       "hin."
       ]
      },
      "rungs": [
@@ -78228,12 +78314,13 @@
        8
       ],
       "beginner": [
-       3,
+       6,
        8,
        11
       ],
       "starter": [
-       3,
+       2,
+       6,
        8,
        11
       ]
@@ -78248,14 +78335,15 @@
        "das ist ja unser eigentliches Unglück."
       ],
       "beginner": [
-       "Daß wir es",
-       "so lange geglaubt haben,",
+       "Daß wir es so lange geglaubt",
+       "haben,",
        "das ist ja",
        "unser eigentliches Unglück."
       ],
       "starter": [
-       "Daß wir es",
-       "so lange geglaubt haben,",
+       "Daß wir",
+       "es so lange geglaubt",
+       "haben,",
        "das ist ja",
        "unser eigentliches Unglück."
       ]
@@ -79102,7 +79190,7 @@
        13,
        17,
        21,
-       24,
+       23,
        27,
        31,
        34,
@@ -79151,8 +79239,8 @@
        "zurückzuwandern,",
        "und das nahm sich",
        "allerdings auffallend aus,",
-       "da er infolge",
-       "seines leidenden Zustandes",
+       "da er",
+       "infolge seines leidenden Zustandes",
        "bei den schwierigen Umdrehungen",
        "mit seinem Kopfe",
        "nachhelfen mußte,",
@@ -79489,7 +79577,7 @@
        8,
        10,
        13,
-       15
+       17
       ]
      },
      "levels": {
@@ -79514,8 +79602,8 @@
        "saßen nebeneinander,",
        "die Schwester",
        "hatte ihre Hand",
-       "um des",
-       "Vaters Hals gelegt."
+       "um des Vaters Hals",
+       "gelegt."
       ]
      },
      "rungs": []
@@ -80420,7 +80508,7 @@
       "starter": [
        2,
        5,
-       7
+       9
       ]
      },
      "levels": {
@@ -80438,8 +80526,8 @@
       "starter": [
        "Es war",
        "die Schwester,",
-       "die sich",
-       "so beeilt hatte."
+       "die sich so beeilt",
+       "hatte."
       ]
      },
      "rungs": []
@@ -80534,7 +80622,7 @@
        13,
        16,
        18,
-       20,
+       19,
        24,
        30,
        32,
@@ -80579,8 +80667,8 @@
        "leichtfüßig war sie",
        "dann vorwärtsgesprungen,",
        "Gregor hatte",
-       "sie gar",
-       "nicht kommen hören,",
+       "sie",
+       "gar nicht kommen hören,",
        "und ein »Endlich!«",
        "rief sie",
        "den Eltern zu,",
@@ -81559,13 +81647,13 @@
        29,
        31,
        34,
-       36,
+       38,
        39,
        43,
        46,
        51,
        53,
-       55,
+       56,
        58,
        61
       ]
@@ -81620,14 +81708,14 @@
        "das zu vermeiden,",
        "alle Türen",
        "derartig zu,",
-       "daß in",
-       "der ganzen Wohnung",
+       "daß in der ganzen",
+       "Wohnung",
        "von ihrem Kommen an",
        "kein ruhiger Schlaf",
        "mehr möglich war — ,",
        "fand sie",
-       "bei ihrem",
-       "gewöhnlichen kurzen Besuch",
+       "bei ihrem gewöhnlichen",
+       "kurzen Besuch",
        "bei Gregor zuerst",
        "nichts Besonderes."
       ]
@@ -83227,7 +83315,7 @@
       ],
       "starter": [
        3,
-       5,
+       4,
        8
       ]
      },
@@ -83246,8 +83334,8 @@
       ],
       "starter": [
        "Er hat ja",
-       "auch schon",
-       "so lange Zeit",
+       "auch",
+       "schon so lange Zeit",
        "nichts gegessen."
       ]
      },
@@ -83539,7 +83627,7 @@
        16,
        21,
        25,
-       27,
+       26,
        30,
        32,
        35
@@ -83576,8 +83664,8 @@
        "sagte Frau Samsa",
        "mit einem wehmütigen Lächeln,",
        "und Grete ging,",
-       "nicht ohne",
-       "nach der Leiche",
+       "nicht",
+       "ohne nach der Leiche",
        "zurückzusehen,",
        "hinter den Eltern",
        "in das Schlafzimmer."
@@ -84801,7 +84889,7 @@
        5,
        7,
        10,
-       12,
+       13,
        15,
        18,
        22
@@ -84831,8 +84919,8 @@
        "zuerst still da",
        "und sah",
        "zu Boden,",
-       "als ob",
-       "sich die Dinge",
+       "als ob sich",
+       "die Dinge",
        "in seinem Kopf",
        "zu einer neuen Ordnung",
        "zusammenstellten. »"
@@ -84989,7 +85077,7 @@
        2,
        4,
        6,
-       8
+       10
       ]
      },
      "levels": {
@@ -85009,8 +85097,8 @@
        "Herr Samsa",
        "nickte ihm",
        "bloß mehrmals",
-       "kurz mit",
-       "großen Augen zu."
+       "kurz mit großen Augen",
+       "zu."
       ]
      },
      "rungs": []
@@ -85177,7 +85265,7 @@
        3,
        5,
        8,
-       10,
+       12,
        13,
        16,
        20,
@@ -85220,8 +85308,8 @@
        "seine beiden Freunde",
        "hatten schon",
        "ein Weilchen lang",
-       "mit ganz",
-       "ruhigen Händen aufgehorcht",
+       "mit ganz ruhigen Händen",
+       "aufgehorcht",
        "und hüpften ihm",
        "jetzt geradezu nach,",
        "wie in Angst,",
@@ -85533,7 +85621,7 @@
        30,
        32,
        33,
-       35,
+       34,
        38
       ]
      },
@@ -85578,8 +85666,8 @@
        "in einer bestimmten Biegung",
        "des Treppenhauses",
        "verschwanden",
-       "und nach",
-       "ein paar Augenblicken",
+       "und",
+       "nach ein paar Augenblicken",
        "wieder hervorkamen;"
       ]
      },
@@ -86377,7 +86465,7 @@
        19,
        22,
        26,
-       28
+       30
       ]
      },
      "levels": {
@@ -86413,8 +86501,8 @@
        "zu melden,",
        "werde es aber",
        "nur dann tun,",
-       "wenn sie",
-       "gründlich ausgefragt werde."
+       "wenn sie gründlich ausgefragt",
+       "werde."
       ]
      },
      "rungs": [
@@ -86477,9 +86565,9 @@
        2,
        5,
        9,
-       11,
+       12,
        14,
-       16,
+       15,
        19,
        21,
        23
@@ -86509,10 +86597,10 @@
        "Die fast",
        "aufrechte kleine Straußfeder",
        "auf ihrem Hut,",
-       "über die",
-       "sich Herr Samsa",
-       "schon während",
-       "ihrer ganzen Dienstzeit",
+       "über die sich",
+       "Herr Samsa",
+       "schon",
+       "während ihrer ganzen Dienstzeit",
        "ärgerte,",
        "schwankte leicht",
        "nach allen Richtungen."
@@ -87746,7 +87834,7 @@
       ],
       "starter": [
        3,
-       5,
+       6,
        9,
        10,
        14
@@ -87768,8 +87856,8 @@
       ],
       "starter": [
        "Der Wagen,",
-       "in dem",
-       "sie allein saßen,",
+       "in dem sie",
+       "allein saßen,",
        "war",
        "ganz von warmer Sonne",
        "durchschienen."
@@ -88225,12 +88313,13 @@
        16,
        19,
        23,
-       26,
+       25,
        29,
        33,
        36,
        40,
        43,
+       45,
        46
       ]
      },
@@ -88275,13 +88364,14 @@
        "ihrer immer",
        "lebhafter werdenden Tochter",
        "fast gleichzeitig ein,",
-       "wie sie in",
-       "der letzten Zeit",
+       "wie sie",
+       "in der letzten Zeit",
        "trotz aller Pflege,",
        "die ihre Wangen",
        "bleich gemacht hatte,",
        "zu einem schönen",
-       "und üppigen Mädchen",
+       "und üppigen",
+       "Mädchen",
        "aufgeblüht war."
       ]
      },
@@ -88568,7 +88658,7 @@
        5
       ],
       "starter": [
-       2,
+       1,
        5
       ]
      },
@@ -88584,8 +88674,8 @@
        "EBook of"
       ],
       "starter": [
-       "End of",
-       "the Project Gutenberg",
+       "End",
+       "of the Project Gutenberg",
        "EBook of"
       ]
      },
