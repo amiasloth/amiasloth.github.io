@@ -194,3 +194,20 @@ steps). This gives, by construction:
 Checks for s1-3: only advanced cut = [12] → ladder is empty, rung =
 advanced = 11|6, shown once. Exactly the owner's "if rung1 is the
 same as advanced it is good, and it should not repeat".
+
+## Round-2 fix: IMPLEMENTED (merge-ladder rungs)
+
+progressive_rungs() now selects rung cuts as nested subsets of the
+advanced cuts via a light DP with growing part-count targets (÷2, ÷3,
+÷4, …); only distinct intermediate steps are emitted. Verified on the
+sm smoke run (whole book): 355 ladders, 0 nesting violations, 0 rungs
+duplicating advanced, 0 duplicate steps; metrics.md now reports these
+invariants on every run. Owner cases: s1-3 → no intermediate rung
+(chunks → sentence); s1-10 → 20|22 at "denn", then 20|10|12; s1-12 →
+16|19, next step is advanced itself. The 108-word monster gets a
+6-step ladder (2 → 3 → 4 → 8 → 9 → 10 parts) — the app can subsample
+(e.g. every other rung) if 6 is too many; the data is the full ladder.
+
+App contract: ladder for level L = [distinct rungs coarser than L] +
+[L's own chunks] + [whole sentence], deduped by cut-set equality —
+rungs ⊆ advanced ⊆ every finer level, so this works at any level.

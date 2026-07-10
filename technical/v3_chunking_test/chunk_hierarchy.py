@@ -33,9 +33,12 @@ improved beyond tools/chunk.py (diagnosis findings):
   - paired em-dashes: opening dash cuts BEFORE, closing dash cuts
     AFTER (incl. trailing punct) — no more "—," chunks.
   - words = tokens containing a letter/digit ("—," is 0 words).
-  - progressive rungs are recursive and adaptive: split at the
-    strongest sufficiently-central break until every part ≤ RUNG_MAX
-    words; short sentences get no rung, monsters get several.
+  - progressive rungs are a MERGE LADDER over the advanced chunks
+    (round-2 fix): rung cuts ⊆ advanced cuts, successive rungs nest,
+    targets total/2, total/3, … so rung count adapts to sentence
+    length; only distinct intermediate steps are emitted (the app
+    appends the level's own chunks and the whole sentence, so nothing
+    ever repeats).
 
 Levels still derive top-down (advanced → starter) via the DP length
 balancer, so levels NEST by construction, and the reconstruction
@@ -81,8 +84,7 @@ W_STRETCH = 30.0      # flat cost for the max+1 stretch (fusion-locked)
 SEVER_PENALTY = 35    # strength malus for cutting a verb from its
                       # rightward complements (merge gate B as a cost)
 
-RUNG_MAX = 14         # progressive rungs: split until parts ≤ this
-RUNG_CENTER = 45.0    # how hard rung picking pulls toward the middle
+RUNG_MAX = 14         # sentences ≤ this get no progressive rung
 
 
 # --------------------------------------------------------------- fusion
@@ -470,47 +472,71 @@ def derive_levels(sent, strengths, cfg):
 
 # --------------------------------------------------------------- rungs
 
-def progressive_rungs(strengths, sent, wcount):
-    """Adaptive recursive rungs: split at the strongest sufficiently-
-    central break until every part ≤ RUNG_MAX words.  Returns a list of
-    cut-lists, coarsest first (e.g. [halves] or [halves, quarters]);
-    empty for short sentences."""
+def dp_rung(positions, strengths, wcount, lo, hi, target):
+    """Light DP for one rung segment: choose cuts from `positions`
+    (all of them advanced cuts) minimizing squared deviation from the
+    target part size + a small preference for strong seams.  No hard
+    caps — the advanced level already enforced those."""
+    pts = [lo] + positions + [hi]
+    m = len(pts)
+
+    def chunk_cost(a, b):
+        w = wcount(pts[a], pts[b])
+        return W_LEN * ((w - target) / target) ** 2
+
+    def cut_cost(j):
+        return W_CUT * (100 - strengths.get(pts[j], 50)) / 100.0
+
+    INF = float("inf")
+    best = [INF] * m
+    back = [0] * m
+    best[0] = 0.0
+    for j in range(1, m):
+        for i in range(j):
+            c = best[i] + chunk_cost(i, j) + (cut_cost(j) if j < m - 1 else 0)
+            if c < best[j] - 1e-12:
+                best[j], back[j] = c, i
+    cuts, j = [], m - 1
+    while j > 0:
+        i = back[j]
+        if i > 0:
+            cuts.append(pts[i])
+        j = i
+    return sorted(cuts)
+
+
+def progressive_rungs(sent, adv_cuts, strengths, wcount):
+    """Merge ladder OVER the advanced chunks (see DIAGNOSIS.md round 2):
+    every rung's cuts are a subset of the advanced cuts, successive
+    rungs nest, and only DISTINCT intermediate steps are emitted —
+    never the whole sentence, never the advanced chunking itself (the
+    app appends those ends of the ladder and dedups by cut set).
+
+    Rung r targets parts of ~total/(r+1) words (halves, thirds,
+    quarters, …), so rung count adapts to sentence length: short
+    sentences get no rung, monsters get several."""
     n = len(list(sent))
-    if wcount(0, n) <= RUNG_MAX or not strengths:
+    total = wcount(0, n)
+    if not adv_cuts or total <= RUNG_MAX:
         return []
 
-    def best_split(a, b):
-        cands = [k for k in strengths if a < k < b]
-        cands = [k for k in cands
-                 if wcount(a, k) > 0 and wcount(k, b) > 0]
-        if not cands:
-            return None
-        total = wcount(a, b)
-
-        def score(k):
-            off = abs(wcount(a, k) - wcount(k, b)) / total
-            return strengths[k] - RUNG_CENTER * off
-        return max(cands, key=score)
-
-    rungs, frontier = [], [(0, n)]
-    while True:
-        new_cuts = []
-        next_frontier = []
-        for a, b in frontier:
-            if wcount(a, b) <= RUNG_MAX:
-                next_frontier.append((a, b))
-                continue
-            k = best_split(a, b)
-            if k is None:
-                next_frontier.append((a, b))
-                continue
-            new_cuts.append(k)
-            next_frontier += [(a, k), (k, b)]
-        if not new_cuts:
+    rungs = []
+    prev = []
+    for denom in range(2, len(adv_cuts) + 2):
+        target = total / denom
+        if target < LEVELS["advanced"]["target"]:
             break
-        prev = rungs[-1] if rungs else []
-        rungs.append(sorted(prev + new_cuts))
-        frontier = next_frontier
+        cuts = list(prev)
+        bounds = [0] + prev + [n]
+        for a, b in zip(bounds, bounds[1:]):
+            inside = [p for p in adv_cuts if a < p < b]
+            cuts += dp_rung(inside, strengths, wcount, a, b, target)
+        cuts = sorted(cuts)
+        if cuts == list(adv_cuts):
+            break                       # ladder reached the level itself
+        if cuts and cuts != prev:
+            rungs.append(cuts)
+        prev = cuts
     return rungs
 
 
@@ -612,8 +638,9 @@ def main():
                     levels = {lvl: spans_to_text(sent, cuts[lvl])
                               for lvl in LEVEL_ORDER}
                     rungs = [spans_to_text(sent, r)
-                             for r in progressive_rungs(strengths, sent,
-                                                        wcount)]
+                             for r in progressive_rungs(
+                                 sent, cuts["advanced"], strengths,
+                                 wcount)]
                 except AssertionError:
                     fails += 1
                     levels = {lvl: [sent.text.strip()] for lvl in LEVEL_ORDER}

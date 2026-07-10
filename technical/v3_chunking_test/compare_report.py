@@ -216,6 +216,8 @@ def main():
     long_max = {"current": [], "candB": []}   # max chunk len, sentences >=25w
     nest_viol = {"current": 0, "candB": 0}
     mismatches = 0
+    rung_stats = {"sents": 0, "not_nested": 0, "dup_adv": 0,
+                  "dup_step": 0, "ladders": {}}
 
     for si, sec in enumerate(cand["sections"]):
         cs = sec["sentences"]
@@ -243,6 +245,21 @@ def main():
             nest_viol["candB"] += nesting_violations(s["levels"])
             nest_viol["current"] += nesting_violations(
                 {lvl: base_per_sent[lvl][i] for lvl in LEVELS})
+            rungs = s.get("rungs") or []
+            if rungs:
+                rung_stats["sents"] += 1
+                depth = len(rungs)
+                rung_stats["ladders"][depth] = \
+                    rung_stats["ladders"].get(depth, 0) + 1
+                adv = cut_offsets(s["levels"]["advanced"])
+                seq = [cut_offsets(r) for r in rungs]
+                if any(not (ro <= adv) for ro in seq) or \
+                        any(not (a <= b) for a, b in zip(seq, seq[1:])):
+                    rung_stats["not_nested"] += 1
+                if any(ro == adv for ro in seq):
+                    rung_stats["dup_adv"] += 1
+                if any(a == b for a, b in zip(seq, seq[1:])):
+                    rung_stats["dup_step"] += 1
 
     # ---------------- metrics.md
     lines = ["# Chunking experiment metrics — current vs candidate B",
@@ -284,6 +301,18 @@ def main():
         f"- current chunker violations: {nest_viol['current']} "
         "(levels cut independently; expected > 0 — this is what blocks "
         "adaptive progressive rungs today)",
+        "",
+        "## Progressive rungs (candidate B, merge ladder over advanced)",
+        "",
+        f"- sentences with a rung ladder: {rung_stats['sents']}",
+        f"- ladder depth distribution: " + ", ".join(
+            f"{k} rung(s): {v}" for k, v in
+            sorted(rung_stats["ladders"].items())),
+        f"- ladders violating nesting (must be 0): "
+        f"{rung_stats['not_nested']}",
+        f"- rungs duplicating the advanced chunking (must be 0): "
+        f"{rung_stats['dup_adv']}",
+        f"- duplicate adjacent rungs (must be 0): {rung_stats['dup_step']}",
     ]
     (outdir / "metrics.md").write_text("\n".join(lines) + "\n",
                                        encoding="utf-8")
