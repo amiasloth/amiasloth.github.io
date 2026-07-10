@@ -71,6 +71,11 @@ to both sides.
                          commas, comma classes, NP edges, dash pairing,
                          fuse_dir, adaptive recursive rungs)
     compare_report.py    side-by-side HTML + metrics vs shipped data
+    test_improvements.py before/after report for round-4 changes:
+                         (1) crossing-aware desperation (adopted),
+                         (2) cheap strong cuts (opt-in suggestion,
+                         CHEAP_STRONG_CUTS flag) — shows real
+                         sentences + blast radius per level
     run_experiment.sh    driver
     DIAGNOSIS.md         owner review of the v1 lg run → root causes →
                          v2 fixes

@@ -86,6 +86,13 @@ SEVER_PENALTY = 35    # strength malus for cutting a verb from its
 
 RUNG_MAX = 14         # sentences ≤ this get no progressive rung
 
+# feature flags (test_improvements.py toggles these to show diffs)
+DESP_CROSSINGS = True      # desperation cuts minimize crossing dep edges
+CHEAP_STRONG_CUTS = False  # suggestion #2: cuts at/above the level's
+                           # pref strength cost 30% — separates
+                           # intermediate from advanced on long
+                           # sentences (opt-in, owner to judge)
+
 
 # --------------------------------------------------------------- fusion
 
@@ -418,6 +425,8 @@ def dp_segment(positions, strengths, wcount, lo, hi, lv):
         c = W_CUT * (100 - s) / 100.0
         if s < pref:
             c += W_PREF * (pref - s) / 100.0
+        elif CHEAP_STRONG_CUTS:
+            c *= 0.3                    # strong-enough seams nearly free
         return c
 
     INF = float("inf")
@@ -441,7 +450,11 @@ def dp_segment(positions, strengths, wcount, lo, hi, lv):
 def desperation_cuts(toks, wcount, a, b, mx, cfg):
     """Span with NO fusion-clean break inside exceeding max+1: demote
     fusion to a tiebreak (tools/chunk.py desperation).  Prefer not to
-    sever a verb from its complements; balance halves."""
+    sever a verb from its complements, then cut at a BRANCH SEAM — the
+    position the fewest dependency edges cross (ported from
+    tools/chunk.py fallback_split: a zero-crossing cut separates whole
+    branches, "mit vor Befriedigung | tränenden Augen" tears one branch
+    apart) — then balance halves."""
     if wcount(a, b) <= mx + 1:
         return []
     cands = []
@@ -456,8 +469,46 @@ def desperation_cuts(toks, wcount, a, b, mx, cfg):
         cands.append(k)
     if not cands:
         return []
-    k = min(cands, key=lambda k: (severs_verb_tail(toks, k, cfg),
-                                  abs(wcount(a, k) - wcount(k, b))))
+    base = toks[0].i
+
+    def crossings(k):
+        n_ = 0
+        for j in range(a, b):
+            t = toks[j]
+            if t.is_punct or t.is_space:
+                continue
+            h = t.head.i - base
+            if a <= h < b and (h < k) != (j < k):
+                n_ += 1
+        return n_
+
+    def fusion_grade(k):
+        """Every candidate here violates fusion (else the DP would have
+        had it) — but not equally: stranding a TRUE function word at
+        the chunk end ("auf |", "und |", "einem |") reads worse than
+        severing a modifier chain ("panzerartig | harten").  The raw
+        crossing count actively PREFERS the function-word cut (its head
+        lies outside the span — tools/chunk.py documents the same trap
+        and vetoes it; we grade it instead)."""
+        prev, cur = toks[k - 1], toks[k]
+        if not prev.is_punct and (
+                prev.pos_ in ("ADP", "DET", "CCONJ", "SCONJ")
+                or prev.dep_ in cfg["marker_deps"]
+                or prev.tag_ in REL_PRON_TAGS
+                or prev.tag_ in cfg["inf_tags"]):
+            return 2
+        if (not prev.is_punct and fuse_dir(prev, cfg) == "R") \
+                or (not cur.is_punct and fuse_dir(cur, cfg) == "L"):
+            return 1
+        return 0
+
+    if DESP_CROSSINGS:
+        key = lambda k: (severs_verb_tail(toks, k, cfg), fusion_grade(k),
+                         crossings(k), abs(wcount(a, k) - wcount(k, b)))
+    else:                               # legacy: balance only
+        key = lambda k: (severs_verb_tail(toks, k, cfg),
+                         abs(wcount(a, k) - wcount(k, b)))
+    k = min(cands, key=key)
     return sorted([k]
                   + desperation_cuts(toks, wcount, a, k, mx, cfg)
                   + desperation_cuts(toks, wcount, k, b, mx, cfg))

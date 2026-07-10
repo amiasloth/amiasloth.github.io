@@ -207,7 +207,16 @@ bounds, any failure falls back to the script's hierarchy. Worst case =
 script quality. Hierarchy variant: one hierarchical annotation per
 sentence derives all levels consistently.
 
-**Experiment status (2026-07-10): implemented, awaiting lg run.**
+**Experiment status update (2026-07-10, round 4):** candidate B
+refined through four owner-review rounds (see
+`technical/v3_chunking_test/DIAGNOSIS.md`); owner satisfied with the
+lg results. Note on C: candidate B's data representation (per-sentence
+break points + strengths, levels derived by a small DP) makes C
+essentially free — the DP is portable to JS, so a granularity dial is
+now a UI decision, not a data decision. B vs C no longer changes what
+gets baked.
+
+**Original experiment status (2026-07-10): implemented, awaiting lg run.**
 Candidate B + side-by-side comparison live in
 `technical/v3_chunking_test/` (`README.md` there; run
 `run_experiment.sh` on the build machine — needs `de_core_news_lg`).
