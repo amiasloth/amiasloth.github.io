@@ -232,6 +232,7 @@
   var vadCtx=null, vadAnalyser=null, vadRAF=null, vadNoise=0.01;
   var vadTake=null, vadStopAt=0;                  // per-session VAD state
   var vadStops=0, vadFinals=0, vadLatencySum=0;   // per-run tallies
+  var vadInterimOnly=0, vadLastInterim="";        // stops that never got a final
 
   function vadSetup(cb){
     if(!hasGUM){ log("getUserMedia unavailable","bad"); cb(); return; }
@@ -254,7 +255,7 @@
 
   function vadArm(){
     vadTake = { speech:false, speechAt:0, lastVoice:0, voiceSince:0, interim:false };
-    vadStopAt = 0;
+    vadStopAt = 0; vadLastInterim = "";
   }
 
   function vadLoop(){
@@ -382,7 +383,8 @@
           log("FINAL #"+phrases+": \""+res[0].transcript.trim()+"\"  conf="+
             (res[0].confidence!=null?res[0].confidence.toFixed(2):"?"), "ok");
         } else {
-          if(mode==="B5" && vadTake) vadTake.interim = true;
+          if(mode==="B5"){ if(vadTake) vadTake.interim = true;
+            vadLastInterim = res[0].transcript.trim(); }
           log("  interim: \""+res[0].transcript.trim()+"\"");
         }
       }
@@ -396,6 +398,10 @@
         if(vadStopAt) log("recognition.end (#"+ends+")  stop()→end: "+
           Math.round(performance.now()-vadStopAt)+"ms");
         else log("recognition.end (#"+ends+")  — iOS endpointer ended it (no VAD stop)","warn");
+        if(vadStopAt && !sawResultThisSession){
+          vadInterimOnly++;
+          log("NO final after VAD stop — interim fallback would score: \""+vadLastInterim+"\"","warn");
+        }
         vadTake = null;
       } else log("recognition.end (#"+ends+")");
       if(stopped){ finish("stopped"); return; }
@@ -425,7 +431,7 @@
   function begin(m){
     mode=m; t0=performance.now(); gen++;
     phrases=0; ends=0; restarts=0; restartResults=0; errors=[]; stopped=false; sawResultThisSession=false;
-    vadStops=0; vadFinals=0; vadLatencySum=0; vadStopAt=0;
+    vadStops=0; vadFinals=0; vadLatencySum=0; vadStopAt=0; vadInterimOnly=0; vadLastInterim="";
     chunks=[]; btnPlay.disabled=true;
     setBusy(true);
     elSum.textContent = ({
@@ -460,6 +466,10 @@
         verdict = (vadStops>=1 && vadFinals>=vadStops)
           ? "<span class='ok'>VAD ENDPOINTING WORKS — every VAD stop() still produced a final"+
             " (avg stop→final "+avg+"ms). We can own the endpointing.</span>"
+          : (vadStops>=1 && vadFinals+vadInterimOnly>=vadStops)
+            ? "<span class='warn'>stop() KILLS the final on this device ("+vadInterimOnly+"/"+vadStops+
+              " stops interim-only) but interims arrive — VAD works only WITH the checker's "+
+              "fallback-to-interim.</span>"
           : vadStops>=1
             ? "<span class='warn'>"+vadFinals+"/"+vadStops+" VAD stops produced a final"+
               (vadFinals?(" (avg "+avg+"ms)"):"")+" — partial; check errors/log.</span>"
@@ -470,6 +480,7 @@
           "phrases: <b>"+phrases+"</b>   session-ends: <b>"+ends+"</b>   restarts: <b>"+restarts+
           "</b>   restart-results: <b>"+restartResults+"</b>\n"+
           "VAD stops: <b>"+vadStops+"</b>   finals after stop: <b>"+vadFinals+"</b>"+
+          "   interim-only: <b>"+vadInterimOnly+"</b>"+
           (vadFinals?("   avg stop→final: <b>"+avg+"ms</b>"):"")+"\n"+
           "errors: "+(errors.length?("<span class='bad'>"+errors.join(", ")+"</span>"):"none")+"\n\n"+
           "<span class='big'>Verdict: "+verdict+"</span>";

@@ -323,12 +323,35 @@ loop-style VAD stops at ~1 s, and `stop()` requests the final immediately.
 - `reader.js`: the existing `autoStop` pref now feeds the checker too
   (constructor + live via `setAutoStop`); settings copy updated.
 
+**Device round 1 (2026-07-10, check mode in-app):** VAD stop fires, but the
+take comes back EMPTY and silently re-arms — speak → interims show → stop
+talking → back to "Listening…", repeat. Decode: on this device `stop()` ends
+the session WITHOUT ever delivering a final (interims only); empty transcript
+routes `onCheckResult` into `rearmOnSilence`. This is precisely candidate
+fix #1's territory.
+
+**Fix (same commit): fallback-to-interim, composed with the VAD.**
+
+- `checker.js` keeps the take's last interim; `_finalize` with no finals
+  scores it. The `no-speech` and generic error paths also finalize when an
+  interim is held (in case iOS routes the stopped session through `onerror`)
+  — a take we audibly heard is never dropped into the re-arm loop. Real
+  silence has no interim, so the no-speech/re-arm flow is untouched.
+- B5 probe now counts **interim-only stops** and logs what the fallback
+  would have scored; verdict distinguishes "finals survive stop()" from
+  "stop() kills finals ⇒ VAD works only WITH the fallback".
+- Caveat to watch: interims carry no alternatives (`maxAlternatives` is
+  finals-only), so fallback takes score against a single candidate — match
+  leniency may need a look if false misses cluster on fallback takes.
+
 **Device checkpoint (required before trusting it):**
 
-1. B5 probe, 3–4 phrases: finals after every VAD stop? `stop()→final` latency?
-2. Check mode T-run: takes 1–3 score correctly; deliberate mid-phrase pause
-   (~0.8 s) must NOT truncate; take with only a soft trailing word must not
-   clip it. Tune `VAD.silenceMs` (1000 → 1200?) if phrases with commas clip.
+1. B5 probe, 3–4 phrases: finals after every VAD stop? interim-only count?
+   `stop()→final` latency?
+2. Check mode T-run: takes 1–3 score correctly (via final OR fallback);
+   deliberate mid-phrase pause (~0.8 s) must NOT truncate; take with only a
+   soft trailing word must not clip it. Tune `VAD.silenceMs` (1000 → 1200?)
+   if phrases with commas clip.
 3. Regression: autoStop OFF behaves exactly as `stt-webaudio-works`.
 
 ## Bugs found while reading (file for later; do NOT fix now)

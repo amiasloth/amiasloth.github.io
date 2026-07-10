@@ -131,6 +131,7 @@
     this._safety = null;
     this._gen = 0;            // bumped each take/reset; stale callbacks bail
     this._finals = [];        // final alternative transcripts (best first)
+    this._lastInterim = "";   // fallback if the session ends with no final
     this._disabled = false;   // recognition service unavailable this session
     this._canPlayback = !!(navigator.mediaDevices &&
       navigator.mediaDevices.getUserMedia && Ctx);
@@ -345,6 +346,7 @@
   Checker.prototype.start = function () {
     if (!SR || this._disabled || this.state === "listening") return;
     this._finals = [];
+    this._lastInterim = "";
     if (this._url) { URL.revokeObjectURL(this._url); this._url = null; }
     this._set("listening");
     var self = this, gen = this._gen;
@@ -394,8 +396,9 @@
         }
       }
       if (interim) {
+        self._lastInterim = interim.trim();                // kept for fallback
         if (self._vadTake) self._vadTake.interim = true;   // VAD gate: it heard us
-        self.onInterim(interim.trim());
+        self.onInterim(self._lastInterim);
       }
     };
 
@@ -431,6 +434,7 @@
       return;
     }
     if (kind === "no-speech") {
+      if (this._lastInterim) { this._finalize(); return; } // it DID hear us — score it
       this._endTakeIdle();                         // keep the mic open for a quick retry
       this.onError("no-speech", "Didn't hear anything — tap to try again.");
       return;
@@ -439,6 +443,9 @@
     // (The old degrade-and-restart machinery existed to dodge recorder
     // interference; with no recorder there is nothing to degrade to, and its
     // instant restart caused a second error on iOS — see the debug plan.)
+    // If we already hold an interim, the take produced usable speech —
+    // score it (fallback-to-interim) instead of dropping it.
+    if (this._lastInterim) { this._finalize(); return; }
     this._endTakeIdle();
     this.onError("generic", "Speech recognition failed — tap to try again.");
   };
@@ -449,6 +456,17 @@
     for (var i = 0; i < this._finals.length; i++)
       for (var k = 0; k < this._finals[i].length; k++) alternatives.push(this._finals[i][k]);
     var transcript = alternatives.length ? alternatives[0] : "";
+
+    // FALLBACK-TO-INTERIM (debug-plan candidate fix #1): on iOS, stop() —
+    // ours via VAD or the user's tap — often ends the session with NO final
+    // ever delivered, only interims. A take where you audibly spoke (we hold
+    // the interim to prove it) must be SCORED, not silently dropped into the
+    // re-arm loop. Real silence produces no interim, so the no-speech /
+    // re-arm flow is untouched.
+    if (!transcript && this._lastInterim) {
+      transcript = this._lastInterim;
+      alternatives = [transcript];
+    }
 
     this._detachRec();
     this._stopMeter();
