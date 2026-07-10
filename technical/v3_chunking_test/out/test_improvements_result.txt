@@ -1,7 +1,7 @@
 ========================================================================
 CASE 1 — crossing-aware desperation (adopted)
-  sentences changed: 180 of 892
-  per level: starter: 180, beginner: 17, intermediate: 0, advanced: 0
+  sentences changed: 190 of 892
+  per level: starter: 189, beginner: 29, intermediate: 1, advanced: 0
 
   (20w) Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett
     OLD/start: Als Gregor Samsa | eines Morgens | aus unruhigen Träumen erwachte, | fand er sich | in seinem Bett | zu einem | ungeheueren Ungeziefer verwandelt.
@@ -19,10 +19,14 @@ CASE 1 — crossing-aware desperation (adopted)
     OLD/start: Ich hatte ursprünglich | die Absicht, | Ihnen das alles | unter vier Augen | zu sagen, | aber da | Sie mich hier | nutzlos | meine Zeit | versäumen lassen, | weiß ich nicht, | warum es nicht auch | Ihre Herren Eltern | erfahren sollen.
     NEW/start: Ich hatte ursprünglich | die Absicht, | Ihnen das alles | unter vier Augen | zu sagen, | aber da Sie | mich hier | nutzlos | meine Zeit | versäumen lassen, | weiß ich nicht, | warum es nicht auch | Ihre Herren Eltern | erfahren sollen.
 
+  [referenced example] (17w) Rasch hintereinander und mit vor Befriedigung tränenden Augen verzehrte er den Käse, das G
+    OLD/start: Rasch hintereinander | und mit vor | Befriedigung tränenden Augen | verzehrte er | den Käse, | das Gemüse | und die Sauce;
+    NEW/start: Rasch hintereinander | und mit vor Befriedigung | tränenden Augen | verzehrte er | den Käse, | das Gemüse | und die Sauce;
+
 ========================================================================
-CASE 2 — cheap strong cuts (suggestion, NOT adopted)
-  sentences changed: 378 of 892
-  per level: starter: 42, beginner: 296, intermediate: 133, advanced: 70
+CASE 2 — cheap strong cuts (ADOPTED; CUR = flag off, SUG = flag on = shipping default)
+  sentences changed: 377 of 892
+  per level: starter: 42, beginner: 295, intermediate: 133, advanced: 70
   intermediate==advanced (>12w) cases separated: 16
 
   [side effect] (20w) Als Gregor Samsa eines Morgens aus unruhigen Träumen erwachte, fand er sich in seinem Bett
