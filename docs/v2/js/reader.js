@@ -90,6 +90,7 @@
     if (Checker.isSupported()) {
       checker = new Checker({
         lang: meta.lang,
+        autoStop: prefs.autoStop,   // VAD endpointing: ~1s silence ends the take
         onState: onCheckState,
         onInterim: onCheckInterim,
         onResult: onCheckResult,
@@ -746,7 +747,10 @@
   function setPref(name, value) {
     prefs[name] = value;
     Store.setPref(name, value);
-    if (name === "autoStop") rec.autoStop = value;
+    if (name === "autoStop") {
+      rec.autoStop = value;
+      if (checker) checker.setAutoStop(value);   // check takes use it too (VAD endpointing)
+    }
     if (name === "checkMode") {   // switching modes: hand the mic over cleanly
       if (checker) checker.reset();
       rec.reset();
@@ -777,7 +781,7 @@
       box.appendChild(h);
     };
 
-    toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take and playback starts.", "autoStop");
+    toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take — recording plays back, check takes score right away.", "autoStop");
     toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
     toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
 

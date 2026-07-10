@@ -38,6 +38,17 @@
         app's ttsFirst/abCompare pattern. If restarts stop producing
         results here -> TTS is the poison.
 
+    B5 · VAD-triggered stop() (owns the endpointing)
+        Like B, but NO MediaRecorder — the reworked checker's audio path:
+        persistent stream + ONE AudioContext + analyser. During each
+        session a loop-style VAD watches the level; once speech was
+        detected (>=250ms) AND at least one interim result arrived, ~1s of
+        trailing silence calls rec.stop() instead of waiting for iOS's
+        endpointer. Logs stop()->final and stop()->end latency per take.
+        If finals still arrive (fast) after VAD stops -> we can own the
+        endpointing (~1.5-2s per take saved). If stops come back empty or
+        error -> iOS's endpointer must keep the job.
+
   If EITHER works, hands-free Check mode on iOS is achievable and the
   checker can be reworked around it.
 
@@ -90,6 +101,7 @@
     <button id="btnB1" class="sec">B1 · Cycle recorder</button>
     <button id="btnB3" class="sec">B3 · Play between</button>
     <button id="btnB4" class="sec">B4 · TTS between</button>
+    <button id="btnB5" class="sec">B5 · VAD stop</button>
   </div>
   <div class="row">
     <label class="chk"><input type="checkbox" id="withRec"> also run recorder concurrently</label>
@@ -117,7 +129,7 @@
       elCaps = document.getElementById("caps"),
       btnA = document.getElementById("btnA"), btnB = document.getElementById("btnB"),
       btnB1 = document.getElementById("btnB1"), btnB3 = document.getElementById("btnB3"),
-      btnB4 = document.getElementById("btnB4"),
+      btnB4 = document.getElementById("btnB4"), btnB5 = document.getElementById("btnB5"),
       btnStop = document.getElementById("btnStop"), btnPlay = document.getElementById("btnPlay"),
       btnClear = document.getElementById("btnClear"), withRec = document.getElementById("withRec"),
       player = document.getElementById("player");
@@ -140,7 +152,7 @@
   var MIME = pickMime();
   elCaps.innerHTML = "SpeechRecognition: <b class='"+(SR?"ok'>yes":"bad'>NO")+"</b>"+
     " · recorder mime: <b>"+(MIME===null?"none":(MIME||"default"))+"</b><br>UA: <b>"+navigator.userAgent+"</b>";
-  if (!SR) { btnA.disabled = btnB.disabled = btnB1.disabled = btnB3.disabled = btnB4.disabled = true;
+  if (!SR) { btnA.disabled = btnB.disabled = btnB1.disabled = btnB3.disabled = btnB4.disabled = btnB5.disabled = true;
     elSum.innerHTML = "<span class='bad'>SpeechRecognition unavailable on this browser.</span>"; }
 
   function activation(){
@@ -211,6 +223,87 @@
     setTimeout(function(){ fin(done?null:"between-TTS TIMEOUT — never started"); }, 5000);
   }
 
+  // ---- B5: VAD-triggered stop() — the reworked checker's audio path.
+  // NO MediaRecorder (the proven iOS poison). Persistent stream, ONE
+  // AudioContext + analyser for the whole run; a RAF loop watches the
+  // level. Gates before stop(): speech >=250ms (analyser), >=1 interim
+  // (recognition actually heard something), then ~1s trailing silence.
+  var VAD = { absFloor:0.02, floorMult:3.0, startMs:120, silenceMs:1000, minSpeechMs:250 };
+  var vadCtx=null, vadAnalyser=null, vadRAF=null, vadNoise=0.01;
+  var vadTake=null, vadStopAt=0;                  // per-session VAD state
+  var vadStops=0, vadFinals=0, vadLatencySum=0;   // per-run tallies
+
+  function vadSetup(cb){
+    if(!hasGUM){ log("getUserMedia unavailable","bad"); cb(); return; }
+    navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}})
+    .then(function(s){
+      stream=s;
+      try{
+        var Ctx = window.AudioContext || window.webkitAudioContext;
+        vadCtx = new Ctx();
+        var src = vadCtx.createMediaStreamSource(s);
+        vadAnalyser = vadCtx.createAnalyser();
+        vadAnalyser.fftSize = 512;
+        src.connect(vadAnalyser);
+        log("VAD graph up (one ctx, persistent stream)","ok");
+        vadLoop();
+      }catch(e){ log("VAD graph failed: "+e+" — no auto-stop this run","bad"); }
+      setTimeout(cb, 200);
+    }).catch(function(err){ log("getUserMedia FAILED: "+(err&&err.name||err),"bad"); cb(); });
+  }
+
+  function vadArm(){
+    vadTake = { speech:false, speechAt:0, lastVoice:0, voiceSince:0, interim:false };
+    vadStopAt = 0;
+  }
+
+  function vadLoop(){
+    var data = new Uint8Array(vadAnalyser.frequencyBinCount);
+    var tick = function(){
+      if(!vadAnalyser){ vadRAF=null; return; }
+      vadAnalyser.getByteTimeDomainData(data);
+      var peak = 0;
+      for(var i=0;i<data.length;i++) peak = Math.max(peak, Math.abs(data[i]-128)/128);
+      vadStep(peak);
+      vadRAF = requestAnimationFrame(tick);
+    };
+    vadRAF = requestAnimationFrame(tick);
+  }
+
+  function vadStep(peak){
+    var tk = vadTake;
+    if(!tk || vadStopAt) return;
+    var now = performance.now();
+    var thresh = Math.max(VAD.absFloor, vadNoise*VAD.floorMult);
+    var voiced = peak > thresh;
+    if(!voiced) vadNoise = vadNoise*0.95 + peak*0.05;   // learn the room
+    if(!tk.speech){
+      if(voiced){
+        if(!tk.voiceSince) tk.voiceSince = now;
+        if(now - tk.voiceSince >= VAD.startMs){
+          tk.speech = true; tk.speechAt = now; tk.lastVoice = now;
+          log("VAD: speech detected");
+        }
+      } else tk.voiceSince = 0;
+      return;
+    }
+    if(voiced) tk.lastVoice = now;
+    if(now - tk.speechAt < VAD.minSpeechMs) return;
+    if(!tk.interim) return;               // recognition hasn't heard anything yet
+    if(now - tk.lastVoice >= VAD.silenceMs){
+      vadStopAt = now; vadStops++;
+      log("VAD: "+VAD.silenceMs+"ms trailing silence → rec.stop()","warn");
+      try{ rec.stop(); }catch(e){ log("VAD stop() threw: "+e,"bad"); }
+    }
+  }
+
+  function vadTeardown(){
+    if(vadRAF) cancelAnimationFrame(vadRAF);
+    vadRAF=null; vadAnalyser=null; vadTake=null;
+    if(vadCtx && vadCtx.state!=="closed"){ try{ vadCtx.close().catch(function(){}); }catch(e){} }
+    vadCtx=null;
+  }
+
   // ---- shared run state ----
   var rec=null, mr=null, stream=null, chunks=[], lastUrl=null, safety=null;
   var mode=null, gen=0;
@@ -218,13 +311,14 @@
   var RESTART_CAP=6, sawResultThisSession=false;
 
   function setBusy(b){ btnA.disabled=b||!SR; btnB.disabled=b||!SR;
-    btnB1.disabled=b||!SR; btnB3.disabled=b||!SR; btnB4.disabled=b||!SR;
+    btnB1.disabled=b||!SR; btnB3.disabled=b||!SR; btnB4.disabled=b||!SR; btnB5.disabled=b||!SR;
     btnStop.disabled=!b; withRec.disabled=b; }
 
   function releaseRec(){ if(mr&&mr.state!=="inactive"){try{mr.stop();}catch(e){}} }
   function releaseStream(){ if(stream){stream.getTracks().forEach(function(tr){tr.stop();});stream=null;} }
 
-  function needRecorder(){ return (withRec.checked || mode==="B1" || mode==="B3" || mode==="B4") && hasGUM && hasMR; }
+  function needRecorder(){ return mode!=="B5" &&
+    (withRec.checked || mode==="B1" || mode==="B3" || mode==="B4") && hasGUM && hasMR; }
 
   function startRecorder(after){
     if(!needRecorder()){ after(); return; }
@@ -275,16 +369,22 @@
     r.continuous = (mode==="A");
     r.interimResults = true;
     try{ r.maxAlternatives = 3; }catch(e){}
-    r.onstart = function(){ log("recognition.start ("+(mode==="A"?"continuous":"single")+")"); };
+    r.onstart = function(){ log("recognition.start ("+(mode==="A"?"continuous":"single")+")");
+      if(mode==="B5") vadArm(); };
     r.onspeechstart = function(){ log("speechstart"); };
     r.onspeechend = function(){ log("speechend"); };
     r.onresult = function(e){
       for(var i=e.resultIndex;i<e.results.length;i++){
         var res=e.results[i];
         if(res.isFinal){ phrases++; sawResultThisSession=true; if(mode!=="A"&&restarts>0) restartResults++;
+          if(vadStopAt){ var lat=Math.round(performance.now()-vadStopAt);
+            vadFinals++; vadLatencySum+=lat; log("stop()→final: "+lat+"ms","ok"); }
           log("FINAL #"+phrases+": \""+res[0].transcript.trim()+"\"  conf="+
             (res[0].confidence!=null?res[0].confidence.toFixed(2):"?"), "ok");
-        } else { log("  interim: \""+res[0].transcript.trim()+"\""); }
+        } else {
+          if(mode==="B5" && vadTake) vadTake.interim = true;
+          log("  interim: \""+res[0].transcript.trim()+"\"");
+        }
       }
     };
     r.onnomatch = function(){ log("nomatch","warn"); };
@@ -292,7 +392,12 @@
       log("ERROR: "+(e.error||"?")+(e.message?" — "+e.message:""), "bad"); };
     r.onend = function(){
       ends++;
-      log("recognition.end (#"+ends+")");
+      if(mode==="B5"){
+        if(vadStopAt) log("recognition.end (#"+ends+")  stop()→end: "+
+          Math.round(performance.now()-vadStopAt)+"ms");
+        else log("recognition.end (#"+ends+")  — iOS endpointer ended it (no VAD stop)","warn");
+        vadTake = null;
+      } else log("recognition.end (#"+ends+")");
       if(stopped){ finish("stopped"); return; }
       if(mode==="A"){
         // continuous ended on its own -> the session did NOT stay alive
@@ -320,6 +425,7 @@
   function begin(m){
     mode=m; t0=performance.now(); gen++;
     phrases=0; ends=0; restarts=0; restartResults=0; errors=[]; stopped=false; sawResultThisSession=false;
+    vadStops=0; vadFinals=0; vadLatencySum=0; vadStopAt=0;
     chunks=[]; btnPlay.disabled=true;
     setBusy(true);
     elSum.textContent = ({
@@ -327,12 +433,14 @@
       B:  "Mode B: auto-restart on end. Speak 3–4 phrases with pauses…",
       B1: "Mode B1: recorder CYCLED between sessions. Speak 3–4 phrases with pauses…",
       B3: "Mode B3: tone plays between sessions. Speak 3–4 phrases with pauses…",
-      B4: "Mode B4: TTS speaks between sessions. Speak 3–4 phrases with pauses…"
+      B4: "Mode B4: TTS speaks between sessions. Speak 3–4 phrases with pauses…",
+      B5: "Mode B5: VAD calls stop() after ~1s of silence. Speak 3–4 phrases with pauses…"
     })[m];
     log("=== RUN "+m+" ===");
     if(m==="B3") unlockPB();             // sync, still inside the tap
     if(m==="B4") unlockTTS();            // sync, still inside the tap
-    startRecorder(function(){
+    var setup = (m==="B5") ? vadSetup : startRecorder;
+    setup(function(){
       try{ rec = newRecognition(); rec.start(); }
       catch(err){ log("start() threw: "+err,"bad"); finish("start threw"); }
       if(safety) clearTimeout(safety);
@@ -343,9 +451,32 @@
   function finish(reason){
     if(safety){ clearTimeout(safety); safety=null; }
     setBusy(false);
+    vadTeardown();
     // build recording blob if any
     var doSummary = function(){
       var verdict;
+      if(mode==="B5"){
+        var avg = vadFinals ? Math.round(vadLatencySum/vadFinals) : 0;
+        verdict = (vadStops>=1 && vadFinals>=vadStops)
+          ? "<span class='ok'>VAD ENDPOINTING WORKS — every VAD stop() still produced a final"+
+            " (avg stop→final "+avg+"ms). We can own the endpointing.</span>"
+          : vadStops>=1
+            ? "<span class='warn'>"+vadFinals+"/"+vadStops+" VAD stops produced a final"+
+              (vadFinals?(" (avg "+avg+"ms)"):"")+" — partial; check errors/log.</span>"
+            : "<span class='bad'>VAD never fired — no auto-stop happened (gates/thresholds?). "+
+              "iOS endpointed every take; see log.</span>";
+        elSum.innerHTML =
+          "<b>Run B5 ("+reason+")</b>\n"+
+          "phrases: <b>"+phrases+"</b>   session-ends: <b>"+ends+"</b>   restarts: <b>"+restarts+
+          "</b>   restart-results: <b>"+restartResults+"</b>\n"+
+          "VAD stops: <b>"+vadStops+"</b>   finals after stop: <b>"+vadFinals+"</b>"+
+          (vadFinals?("   avg stop→final: <b>"+avg+"ms</b>"):"")+"\n"+
+          "errors: "+(errors.length?("<span class='bad'>"+errors.join(", ")+"</span>"):"none")+"\n\n"+
+          "<span class='big'>Verdict: "+verdict+"</span>";
+        log("— end of run ("+reason+") —");
+        releaseStream();
+        return;
+      }
       if(mode==="A"){
         verdict = phrases>=2 && ends<=1
           ? "<span class='ok'>HANDS-FREE OK — one session captured "+phrases+" phrases.</span>"
@@ -387,6 +518,7 @@
   btnB1.onclick = function(){ begin("B1"); };
   btnB3.onclick = function(){ begin("B3"); };
   btnB4.onclick = function(){ begin("B4"); };
+  btnB5.onclick = function(){ begin("B5"); };
   btnStop.onclick = doStop;
   btnPlay.onclick = function(){ if(lastUrl) player.play().catch(function(e){ log("playback blocked: "+e,"bad"); }); };
 })();

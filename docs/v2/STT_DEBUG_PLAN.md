@@ -301,6 +301,36 @@ wasn't explicitly probed — but the app's meter already runs an AudioContext
 source on the stream during recognition (take 1 works), and B-runs prove
 heavier concurrency. Checkpoint (a) covers it before anything else builds on it.
 
+## VAD endpointing — 2026-07-10, implemented, AWAITING device checkpoint
+
+Candidate fix #2 above, built on the reworked (post-`stt-webaudio-works`)
+checker. Goal: ~1–1.5 s per take — iOS's endpointer waits ~2 s of silence;
+loop-style VAD stops at ~1 s, and `stop()` requests the final immediately.
+
+**What changed:**
+
+- `probe_continuous.html` **B5 · VAD stop**: the NOVEL interaction, isolated.
+  No MediaRecorder; persistent stream + one AudioContext + analyser (the
+  reworked checker's exact audio path). VAD calls `rec.stop()` after 1 s of
+  trailing silence; logs `stop()→final` and `stop()→end` latency per take.
+  PASS = every VAD stop still produces a final, across restarts.
+- `checker.js`: the meter RAF doubles as the VAD (runs even with no `onLevel`;
+  values mirror recorder.js). `stop()` fires only when ALL gates pass:
+  ≥120 ms sustained voice (analyser) → ≥250 ms speech → **≥1 interim result
+  received** (the anti-truncation gate the loop couldn't have) → 1 s trailing
+  silence. `autoStop` off, no analyser, or starved RAF ⇒ exactly the old
+  behavior (iOS endpoints; 12 s safety unchanged).
+- `reader.js`: the existing `autoStop` pref now feeds the checker too
+  (constructor + live via `setAutoStop`); settings copy updated.
+
+**Device checkpoint (required before trusting it):**
+
+1. B5 probe, 3–4 phrases: finals after every VAD stop? `stop()→final` latency?
+2. Check mode T-run: takes 1–3 score correctly; deliberate mid-phrase pause
+   (~0.8 s) must NOT truncate; take with only a soft trailing word must not
+   clip it. Tune `VAD.silenceMs` (1000 → 1200?) if phrases with commas clip.
+3. Regression: autoStop OFF behaves exactly as `stt-webaudio-works`.
+
 ## Bugs found while reading (file for later; do NOT fix now)
 
 - `_finalize`'s "first take starts recognition-only" comment describes code that no longer exists — the stale comment is itself evidence of round-2/3 churn.

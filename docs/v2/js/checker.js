@@ -20,6 +20,10 @@
  *  - Per take: gate the PCM capture on/off + one fresh recognition. The
  *    take's audio becomes a small WAV blob — playable immediately, no
  *    recorder involved.
+ *  - VAD ENDPOINTING (autoStop): the meter loop doubles as a loop-style
+ *    VAD; ~1s of trailing silence calls stop() instead of waiting ~2s for
+ *    iOS's endpointer (probe B5 verifies this per device). Gated hard so a
+ *    mid-phrase pause can't truncate — see the VAD block below.
  *
  * Scoring lives in match.js; this module only produces the transcript, its
  * alternatives, and (optionally) a playable take URL via onResult.
@@ -43,6 +47,23 @@
   var TRIM_THRESH = 0.02;
   var TRIM_PAD_PRE = 0.15;     // seconds kept before the first loud sample
   var TRIM_PAD_POST = 0.30;    // seconds kept after the last loud sample
+
+  // VAD endpointing (autoStop): iOS's endpointer waits ~2s of silence before
+  // ending a take; the loop's VAD needs ~1s. Owning the endpoint saves
+  // ~1-1.5s per take — recognition.stop() asks for the final IMMEDIATELY.
+  // Values mirror recorder.js (device-tuned there). stop() fires only when
+  // ALL gates pass: sustained speech was heard (analyser), recognition
+  // produced at least one interim (it heard SOMETHING — the anti-truncation
+  // gate the loop couldn't have), the take is >= minSpeechMs long, and
+  // silenceMs of trailing silence elapsed. If any gate can't run (no
+  // analyser, autoStop off), iOS's own endpointer stays in charge.
+  var VAD = {
+    absFloor: 0.02,     // never trigger below this peak
+    floorMult: 3.0,     // speech = peak > noiseFloor * mult
+    startMs: 120,       // sustained voice needed to count as speech start
+    minSpeechMs: 250,   // never auto-stop before this much speech
+    silenceMs: 1000     // trailing silence that ends the take (device-tune)
+  };
 
   function noop() {}
 
@@ -128,6 +149,11 @@
     this._capChunks = [];
     this._capLen = 0;
 
+    // VAD endpointing (see VAD above). Off => iOS endpoints, as before.
+    this.autoStop = !!opts.autoStop;
+    this._noise = 0.01;      // adaptive noise floor (peak level)
+    this._vadTake = null;    // per-take VAD bookkeeping (null = disarmed)
+
     this.audio = new Audio();
     this.audio.setAttribute("playsinline", "");
     this.audio.preload = "auto";
@@ -144,6 +170,7 @@
   };
 
   Checker.prototype.playbackEnabled = function () { return this._canPlayback; };
+  Checker.prototype.setAutoStop = function (v) { this.autoStop = !!v; };
   Checker.prototype.disabled = function () { return this._disabled; };
   Checker.prototype.hasTake = function () { return !!this._url; };
   Checker.prototype.micOpen = function () { return !!(this._stream && this._stream.active); };
@@ -208,12 +235,15 @@
     if (this._ctx.state === "suspended") { try { this._ctx.resume().catch(noop); } catch (e) {} }
     this._capChunks = []; this._capLen = 0;
     this._capturing = true;
+    this._vadTake = { speech: false, speechAt: 0, lastVoice: 0,
+                      voiceSince: 0, interim: false, stopped: false };
     this._startMeter();
   };
 
   Checker.prototype._discardCapture = function () {
     this._capturing = false;
     this._capChunks = []; this._capLen = 0;
+    this._vadTake = null;
   };
 
   // End the capture and return a WAV object URL for the take (or null).
@@ -230,9 +260,12 @@
     return url;
   };
 
-  // ---- level meter (reads the session analyser; RAF only, no ctx churn) ----
+  // ---- level meter + VAD (reads the session analyser; RAF only, no ctx
+  // churn). Runs even without an onLevel callback — the VAD needs the peaks.
+  // If RAF starves (background tab, locked screen) the VAD silently dies and
+  // iOS's endpointer / the 12s safety timer take over — never worse than off.
   Checker.prototype._startMeter = function () {
-    if (!this.onLevel || !this._analyser || this._meterRAF) return;
+    if (!this._analyser || this._meterRAF) return;
     var self = this;
     var data = new Uint8Array(this._analyser.frequencyBinCount);
     var tick = function () {
@@ -241,9 +274,40 @@
       var peak = 0;
       for (var i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i] - 128) / 128);
       if (self.onLevel) self.onLevel(self.state === "listening" ? peak : 0);
+      self._vad(peak);
       self._meterRAF = requestAnimationFrame(tick);
     };
     this._meterRAF = requestAnimationFrame(tick);
+  };
+
+  // One VAD step per meter frame. Mirrors recorder.js's tuned loop VAD,
+  // plus the interim gate (see the VAD block up top). Fires stop() ONCE;
+  // stop() requests the final immediately — the whole point.
+  Checker.prototype._vad = function (peak) {
+    var tk = this._vadTake;
+    if (!tk || tk.stopped || !this.autoStop || this.state !== "listening") return;
+    var now = performance.now();
+    var thresh = Math.max(VAD.absFloor, this._noise * VAD.floorMult);
+    var voiced = peak > thresh;
+    if (!voiced) this._noise = this._noise * 0.95 + peak * 0.05;   // learn the room
+    if (!tk.speech) {
+      if (voiced) {
+        if (!tk.voiceSince) tk.voiceSince = now;
+        if (now - tk.voiceSince >= VAD.startMs) {
+          tk.speech = true; tk.speechAt = now; tk.lastVoice = now;
+        }
+      } else {
+        tk.voiceSince = 0;
+      }
+      return;                       // no speech yet -> iOS handles no-speech
+    }
+    if (voiced) tk.lastVoice = now;
+    if (now - tk.speechAt < VAD.minSpeechMs) return;
+    if (!tk.interim) return;        // recognition hasn't heard anything yet
+    if (now - tk.lastVoice >= VAD.silenceMs) {
+      tk.stopped = true;
+      this.stop();
+    }
   };
 
   Checker.prototype._stopMeter = function () {
@@ -329,7 +393,10 @@
           interim += res[0].transcript;
         }
       }
-      if (interim) self.onInterim(interim.trim());
+      if (interim) {
+        if (self._vadTake) self._vadTake.interim = true;   // VAD gate: it heard us
+        self.onInterim(interim.trim());
+      }
     };
 
     rec.onspeechstart = function () { if (self._gen === gen && self.onSpeechStart) self.onSpeechStart(); };
