@@ -1,4 +1,4 @@
-# review sample — velveteen (en_core_web_sm, build3.py@01fb9e6)
+# review sample — velveteen (en_core_web_sm, build3.py@4d89e36)
 
 ## 
 
@@ -66,34 +66,3 @@
 - intermediate: The mechanical toys were very superior, | and looked down upon every one else; | they were full of modern ideas, | and pretended they were real.
 - advanced: The mechanical toys were very superior, | and looked down upon every one else; | they were full of modern ideas, and pretended they were real.
 - rung 1: The mechanical toys were very superior, and looked down upon every one else; | they were full of modern ideas, and pretended they were real.
-
-**9. The model boat, who had lived through two seasons and lost most of his paint, caught the tone from them and never missed an opportunity of referring to his rigging in technical terms.**  `f69a9eb34c8e`
-- starter: The model boat, | who had lived | through two seasons | and lost most | of his paint, | caught the tone | from them | and never missed | an opportunity | of referring | to his rigging | in technical terms.
-- beginner: The model boat, | who had lived | through two seasons | and lost most | of his paint, | caught the tone | from them | and never missed | an opportunity of referring | to his rigging | in technical terms.
-- intermediate: The model boat, | who had lived through two seasons | and lost most of his paint, | caught the tone from them | and never missed an opportunity of referring | to his rigging in technical terms.
-- advanced: The model boat, who had lived through two seasons | and lost most of his paint, caught the tone from them | and never missed an opportunity of referring | to his rigging in technical terms.
-- rung 1: The model boat, who had lived through two seasons and lost most of his paint, caught the tone from them | and never missed an opportunity of referring to his rigging in technical terms.
-
-**10. The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; he thought they were all stuffed with sawdust like himself, and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.**  `d31776c0ddb7`
-- starter: The Rabbit | could not claim | to be | a model | of anything, | for he didn't know | that real rabbits existed; | he thought | they were all stuffed | with sawdust | like himself, | and he understood | that sawdust | was quite out-of-date | and should | never be mentioned | in modern circles.
-- beginner: The Rabbit | could not claim | to be a model | of anything, | for he didn't know | that real rabbits existed; | he thought | they were all stuffed | with sawdust like himself, | and he understood | that sawdust | was quite out-of-date | and should never be mentioned | in modern circles.
-- intermediate: The Rabbit could not claim | to be a model of anything, | for he didn't know | that real rabbits existed; | he thought they were all stuffed | with sawdust like himself, | and he understood | that sawdust was quite out-of-date | and should never be mentioned | in modern circles.
-- advanced: The Rabbit could not claim to be a model of anything, | for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, | and he understood that sawdust was quite out-of-date | and should never be mentioned in modern circles.
-- rung 1: The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.
-- rung 2: The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, | and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.
-- study: sawdust = fine particles of wood made by sawing wood
-
-**11. Even Timothy, the jointed wooden lion, who was made by the disabled soldiers, and should have had broader views, put on airs and pretended he was connected with Government.**  `7660b67ab0b7`
-- starter: Even Timothy, | the jointed wooden lion, | who was made | by the disabled soldiers, | and should have had | broader views, | put on airs | and pretended | he was connected | with Government.
-- beginner: Even Timothy, | the jointed wooden lion, | who was made | by the disabled soldiers, | and should have had | broader views, | put on airs | and pretended | he was connected | with Government.
-- intermediate: Even Timothy, the jointed wooden lion, | who was made by the disabled soldiers, | and should have had broader views, | put on airs | and pretended he was connected with Government.
-- advanced: Even Timothy, the jointed wooden lion, | who was made by the disabled soldiers, | and should have had broader views, put on airs | and pretended he was connected with Government.
-- rung 1: Even Timothy, the jointed wooden lion, who was made by the disabled soldiers, | and should have had broader views, put on airs and pretended he was connected with Government.
-
-**12. Between them all the poor little Rabbit was made to feel himself very insignificant and commonplace, and the only person who was kind to him at all was the Skin Horse.**  `45b30e8a9c72`
-- starter: Between them | all the poor | little Rabbit | was made | to feel | himself very insignificant | and commonplace, | and the only person | who was kind | to him | at all | was the Skin Horse.
-- beginner: Between them | all the poor little Rabbit | was made | to feel | himself very insignificant | and commonplace, | and the only person | who was kind | to him at all | was the Skin Horse.
-- intermediate: Between them | all the poor little Rabbit was made | to feel himself very insignificant and commonplace, | and the only person | who was kind to him at all | was the Skin Horse.
-- advanced: Between them all the poor little Rabbit was made | to feel himself very insignificant and commonplace, and the only person | who was kind to him at all was the Skin Horse.
-- rung 1: Between them all the poor little Rabbit was made to feel himself very insignificant and commonplace, and the only person | who was kind to him at all was the Skin Horse.
-- study: commonplace = completely ordinary and unremarkable

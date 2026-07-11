@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@01fb9e6",
+ "generator": "build3.py@4d89e36",
  "books": [
   {
    "id": "kafka",
