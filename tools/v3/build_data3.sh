@@ -8,7 +8,7 @@
 #   python -m spacy download de_core_news_lg    # German default
 #   python -m spacy download en_core_web_sm     # English default
 #   python3 tools/v3/gloss3.py --fetch          # vendor dictionaries
-#   python3 tools/v3/emoji_suggest3.py --fetch  # vendor CLDR (optional)
+#   python3 tools/v3/emoji_map_gen3.py --fetch  # vendor CLDR (optional)
 #
 # Then:            bash tools/v3/build_data3.sh
 # Some books only: BOOKS="kafka velveteen" bash tools/v3/build_data3.sh
@@ -21,7 +21,9 @@
 #   docs/data3/books.json            updated in place by build3.py
 #   tools/v3/build/review_<id>.md    owner review sample
 #   tools/v3/build/gloss_misses_<id>.txt, orth_candidates_<id>.txt,
-#   tools/v3/build/emoji_suggestions_<id>.txt (if CLDR vendored)
+#   tools/v3/build/emoji_suggestions_<id>.txt and
+#   tools/v3/build/emoji_map_<id>.json (if CLDR vendored; map is for
+#   testing only, superseded by the reviewed/AI map in tools/v3/maps/)
 #
 # Optional per-book inputs (used automatically when present):
 #   tools/v3/maps/orth_<id>.json     reviewed archaic->modern list
@@ -54,7 +56,7 @@ build_one() {                   # id lang infile title author extra-args...
     --gloss "$DATA/gloss/$id.json" --sample "$SAMPLE"
 
   if [ -f vendor/cldr/annotations_de.json ]; then
-    python3 emoji_suggest3.py --gloss "$DATA/gloss/$id.json"
+    python3 emoji_map_gen3.py --gloss "$DATA/gloss/$id.json"
   fi
   echo
 }

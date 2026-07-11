@@ -60,12 +60,22 @@ word-shaped is a token position.
 In rough order; 1–3 are the v3 core, 4–6 make it complete.
 
 1. **The v3 reader app (`docs/v3/`) — the main remaining piece.**
-   Nothing consumes the new data yet. Feature list (all data-ready):
+   STARTED 2026-07-11: v2 app copied to `docs/v3/` and rewired to data3
+   (per-owner approach: v2 behavior first, then features one by one).
+   Wiring = `js/data3.js` derivation layer (toks/sp/cuts → flat chunks;
+   Node-tested by `test_data3.js`: counts match books.json, reconstruction
+   holds for all 3 books × 4 levels), one fetch per book, level switch
+   without refetch (stays on the same sentence), progress sentence-keyed
+   (id, occ) under `zzzpeak.v3`. Recorder/checker/TTS untouched.
+   DONE so far: verb colouring (UPOS VERB+AUX → `--verb`) and subtle
+   name rendering (ents → dotted underline), incl. the sentence-replay
+   step; span join tested against chunk text in `test_data3.js`.
+   Feature list still to add (all data-ready):
    - level selection + nested chunk stepping; progressive-rung mode
      (rungs ⊆ advanced; ladder valid from any level);
    - tap a word → gloss bubble (`forms` → `words`, no runtime
      lemmatizer); per-section pre-study list; per-sentence study words;
-   - verb coloring from POS; subtle name rendering from ents;
+   - ~~verb coloring from POS; subtle name rendering from ents~~ (done);
    - orthography display toggle (orth field);
    - chunk emoji at runtime: rarest glossed word with non-empty `e`
      (zipf-0 tie-break by word order, dedup lemmas, skip ents);

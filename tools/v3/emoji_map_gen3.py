@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-tools/v3/emoji_suggest3.py — CLDR-based emoji SUGGESTIONS for a book's
-gloss file.  Report-only, per the settled emoji design
-(00_v3_overview.md): empty is allowed and preferred over a forced bad
-emoji, so nothing is ever auto-applied.  A human skims the report and
-copies the good lines into a reviewed {lemma: emoji} JSON, which
-gloss3.py consumes via --emoji-map (the future AI-drafted map uses the
-same entry point and format).
+tools/v3/emoji_map_gen3.py — CLDR-based emoji suggestions for a book's
+gloss file.  Writes two outputs: the human-readable report (as
+emoji_suggest3.py did) and a {lemma: emoji} JSON map taking the top
+candidate per lemma.  The map is for TESTING only — it ignores the
+empty-beats-bad principle (00_v3_overview.md) and will be replaced by
+the AI-drafted map; both use the same gloss3.py --emoji-map entry
+point and format.
 
 Matching (deterministic):
   1. the German lemma against German CLDR keywords + emoji names
@@ -24,9 +24,10 @@ Vendored data (gitignored; --fetch downloads; see vendor/README.md):
   tools/v3/vendor/cldr/annotations_{de,en}.json
 
 Usage:
-  python3 emoji_suggest3.py --fetch                # one-time vendoring
-  python3 emoji_suggest3.py --gloss ../../docs/data3/gloss/kafka.json
+  python3 emoji_map_gen3.py --fetch                # one-time vendoring
+  python3 emoji_map_gen3.py --gloss ../../docs/data3/gloss/kafka.json
   -> tools/v3/build/emoji_suggestions_<book>.txt
+  -> tools/v3/build/emoji_map_<book>.json
 """
 
 import argparse
@@ -54,7 +55,8 @@ EN_STOP = {
 
 
 def is_emoji(s):
-    """Real pictograph, not a CLDR-annotated symbol (∈, @, ♪, ≡)."""
+    """Pictograph or symbol worth suggesting (♪ counts; ∈, @, ≡ not).
+    Deliberately loose: a non-emoji symbol is fine if the meaning fits."""
     return any(ord(c) >= 0x1F000 or 0x2600 <= ord(c) <= 0x27BF
                for c in s) and not any(0x2200 <= ord(c) <= 0x22FF
                                        for c in s)
@@ -160,6 +162,7 @@ def main():
               "\"<emoji>\"  to a JSON map for gloss3.py --emoji-map.\n"
               "# Empty beats bad: when in doubt, leave the lemma out.\n")
     out.write_text(header + "\n".join(lines) + "\n", encoding="utf-8")
+    json_out.parent.mkdir(exist_ok=True)
     json_out.write_text(
         json.dumps(emoji_map, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
