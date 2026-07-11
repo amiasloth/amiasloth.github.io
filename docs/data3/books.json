@@ -1,7 +1,88 @@
 {
  "schema": 3,
- "generator": "build3.py@4d89e36",
+ "generator": "build3.py@ea71fc9",
  "books": [
+  {
+   "id": "birnbaum",
+   "title": "Unterm Birnbaum",
+   "author": "Theodor Fontane",
+   "lang": "de",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 2559,
+    "words": 32753,
+    "chunks": {
+     "starter": 12348,
+     "beginner": 9773,
+     "intermediate": 6460,
+     "advanced": 4574
+    },
+    "avg_sentence_len": 12.8,
+    "vocab_below_zipf4": 0.648
+   },
+   "audio": null
+  },
+  {
+   "id": "grimm",
+   "title": "Grimms Märchen",
+   "author": "Brüder Grimm",
+   "lang": "de",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 5146,
+    "words": 88252,
+    "chunks": {
+     "starter": 33075,
+     "beginner": 26539,
+     "intermediate": 16949,
+     "advanced": 11291
+    },
+    "avg_sentence_len": 17.1,
+    "vocab_below_zipf4": 0.732
+   },
+   "audio": null
+  },
+  {
+   "id": "heidi",
+   "title": "Heidi kann brauchen, was es gelernt hat",
+   "author": "Johanna Spyri",
+   "lang": "de",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 2073,
+    "words": 37246,
+    "chunks": {
+     "starter": 13689,
+     "beginner": 11024,
+     "intermediate": 7059,
+     "advanced": 4656
+    },
+    "avg_sentence_len": 18.0,
+    "vocab_below_zipf4": 0.591
+   },
+   "audio": null
+  },
   {
    "id": "kafka",
    "title": "Die Verwandlung",
@@ -30,6 +111,33 @@
    "audio": null
   },
   {
+   "id": "zarathustra",
+   "title": "Also sprach Zarathustra",
+   "author": "Friedrich Wilhelm Nietzsche",
+   "lang": "de",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 7231,
+    "words": 83255,
+    "chunks": {
+     "starter": 31626,
+     "beginner": 25124,
+     "intermediate": 16072,
+     "advanced": 11155
+    },
+    "avg_sentence_len": 11.5,
+    "vocab_below_zipf4": 0.73
+   },
+   "audio": null
+  },
+  {
    "id": "alice",
    "title": "Alice's Adventures in Wonderland",
    "author": "Lewis Carroll",
@@ -52,7 +160,34 @@
      "advanced": 3368
     },
     "avg_sentence_len": 17.6,
-    "vocab_below_zipf4": 0.33
+    "vocab_below_zipf4": 0.334
+   },
+   "audio": null
+  },
+  {
+   "id": "frankenstein",
+   "title": "Frankenstein; or, The Modern Prometheus",
+   "author": "Mary Wollstonecraft Shelley",
+   "lang": "en",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 3356,
+    "words": 75013,
+    "chunks": {
+     "starter": 27969,
+     "beginner": 22226,
+     "intermediate": 14130,
+     "advanced": 9181
+    },
+    "avg_sentence_len": 22.4,
+    "vocab_below_zipf4": 0.543
    },
    "audio": null
   },

@@ -6,7 +6,7 @@ atheling	Atheling
 beauti	beauti
 chatte	chatte
 cheshire	Cheshire
-curiouser	curiouser
+curiouser	Curiouser, curiouser
 daresay	daresay
 dinah	Dinah
 dinah’ll	Dinah’ll
@@ -19,12 +19,13 @@ forepaws	forepaws
 gan	gone
 growe	growing
 labell	labelled
-laughe	laughed, laughing
+laughe	Laughing, laughed, laughing
 lefthand	lefthand
 longe	longed
 mabel	Mabel
 ma’am	Ma’am
 mixe	mixed
+morcar	Morcar
 naturedly	naturedly
 oop	oop
 ootiful	ootiful
@@ -36,6 +37,7 @@ seaography	Seaography
 sha	Sha, sha
 skurry	skurried
 slates’ll	slates’ll
+stigand	Stigand
 talke	Talking, talking
 thanke	thanked
 thinke	Thinking, thinking

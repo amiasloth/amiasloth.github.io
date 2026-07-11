@@ -1,4 +1,4 @@
-# review sample — alice (en_core_web_sm, build3.py@82b1776)
+# review sample — alice (en_core_web_sm, build3.py@ea71fc9)
 
 ## CHAPTER I. Down the Rabbit-Hole
 
@@ -10,8 +10,8 @@
 - rung 1: Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do: once or twice she had peeped into the book her sister was reading, | but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?”
 - rung 2: Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing | to do: once or twice she had peeped into the book her sister was reading, | but it had no pictures or conversations in it, “and what is the use of a book,” thought Alice “without pictures or conversations?”
 - rung 3: Alice was beginning to get very tired of sitting | by her sister on the bank, and of having nothing | to do: once or twice she had peeped into the book her sister was reading, | but it had no pictures or conversations in it, | “and what is the use of a book,” thought Alice “without pictures or conversations?”
-- ents: Alice (PERSON), Alice (ORG)
-- study: peep = the short weak cry of a young bird
+- ents: Alice (PERSON)
+- study: peep = look furtively
 
 **2. So she was considering in her own mind (as well as she could, for the hot day made her feel very sleepy and stupid), whether the pleasure of making a daisy-chain would be worth the trouble of getting up and picking the daisies, when suddenly a White Rabbit with pink eyes ran close by her.**  `bcc1283dd130` ¶
 - starter: So she was considering | in her own mind | (as | well as she could, | for the hot day | made | her feel | very sleepy | and stupid), | whether the pleasure | of making | a daisy-chain | would be worth | the trouble | of getting up | and picking | the daisies, | when suddenly | a White Rabbit | with pink eyes | ran close | by her.
@@ -49,7 +49,7 @@
 - rung 1: (when she thought it over afterwards, it occurred to her that she ought to have wondered at this, but at the time it all seemed quite natural); but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind | that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, and burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge.
 - rung 2: (when she thought it over afterwards, it occurred to her that she ought to have wondered at this, but at the time it all seemed quite natural); | but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind | that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, | and burning with curiosity, she ran across the field after it, and fortunately was just in time to see it pop down a large rabbit-hole under the hedge.
 - rung 3: (when she thought it over afterwards, it occurred to her | that she ought to have wondered at this, but at the time it all seemed quite natural); | but when the Rabbit actually took a watch out of its waistcoat-pocket, | and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind | that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it, | and burning with curiosity, she ran across the field after it, | and fortunately was just in time to see it pop down a large rabbit-hole under the hedge.
-- ents: Rabbit (WORK_OF_ART), Alice (PERSON)
+- ents: Alice (PERSON)
 - study: waistcoat = a man's sleeveless garment worn underneath a coat
 
 **7. In another moment down went Alice after it, never once considering how in the world she was to get out again.**  `8bac4410bbd3` ¶
@@ -101,8 +101,7 @@
 - beginner: “Well!” thought Alice | to herself, | “after such a fall | as this, | I shall think nothing | of tumbling down stairs!
 - intermediate: “Well!” thought Alice to herself, | “after such a fall as this, | I shall think nothing of tumbling down stairs!
 - advanced: “Well!” thought Alice to herself, “after such a fall as this, | I shall think nothing of tumbling down stairs!
-- ents: Alice (ORG)
-- study: tumble = an acrobatic feat of rolling or turning end over end; stair = support consisting of a place to rest the foot while ascending or descending a s
+- study: tumble = fall down, as if collapsing; stair = support consisting of a place to rest the foot while ascending or descending a s
 
 **13. How brave they’ll all think me at home!**  `bff962f22475`
 - starter: How brave | they’ll all think me | at home!
@@ -160,8 +159,8 @@
 - rung 1: Let me see: that would be four thousand miles down, I think — ” (for, you see, Alice had learnt several things of this sort in her lessons in the schoolroom, and though this was not a very good opportunity for showing off her knowledge, | as there was no one to listen to her, still it was good practice to say it over) “ — yes, that’s about the right distance — but then I wonder what Latitude or Longitude I’ve got to?”
 - rung 2: Let me see: that would be four thousand miles down, I think — ” (for, you see, | Alice had learnt several things of this sort in her lessons in the schoolroom, and though this was not a very good opportunity for showing off her knowledge, | as there was no one to listen to her, still it was good practice to say it over) “ — yes, that’s about the right distance — but then I wonder what Latitude or Longitude I’ve got to?”
 - rung 3: Let me see: that would be four thousand miles down, I think — ” (for, you see, | Alice had learnt several things of this sort | in her lessons in the schoolroom, and though this was not a very good opportunity for showing off her knowledge, | as there was no one to listen to her, still it was good practice to say it over) | “ — yes, that’s about the right distance — but then I wonder what Latitude or Longitude I’ve got to?”
-- ents: Alice (PERSON), Latitude (WORK_OF_ART), Longitude (WORK_OF_ART)
-- study: schoolroom = a room in a school where lessons take place
+- ents: Alice (PERSON)
+- study: schoolroom = a room in a school where lessons take place; longitude = the angular distance between a point on any meridian and the prime meridian at G
 
 **22. (Alice had no idea what Latitude was, or Longitude either, but thought they were nice grand words to say.)**  `2fe8e0f85c4e`
 - starter: (Alice had | no idea | what Latitude was, | or Longitude either, | but thought | they were | nice grand words | to say.)

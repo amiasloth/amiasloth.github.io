@@ -1,4 +1,4 @@
-# review sample — velveteen (en_core_web_sm, build3.py@4d89e36)
+# review sample — velveteen (en_core_web_sm, build3.py@ea71fc9)
 
 ## 
 
@@ -66,3 +66,124 @@
 - intermediate: The mechanical toys were very superior, | and looked down upon every one else; | they were full of modern ideas, | and pretended they were real.
 - advanced: The mechanical toys were very superior, | and looked down upon every one else; | they were full of modern ideas, and pretended they were real.
 - rung 1: The mechanical toys were very superior, and looked down upon every one else; | they were full of modern ideas, and pretended they were real.
+
+**9. The model boat, who had lived through two seasons and lost most of his paint, caught the tone from them and never missed an opportunity of referring to his rigging in technical terms.**  `f69a9eb34c8e`
+- starter: The model boat, | who had lived | through two seasons | and lost most | of his paint, | caught the tone | from them | and never missed | an opportunity | of referring | to his rigging | in technical terms.
+- beginner: The model boat, | who had lived | through two seasons | and lost most | of his paint, | caught the tone | from them | and never missed | an opportunity of referring | to his rigging | in technical terms.
+- intermediate: The model boat, | who had lived through two seasons | and lost most of his paint, | caught the tone from them | and never missed an opportunity of referring | to his rigging in technical terms.
+- advanced: The model boat, who had lived through two seasons | and lost most of his paint, caught the tone from them | and never missed an opportunity of referring | to his rigging in technical terms.
+- rung 1: The model boat, who had lived through two seasons and lost most of his paint, caught the tone from them | and never missed an opportunity of referring to his rigging in technical terms.
+
+**10. The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; he thought they were all stuffed with sawdust like himself, and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.**  `d31776c0ddb7`
+- starter: The Rabbit | could not claim | to be | a model | of anything, | for he didn't know | that real rabbits existed; | he thought | they were all stuffed | with sawdust | like himself, | and he understood | that sawdust | was quite out-of-date | and should | never be mentioned | in modern circles.
+- beginner: The Rabbit | could not claim | to be a model | of anything, | for he didn't know | that real rabbits existed; | he thought | they were all stuffed | with sawdust like himself, | and he understood | that sawdust | was quite out-of-date | and should never be mentioned | in modern circles.
+- intermediate: The Rabbit could not claim | to be a model of anything, | for he didn't know | that real rabbits existed; | he thought they were all stuffed | with sawdust like himself, | and he understood | that sawdust was quite out-of-date | and should never be mentioned | in modern circles.
+- advanced: The Rabbit could not claim to be a model of anything, | for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, | and he understood that sawdust was quite out-of-date | and should never be mentioned in modern circles.
+- rung 1: The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.
+- rung 2: The Rabbit could not claim to be a model of anything, for he didn't know that real rabbits existed; | he thought they were all stuffed with sawdust like himself, | and he understood that sawdust was quite out-of-date and should never be mentioned in modern circles.
+- study: sawdust = fine particles of wood made by sawing wood
+
+**11. Even Timothy, the jointed wooden lion, who was made by the disabled soldiers, and should have had broader views, put on airs and pretended he was connected with Government.**  `7660b67ab0b7`
+- starter: Even Timothy, | the jointed wooden lion, | who was made | by the disabled soldiers, | and should have had | broader views, | put on airs | and pretended | he was connected | with Government.
+- beginner: Even Timothy, | the jointed wooden lion, | who was made | by the disabled soldiers, | and should have had | broader views, | put on airs | and pretended | he was connected | with Government.
+- intermediate: Even Timothy, the jointed wooden lion, | who was made by the disabled soldiers, | and should have had broader views, | put on airs | and pretended he was connected with Government.
+- advanced: Even Timothy, the jointed wooden lion, | who was made by the disabled soldiers, | and should have had broader views, put on airs | and pretended he was connected with Government.
+- rung 1: Even Timothy, the jointed wooden lion, who was made by the disabled soldiers, | and should have had broader views, put on airs and pretended he was connected with Government.
+
+**12. Between them all the poor little Rabbit was made to feel himself very insignificant and commonplace, and the only person who was kind to him at all was the Skin Horse.**  `45b30e8a9c72`
+- starter: Between them | all the poor | little Rabbit | was made | to feel | himself very insignificant | and commonplace, | and the only person | who was kind | to him | at all | was the Skin Horse.
+- beginner: Between them | all the poor little Rabbit | was made | to feel | himself very insignificant | and commonplace, | and the only person | who was kind | to him at all | was the Skin Horse.
+- intermediate: Between them | all the poor little Rabbit was made | to feel himself very insignificant and commonplace, | and the only person | who was kind to him at all | was the Skin Horse.
+- advanced: Between them all the poor little Rabbit was made | to feel himself very insignificant and commonplace, and the only person | who was kind to him at all was the Skin Horse.
+- rung 1: Between them all the poor little Rabbit was made to feel himself very insignificant and commonplace, and the only person | who was kind to him at all was the Skin Horse.
+- study: commonplace = completely ordinary and unremarkable
+
+**13. The Skin Horse had lived longer in the nursery than any of the others.**  `f0ff54617e0a` ¶
+- starter: The Skin Horse | had lived longer | in the nursery | than any | of the others.
+- beginner: The Skin Horse | had lived longer | in the nursery | than any of the others.
+- intermediate: The Skin Horse had lived longer | in the nursery | than any of the others.
+- advanced: The Skin Horse had lived longer | in the nursery than any of the others.
+
+**14. He was so old that his brown coat was bald in patches and showed the seams underneath, and most of the hairs in his tail had been pulled out to string bead necklaces.**  `4f7b3860a6f9`
+- starter: He was | so old | that his brown coat | was bald | in patches | and showed | the seams underneath, | and most | of the hairs | in his tail | had been pulled out | to string bead necklaces.
+- beginner: He was so old | that his brown coat | was bald in patches | and showed the seams underneath, | and most | of the hairs | in his tail | had been pulled out | to string bead necklaces.
+- intermediate: He was so old | that his brown coat was bald in patches | and showed the seams underneath, | and most of the hairs in his tail | had been pulled out | to string bead necklaces.
+- advanced: He was so old that his brown coat was bald in patches | and showed the seams underneath, | and most of the hairs in his tail | had been pulled out to string bead necklaces.
+- rung 1: He was so old that his brown coat was bald in patches and showed the seams underneath, | and most of the hairs in his tail had been pulled out to string bead necklaces.
+- study: seam = joint consisting of a line formed by joining two pieces; bead = a small ball with a hole through the middle
+
+**15. He was wise, for he had seen a long succession of mechanical toys arrive to boast and swagger, and by-and-by break their mainsprings and pass away, and he knew that they were only toys, and would never turn into anything else.**  `d88152db846b`
+- starter: He was wise, | for he had seen | a long succession | of mechanical toys | arrive to boast | and swagger, | and by-and-by | break their mainsprings | and pass away, | and he knew | that they were | only toys, | and would never turn | into anything else.
+- beginner: He was wise, | for he had seen | a long succession | of mechanical toys | arrive to boast | and swagger, and by-and-by | break their mainsprings | and pass away, | and he knew | that they were only toys, | and would never turn | into anything else.
+- intermediate: He was wise, for he had seen | a long succession of mechanical toys | arrive to boast | and swagger, and by-and-by | break their mainsprings and pass away, | and he knew | that they were only toys, | and would never turn into anything else.
+- advanced: He was wise, for he had seen | a long succession of mechanical toys arrive to boast | and swagger, and by-and-by break their mainsprings and pass away, | and he knew that they were only toys, | and would never turn into anything else.
+- rung 1: He was wise, for he had seen a long succession of mechanical toys arrive to boast | and swagger, and by-and-by break their mainsprings and pass away, and he knew that they were only toys, and would never turn into anything else.
+- rung 2: He was wise, for he had seen a long succession of mechanical toys arrive to boast | and swagger, and by-and-by break their mainsprings and pass away, | and he knew that they were only toys, and would never turn into anything else.
+- study: swagger = an itinerant Australian laborer who carries his personal belongings in a bundle ; mainspring = the most important spring in a mechanical device (especially a clock or watch)
+
+**16. For nursery magic is very strange and wonderful, and only those playthings that are old and wise and experienced like the Skin Horse understand all about it.**  `cd516f9acee1`
+- starter: For nursery magic | is very strange | and wonderful, | and only | those playthings | that are old | and wise | and experienced like | the Skin Horse | understand all about it.
+- beginner: For nursery magic | is very strange | and wonderful, | and only those playthings | that are old | and wise | and experienced like | the Skin Horse | understand all about it.
+- intermediate: For nursery magic is very strange and wonderful, | and only those playthings | that are old and wise | and experienced like the Skin Horse | understand all about it.
+- advanced: For nursery magic is very strange and wonderful, | and only those playthings that are old and wise | and experienced like the Skin Horse understand all about it.
+- rung 1: For nursery magic is very strange and wonderful, and only those playthings that are old and wise | and experienced like the Skin Horse understand all about it.
+- study: plaything = an artifact designed to be played with
+
+**17. "What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender, before Nana came to tidy the room.**  `3af855aa02bb` ¶
+- starter: "What is | REAL?" asked | the Rabbit | one day, | when they were lying | side | by side | near the nursery fender, | before Nana came | to tidy | the room.
+- beginner: "What is REAL?" asked | the Rabbit one day, | when they were lying side | by side | near the nursery fender, | before Nana came | to tidy the room.
+- intermediate: "What is REAL?" asked the Rabbit one day, | when they were lying side | by side near the nursery fender, | before Nana came to tidy the room.
+- advanced: "What is REAL?" asked the Rabbit one day, | when they were lying side by side near the nursery fender, | before Nana came to tidy the room.
+- rung 1: "What is REAL?" asked the Rabbit one day, | when they were lying side by side near the nursery fender, before Nana came to tidy the room.
+- study: fender = a barrier that surrounds the wheels of a vehicle to block splashing water or mud
+
+**18. "Does it mean having things that buzz inside you and a stick-out handle?"**  `90ee7342fab2`
+- starter: "Does it mean having | things | that buzz | inside you | and a stick-out handle?"
+- beginner: "Does it mean having things | that buzz inside you | and a stick-out handle?"
+- intermediate: "Does it mean having things | that buzz inside you | and a stick-out handle?"
+- advanced: "Does it mean having things | that buzz inside you and a stick-out handle?"
+
+**19. "Real isn't how you are made," said the Skin Horse.**  `09a21008a830` ¶
+- starter: "Real isn't | how you are made, | " said the Skin Horse.
+- beginner: "Real isn't | how you are made, | " said the Skin Horse.
+- intermediate: "Real isn't how you are made, | " said the Skin Horse.
+- advanced: "Real isn't how you are made," said the Skin Horse.
+
+**20. "It's a thing that happens to you.**  `db37782f316b`
+- starter: "It's a thing | that happens | to you.
+- beginner: "It's a thing | that happens to you.
+- intermediate: "It's a thing that happens to you.
+- advanced: "It's a thing that happens to you.
+
+**21. When a child loves you for a long, long time, not just to play with, but REALLY loves you, then you become Real."**  `7fab64a8f93b`
+- starter: When a child | loves you | for a long, | long time, | not just | to play with, | but REALLY | loves you, then | you become Real."
+- beginner: When a child | loves you | for a long, long time, | not just | to play with, | but REALLY | loves you, then | you become Real."
+- intermediate: When a child loves you | for a long, long time, | not just to play with, but REALLY | loves you, then you become Real."
+- advanced: When a child loves you for a long, long time, | not just to play with, but REALLY | loves you, then you become Real."
+- rung 1: When a child loves you for a long, long time, | not just to play with, but REALLY loves you, then you become Real."
+
+**22. "Does it hurt?" asked the Rabbit.**  `000529ab1c01` ¶
+- starter: "Does it hurt? | " asked the Rabbit.
+- beginner: "Does it hurt? | " asked the Rabbit.
+- intermediate: "Does it hurt?" asked the Rabbit.
+- advanced: "Does it hurt?" asked the Rabbit.
+
+**23. "Sometimes," said the Skin Horse, for he was always truthful.**  `c257a0b02100` ¶
+- starter: "Sometimes," said | the Skin Horse, | for he was | always truthful.
+- beginner: "Sometimes," said the Skin Horse, | for he was always truthful.
+- intermediate: "Sometimes," said the Skin Horse, | for he was always truthful.
+- advanced: "Sometimes," said the Skin Horse, for he was always truthful.
+- ents: Skin Horse (PERSON)
+- study: truthful = expressing or given to expressing the truth
+
+**24. "When you are Real you don't mind being hurt."**  `28ecbb92e8eb`
+- starter: "When you are Real | you don't | mind being hurt."
+- beginner: "When you are Real | you don't mind being hurt."
+- intermediate: "When you are Real | you don't mind being hurt."
+- advanced: "When you are Real you don't mind being hurt."
+
+**25. "Does it happen all at once, like being wound up," he asked, "or bit by bit?"**  `86fb24f1ede6` ¶
+- starter: "Does it happen | all at once, | like being wound up, | " he asked, | "or bit | by bit?"
+- beginner: "Does it happen | all at once, | like being wound up, | " he asked, | "or bit by bit?"
+- intermediate: "Does it happen all at once, | like being wound up, | " he asked, "or bit by bit?"
+- advanced: "Does it happen all at once, like being wound up, | " he asked, "or bit by bit?"

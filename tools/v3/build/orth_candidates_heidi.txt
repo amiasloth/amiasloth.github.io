@@ -1,0 +1,7 @@
+Eßzimmer	Esszimmer	(lemma key: esszimmer)
+Schulschluß	Schulschluss	(lemma key: schulschluss)
+genußreichste	genussreich	(lemma key: genussreich)
+hie	Herzindex [UNVERIFIED]	(lemma key: hi)
+unermeßliches	unermesslich	(lemma key: unermesslich)
+vorausgesehen	voraussehen	(lemma key: voraussehen)
+zusammensaßen	zusammensitzen	(lemma key: zusammensitzen)

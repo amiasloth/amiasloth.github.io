@@ -1,4 +1,4 @@
-# review sample — kafka (de_core_news_lg, build3.py@82b1776)
+# review sample — kafka (de_core_news_lg, build3.py@ea71fc9)
 
 ## I.
 
@@ -17,14 +17,14 @@
 - advanced: Er lag auf seinem panzerartig harten Rücken und sah, | wenn er den Kopf ein wenig hob, | seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten Bauch, | auf dessen Höhe sich die Bettdecke, | zum gänzlichen Niedergleiten bereit, kaum noch erhalten konnte.
 - rung 1: Er lag auf seinem panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, | seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten Bauch, auf dessen Höhe sich die Bettdecke, zum gänzlichen Niedergleiten bereit, kaum noch erhalten konnte.
 - rung 2: Er lag auf seinem panzerartig harten Rücken und sah, wenn er den Kopf ein wenig hob, | seinen gewölbten, braunen, von bogenförmigen Versteifungen geteilten Bauch, | auf dessen Höhe sich die Bettdecke, zum gänzlichen Niedergleiten bereit, kaum noch erhalten konnte.
-- study: gewölbt = bulged; Versteifung = stiffener, stiffening; Bettdecke = blanket
+- study: gewölbt = bellied; Versteifung = stiffener, stiffening; Bettdecke = blanket
 
 **3. Seine vielen, im Vergleich zu seinem sonstigen Umfang kläglich dünnen Beine flimmerten ihm hilflos vor den Augen.**  `df4afc273e08`
 - starter: Seine vielen, | im Vergleich | zu seinem sonstigen Umfang | kläglich dünnen Beine | flimmerten ihm hilflos | vor den Augen.
 - beginner: Seine vielen, im Vergleich | zu seinem sonstigen Umfang | kläglich dünnen Beine | flimmerten ihm hilflos | vor den Augen.
 - intermediate: Seine vielen, im Vergleich | zu seinem sonstigen Umfang kläglich dünnen Beine | flimmerten ihm hilflos vor den Augen.
 - advanced: Seine vielen, im Vergleich zu seinem sonstigen Umfang kläglich dünnen Beine | flimmerten ihm hilflos vor den Augen.
-- study: kläglich = pathetically; flimmern = flicker
+- study: kläglich = pitiful, lamentable, dismal; flimmern = flicker
 
 **4. »Was ist mit mir geschehen?« dachte er.**  `ddb90a91238f` ¶
 - starter: »Was ist | mit mir geschehen?« | dachte er.
@@ -51,7 +51,7 @@
 - advanced: Über dem Tisch, auf dem eine auseinandergepackte Musterkollektion von Tuchwaren ausgebreitet war | — Samsa war Reisender — , hing das Bild, | das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten | und in einem hübschen, vergoldeten Rahmen untergebracht hatte.
 - rung 1: Über dem Tisch, auf dem eine auseinandergepackte Musterkollektion von Tuchwaren ausgebreitet war — Samsa war Reisender — , hing das Bild, | das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten und in einem hübschen, vergoldeten Rahmen untergebracht hatte.
 - ents: Samsa (PER)
-- study: Musterkollektion = assortment of samples, sample collection; Tuchwaren = cloth goods; ausgebreitet = set out; Reisender = passenger, traveller, traveler 🧳; illustrieren = illustrate; ausschneiden = cut out; vergolden = gild, gold-plate, paint gold
+- study: Musterkollektion = assortment of samples, sample collection; Tuchwaren = cloth goods; ausgebreitet = set out; Reisender = passenger, traveller, traveler; illustrieren = illustrate; ausschneiden = cut out; vergolden = gild, gold-plate, paint gold
 
 **8. Es stellte eine Dame dar, die, mit einem Pelzhut und einer Pelzboa versehen, aufrecht dasaß und einen schweren Pelzmuff, in dem ihr ganzer Unterarm verschwunden war, dem Beschauer entgegenhob.**  `636971bb1dfb`
 - starter: Es stellte | eine Dame dar, | die, mit einem Pelzhut | und einer Pelzboa versehen, | aufrecht dasaß | und einen schweren Pelzmuff, | in dem | ihr ganzer Unterarm | verschwunden war, | dem Beschauer entgegenhob.
@@ -67,7 +67,7 @@
 - intermediate: Gregors Blick richtete sich dann | zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — | machte ihn ganz melancholisch.
 - advanced: Gregors Blick richtete sich dann zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — machte ihn ganz melancholisch.
 - ents: Gregors (PER)
-- study: trüben = dim; Regentropfen = raindrop, drop of rain 💧; aufschlagen = strike; melancholisch = sombre, somber
+- study: trüben = dim; Regentropfen = raindrop, drop of rain; aufschlagen = strike; melancholisch = sombre, somber
 
 **10. »Wie wäre es, wenn ich noch ein wenig weiterschliefe und alle Narrheiten vergäße,« dachte er, aber das war gänzlich undurchführbar, denn er war gewöhnt, auf der rechten Seite zu schlafen, konnte sich aber in seinem gegenwärtigen Zustand nicht in diese Lage bringen.**  `d7958da00c5d`
 - starter: »Wie wäre es, | wenn ich noch | ein wenig weiterschliefe | und alle Narrheiten | vergäße,« dachte er, | aber das war | gänzlich undurchführbar, | denn er war gewöhnt, | auf der rechten Seite | zu schlafen, | konnte sich aber | in seinem gegenwärtigen | Zustand nicht | in diese Lage bringen.
@@ -111,7 +111,7 @@
 - intermediate: Die geschäftlichen Aufregungen sind viel größer, | als im eigentlichen Geschäft zu Hause, | und außerdem ist mir | noch diese Plage des Reisens | auferlegt, die Sorgen um die Zuganschlüsse, | das unregelmäßige, schlechte Essen, | ein immer wechselnder, nie andauernder, | nie herzlich werdender menschlicher Verkehr.
 - advanced: Die geschäftlichen Aufregungen sind viel größer, als im eigentlichen Geschäft zu Hause, | und außerdem ist mir noch diese Plage des Reisens | auferlegt, die Sorgen um die Zuganschlüsse, das unregelmäßige, schlechte Essen, | ein immer wechselnder, nie andauernder, nie herzlich werdender menschlicher Verkehr.
 - rung 1: Die geschäftlichen Aufregungen sind viel größer, als im eigentlichen Geschäft zu Hause, und außerdem ist mir noch diese Plage des Reisens | auferlegt, die Sorgen um die Zuganschlüsse, das unregelmäßige, schlechte Essen, ein immer wechselnder, nie andauernder, nie herzlich werdender menschlicher Verkehr.
-- study: geschäftlich = business, relating to business; Plage = nuisance; auferlegt = imposed; wechselnd = alternating
+- study: geschäftlich = business, relating to business; Plage = nuisance; auferlegt = imposed; wechselnd = variable, intermittent
 
 **16. Der Teufel soll das alles holen!**  `bd507f206c36`
 - starter: Der Teufel | soll das alles holen!
@@ -161,7 +161,7 @@
 - beginner: Andere Reisende | leben wie Haremsfrauen.
 - intermediate: Andere Reisende leben wie Haremsfrauen.
 - advanced: Andere Reisende leben wie Haremsfrauen.
-- study: Reisender = passenger, traveller, traveler 🧳
+- study: Reisender = passenger, traveller, traveler
 
 **23. Wenn ich zum Beispiel im Laufe des Vormittags ins Gasthaus zurückgehe, um die erlangten Aufträge zu überschreiben, sitzen diese Herren erst beim Frühstück.**  `56df74fa0ace`
 - starter: Wenn ich zum Beispiel | im Laufe | des Vormittags | ins Gasthaus zurückgehe, | um die erlangten Aufträge | zu überschreiben, | sitzen diese Herren | erst beim Frühstück.
