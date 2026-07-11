@@ -1,4 +1,4 @@
-# review sample — velveteen (en_core_web_sm, build3.py@ea71fc9)
+# review sample — velveteen (en_core_web_sm, build3.py@3336926)
 
 ## 
 
@@ -23,7 +23,7 @@
 - intermediate: On Christmas morning, when he sat wedged | in the top of the Boy's stocking, | with a sprig of holly between his paws, | the effect was charming.
 - advanced: On Christmas morning, when he sat wedged | in the top of the Boy's stocking, | with a sprig of holly between his paws, the effect was charming.
 - rung 1: On Christmas morning, when he sat wedged in the top of the Boy's stocking, | with a sprig of holly between his paws, the effect was charming.
-- study: sprig = a small branch or division of a branch (especially a terminal division); paw = a clawed foot of an animal especially a quadruped
+- study: sprig = a small branch or division of a branch (especially a terminal division); paw = a clawed foot of an animal especially a quadruped 🐾
 
 **4. There were other things in the stocking, nuts and oranges and a toy engine, and chocolate almonds and a clockwork mouse, but the Rabbit was quite the best of all.**  `4f381d35b9c8` ¶
 - starter: There were | other things | in the stocking, nuts | and oranges | and a toy engine, | and chocolate almonds | and a clockwork mouse, | but the Rabbit | was quite the best | of all.
@@ -110,7 +110,7 @@
 - intermediate: He was so old | that his brown coat was bald in patches | and showed the seams underneath, | and most of the hairs in his tail | had been pulled out | to string bead necklaces.
 - advanced: He was so old that his brown coat was bald in patches | and showed the seams underneath, | and most of the hairs in his tail | had been pulled out to string bead necklaces.
 - rung 1: He was so old that his brown coat was bald in patches and showed the seams underneath, | and most of the hairs in his tail had been pulled out to string bead necklaces.
-- study: seam = joint consisting of a line formed by joining two pieces; bead = a small ball with a hole through the middle
+- study: seam = joint consisting of a line formed by joining two pieces; bead = a small ball with a hole through the middle 🧿
 
 **15. He was wise, for he had seen a long succession of mechanical toys arrive to boast and swagger, and by-and-by break their mainsprings and pass away, and he knew that they were only toys, and would never turn into anything else.**  `d88152db846b`
 - starter: He was wise, | for he had seen | a long succession | of mechanical toys | arrive to boast | and swagger, | and by-and-by | break their mainsprings | and pass away, | and he knew | that they were | only toys, | and would never turn | into anything else.
@@ -127,7 +127,7 @@
 - intermediate: For nursery magic is very strange and wonderful, | and only those playthings | that are old and wise | and experienced like the Skin Horse | understand all about it.
 - advanced: For nursery magic is very strange and wonderful, | and only those playthings that are old and wise | and experienced like the Skin Horse understand all about it.
 - rung 1: For nursery magic is very strange and wonderful, and only those playthings that are old and wise | and experienced like the Skin Horse understand all about it.
-- study: plaything = an artifact designed to be played with
+- study: plaything = an artifact designed to be played with 🧸
 
 **17. "What is REAL?" asked the Rabbit one day, when they were lying side by side near the nursery fender, before Nana came to tidy the room.**  `3af855aa02bb` ¶
 - starter: "What is | REAL?" asked | the Rabbit | one day, | when they were lying | side | by side | near the nursery fender, | before Nana came | to tidy | the room.

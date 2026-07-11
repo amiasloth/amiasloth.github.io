@@ -1,13 +1,4 @@
 # CLDR emoji suggestions — REVIEW BEFORE USE, never auto-apply.
 # Keep a line by adding  "<lemma>": "<emoji>"  to a JSON map for gloss3.py --emoji-map.
 # Empty beats bad: when in doubt, leave the lemma out.
-bead	bead = a small ball with a hole through the middle	🧿 (en:bead)
-dizzy	dizzy = having or causing a whirling sensation	💫 (en:dizzy)  🥴 (en:dizzy)  😵 (en:dizzy)
-dusk	dusk = the time of day immediately following sunset	🌆 (en:dusk)  🌇 (en:dusk)
-flutter	flutter = move along rapidly and lightly	🍃 (en:flutter)  🪭 (en:flutter)
-gardener	gardener = someone who takes care of a garden	🧑‍🌾 (en:gardener)  👨‍🌾 (en:gardener)  👩‍🌾 (en:gardener)
-mantelpiece	mantelpiece = shelf that projects from wall above fireplace	🕰 (en:mantelpiece)
-paw	paw = a clawed foot of an animal especially a quadruped	🐾 (en:paw)
-peep	peep = look furtively	🫣 (en:peep)  👀 (en:peep)
-plaything	plaything = an artifact designed to be played with	🧸 (en:plaything)
-plush	plush = characterized by extravagance and profusion	🧸 (en:plush)
+

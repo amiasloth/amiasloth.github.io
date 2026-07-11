@@ -1,4 +1,4 @@
-# review sample — grimm (de_core_news_lg, build3.py@ea71fc9)
+# review sample — grimm (de_core_news_lg, build3.py@3336926)
 
 ## Marienkind
 
@@ -8,7 +8,7 @@
 - intermediate: Vor einem großen Walde lebte ein Holzhacker | mit seiner Frau, | der hatte nur ein einziges Kind, | das war ein Mädchen von drei Jahren.
 - advanced: Vor einem großen Walde lebte ein Holzhacker mit seiner Frau, | der hatte nur ein einziges Kind, | das war ein Mädchen von drei Jahren.
 - rung 1: Vor einem großen Walde lebte ein Holzhacker mit seiner Frau, | der hatte nur ein einziges Kind, das war ein Mädchen von drei Jahren.
-- study: Holzhacker = dirty player
+- study: Holzhacker = dirty player ⛹
 
 **2. Sie waren aber so arm, daß sie nicht mehr das tägliche Brot hatten und nicht wußten, was sie ihm sollten zu essen geben.**  `ec8a3a35ac73`
 - starter: Sie waren aber | so arm, | daß sie nicht mehr | das tägliche Brot hatten | und nicht wußten, | was sie ihm sollten | zu essen geben.
@@ -24,7 +24,7 @@
 - advanced: Eines Morgens ging der Holzhacker voller Sorgen hinaus in den Wald | an seine Arbeit, und wie er da Holz hackte, | stand auf einmal eine schöne große Frau vor ihm, | die hatte eine Krone von leuchtenden Sternen auf dem Haupt | und sprach zu ihm:
 - rung 1: Eines Morgens ging der Holzhacker voller Sorgen hinaus in den Wald an seine Arbeit, und wie er da Holz hackte, | stand auf einmal eine schöne große Frau vor ihm, die hatte eine Krone von leuchtenden Sternen auf dem Haupt und sprach zu ihm:
 - rung 2: Eines Morgens ging der Holzhacker voller Sorgen hinaus in den Wald an seine Arbeit, und wie er da Holz hackte, | stand auf einmal eine schöne große Frau vor ihm, | die hatte eine Krone von leuchtenden Sternen auf dem Haupt und sprach zu ihm:
-- study: Holzhacker = dirty player; leuchtend = aglow
+- study: Holzhacker = dirty player ⛹; leuchtend = aglow
 
 **4. »Ich bin die Jungfrau Maria, die Mutter des Christkindleins: du bist arm und dürftig, bring mir dein Kind, ich will es mit mir nehmen, seine Mutter sein und für es sorgen.**  `b085c456e560`
 - starter: »Ich bin | die Jungfrau Maria, | die Mutter | des Christkindleins: | du bist arm | und dürftig, | bring mir | dein Kind, | ich will | es mit mir nehmen, | seine Mutter sein | und für es sorgen.
@@ -42,7 +42,7 @@
 - advanced: « Der Holzhacker gehorchte, holte sein Kind | und übergab es der Jungfrau Maria, | die nahm es mit sich hinauf in den Himmel.
 - rung 1: « Der Holzhacker gehorchte, holte sein Kind und übergab es der Jungfrau Maria, | die nahm es mit sich hinauf in den Himmel.
 - ents: Maria (PER)
-- study: Holzhacker = dirty player
+- study: Holzhacker = dirty player ⛹
 
 **6. Da ging es ihm wohl, es aß Zuckerbrot und trank süße Milch, und seine Kleider waren von Gold, und die Englein spielten mit ihm.**  `bbef992ad46b`
 - starter: Da ging es | ihm wohl, | es aß Zuckerbrot | und trank | süße Milch, | und seine Kleider | waren von Gold, | und die Englein | spielten mit ihm.
@@ -71,7 +71,7 @@
 - intermediate: zwölf davon darfst du aufschließen | und die Herrlichkeiten darin betrachten, | aber die dreizehnte, | wozu dieser kleine Schlüssel gehört, | die ist dir verboten: hüte dich, | daß du sie nicht aufschließest, | sonst wirst du unglücklich.
 - advanced: zwölf davon darfst du aufschließen und die Herrlichkeiten darin betrachten, | aber die dreizehnte, wozu dieser kleine Schlüssel gehört, | die ist dir verboten: hüte dich, | daß du sie nicht aufschließest, sonst wirst du unglücklich.
 - rung 1: zwölf davon darfst du aufschließen und die Herrlichkeiten darin betrachten, aber die dreizehnte, wozu dieser kleine Schlüssel gehört, | die ist dir verboten: hüte dich, daß du sie nicht aufschließest, sonst wirst du unglücklich.
-- study: aufschließen = unlock; Herrlichkeit = delightfulness; dreizehnter = thirteenth
+- study: aufschließen = unlock 🔓; Herrlichkeit = delightfulness; dreizehnter = thirteenth
 
 **10. « Das Mädchen versprach, gehorsam zu sein, und als nun die Jungfrau Maria weg war, fing es an und besah die Wohnungen des Himmelreichs: jeden Tag schloß es eine auf, bis die zwölfe herum waren.**  `73ca1a9b18f1`
 - starter: « Das Mädchen versprach, | gehorsam zu sein, | und als nun | die Jungfrau Maria | weg war, | fing es an | und besah | die Wohnungen | des Himmelreichs: | jeden Tag | schloß es | eine auf, | bis die zwölfe | herum waren.
@@ -98,7 +98,7 @@
 - advanced: Nun war die verbotene Tür allein noch übrig, | da empfand es eine große Lust, zu wissen, | was dahinter verborgen wäre, und sprach zu den Englein: | »Ganz aufmachen will ich sie nicht | und will auch nicht hineingehen, aber ich will sie aufschließen, | damit wir ein wenig durch den Ritz sehen.
 - rung 1: Nun war die verbotene Tür allein noch übrig, da empfand es eine große Lust, zu wissen, was dahinter verborgen wäre, und sprach zu den Englein: | »Ganz aufmachen will ich sie nicht und will auch nicht hineingehen, aber ich will sie aufschließen, damit wir ein wenig durch den Ritz sehen.
 - rung 2: Nun war die verbotene Tür allein noch übrig, da empfand es eine große Lust, zu wissen, | was dahinter verborgen wäre, und sprach zu den Englein: | »Ganz aufmachen will ich sie nicht und will auch nicht hineingehen, aber ich will sie aufschließen, | damit wir ein wenig durch den Ritz sehen.
-- study: hineingehen = go in, go inside; aufschließen = unlock; Ritz = cranny
+- study: hineingehen = go in, go inside; aufschließen = unlock 🔓; Ritz = cranny
 
 **13. « — »Ach nein,« sagten die Englein, »das wäre Sünde: die Jungfrau Maria hat's verboten, und es könnte leicht dein Unglück werden.«**  `d655c58f9818`
 - starter: « — »Ach nein,« | sagten die Englein, | »das wäre Sünde: | die Jungfrau Maria | hat's verboten, | und es könnte leicht | dein Unglück werden.«
@@ -114,7 +114,7 @@
 - intermediate: Da schwieg es still, | aber die Begierde in seinem Herzen | schwieg nicht still, sondern nagte | und pickte ordentlich daran | und ließ ihm keine Ruhe.
 - advanced: Da schwieg es still, aber die Begierde in seinem Herzen | schwieg nicht still, sondern nagte | und pickte ordentlich daran und ließ ihm keine Ruhe.
 - rung 1: Da schwieg es still, aber die Begierde in seinem Herzen | schwieg nicht still, sondern nagte und pickte ordentlich daran und ließ ihm keine Ruhe.
-- study: Begierde = desire, longing; nagen = gnaw off, gnaw; picken = pick
+- study: Begierde = desire, longing; nagen = gnaw off, gnaw; picken = pick ⛏
 
 **15. Und als die Englein einmal alle hinausgegangen waren, dachte es: »**  `fe9c88baa600`
 - starter: Und als die Englein | einmal | alle hinausgegangen waren, | dachte es: »
@@ -129,7 +129,7 @@
 - beginner: Nun bin ich | ganz allein | und könnte hineingucken, | es weiß es ja | niemand, wenn ich's tue.
 - intermediate: Nun bin ich ganz allein | und könnte hineingucken, | es weiß es ja | niemand, wenn ich's tue.
 - advanced: Nun bin ich ganz allein und könnte hineingucken, | es weiß es ja niemand, wenn ich's tue.
-- study: hineingucken = look into sth.
+- study: hineingucken = look into sth. 👀
 
 **17. « Es suchte den Schlüssel heraus und als es ihn in der Hand hielt, steckte es ihn auch in das Schloß, und als es ihn hineingesteckt hatte, drehte es auch um.**  `239461aca3e0`
 - starter: « Es suchte | den Schlüssel heraus | und als es | ihn in der Hand | hielt, | steckte es ihn | auch in das Schloß, | und als es | ihn hineingesteckt hatte, | drehte es | auch um.
@@ -137,7 +137,7 @@
 - intermediate: « Es suchte den Schlüssel heraus | und als es ihn in der Hand hielt, | steckte es ihn auch in das Schloß, | und als es ihn hineingesteckt hatte, | drehte es auch um.
 - advanced: « Es suchte den Schlüssel heraus | und als es ihn in der Hand hielt, | steckte es ihn auch in das Schloß, | und als es ihn hineingesteckt hatte, drehte es auch um.
 - rung 1: « Es suchte den Schlüssel heraus und als es ihn in der Hand hielt, | steckte es ihn auch in das Schloß, und als es ihn hineingesteckt hatte, drehte es auch um.
-- study: hineinstecken = stick into
+- study: hineinstecken = stick into 🍢
 
 **18. Da sprang die Türe auf, und es sah da die Dreieinigkeit im Feuer und Glanz sitzen.**  `8be3ac5b229f`
 - starter: Da sprang | die Türe auf, | und es | sah da | die Dreieinigkeit | im Feuer | und Glanz sitzen.
@@ -152,14 +152,14 @@
 - intermediate: Es blieb ein Weilchen stehen | und betrachtete alles mit Erstaunen, | dann rührte es ein wenig | mit dem Finger an den Glanz, | da ward der Finger ganz golden.
 - advanced: Es blieb ein Weilchen stehen und betrachtete alles mit Erstaunen, | dann rührte es ein wenig mit dem Finger an den Glanz, | da ward der Finger ganz golden.
 - rung 1: Es blieb ein Weilchen stehen und betrachtete alles mit Erstaunen, | dann rührte es ein wenig mit dem Finger an den Glanz, da ward der Finger ganz golden.
-- study: Weilchen = little while; Erstaunen = amazement
+- study: Weilchen = little while 🤏; Erstaunen = amazement 🫢
 
 **20. Alsbald empfand es eine gewaltige Angst, schlug die Türe heftig zu und lief fort.**  `bbfc8c5b2afc`
 - starter: Alsbald empfand es | eine gewaltige Angst, | schlug die Türe | heftig zu | und lief fort.
 - beginner: Alsbald empfand es | eine gewaltige Angst, | schlug die Türe | heftig zu | und lief fort.
 - intermediate: Alsbald empfand es eine gewaltige Angst, | schlug die Türe heftig zu | und lief fort.
 - advanced: Alsbald empfand es eine gewaltige Angst, | schlug die Türe heftig zu und lief fort.
-- study: alsbald = soon afterwards
+- study: alsbald = soon afterwards 🔜
 
 **21. Die Angst wollte auch nicht wieder weichen, es mochte anfangen, was es wollte, und das Herz klopfte in einem fort und wollte nicht ruhig werden: auch das Gold blieb an dem Finger und ging nicht ab, es mochte waschen und reiben, so viel es wollte.**  `c7a7abf35b71`
 - starter: Die Angst | wollte auch nicht | wieder weichen, | es mochte anfangen, | was es wollte, | und das Herz | klopfte in einem fort | und wollte nicht | ruhig werden: | auch das Gold | blieb an dem Finger | und ging nicht ab, | es mochte waschen | und reiben, | so viel | es wollte.

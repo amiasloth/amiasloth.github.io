@@ -1,4 +1,4 @@
-# review sample — frankenstein (en_core_web_sm, build3.py@ea71fc9)
+# review sample — frankenstein (en_core_web_sm, build3.py@3336926)
 
 ## Letter 1
 
@@ -58,7 +58,7 @@
 - beginner: Inspirited by this wind | of promise, | my daydreams | become more fervent | and vivid.
 - intermediate: Inspirited by this wind of promise, | my daydreams become more fervent and vivid.
 - advanced: Inspirited by this wind of promise, | my daydreams become more fervent and vivid.
-- study: inspirit = infuse with spirit; daydream = absentminded dreaming while awake; fervent = characterized by intense emotion
+- study: inspirit = infuse with spirit; daydream = absentminded dreaming while awake 💭; fervent = characterized by intense emotion
 
 **9. I try in vain to be persuaded that the pole is the seat of frost and desolation; it ever presents itself to my imagination as the region of beauty and delight.**  `5fb6799e8d5b`
 - starter: I try in vain | to be persuaded | that the pole | is the seat | of frost | and desolation; | it ever presents itself | to my imagination | as the region | of beauty | and delight.

@@ -1,4 +1,4 @@
-# review sample — heidi (de_core_news_lg, build3.py@ea71fc9)
+# review sample — heidi (de_core_news_lg, build3.py@3336926)
 
 ## Reisezurüstungen
 
@@ -16,7 +16,7 @@
 - beginner: Es war ein sonniger Septembermorgen, | so licht und lieblich, | daß man hätte denken können, | alle Menschen | müßten sich darüber freuen.
 - intermediate: Es war ein sonniger Septembermorgen, | so licht und lieblich, | daß man hätte denken können, | alle Menschen müßten sich darüber freuen.
 - advanced: Es war ein sonniger Septembermorgen, so licht und lieblich, | daß man hätte denken können, alle Menschen müßten sich darüber freuen.
-- study: sonnig = sunny, sunshiny, shiny; lieblich = charming; durchdenken = deliberate over/on/about sth., mull over/on/about sth., muse over/on/about sth.
+- study: sonnig = sunny, sunshiny, shiny ☀; lieblich = charming; durchdenken = deliberate over/on/about sth., mull over/on/about sth., muse over/on/about sth.
 
 **3. Aber der Herr Doktor schaute auf die weißen Steine zu seinen Füßen, so daß er den blauen Himmel über sich nicht einmal bemerken konnte.**  `e6525225039a`
 - starter: Aber der Herr Doktor | schaute | auf die weißen Steine | zu seinen Füßen, | so | daß er | den blauen Himmel | über sich | nicht einmal | bemerken konnte.
@@ -59,7 +59,7 @@
 - advanced: Auf den Zug an der Hausglocke öffnete Sebastian | mit großer Zuvorkommenheit die Eingangstür | und machte gleich alle Bewegungen eines ergebenen Dieners;
 - rung 1: Auf den Zug an der Hausglocke öffnete Sebastian mit großer Zuvorkommenheit die Eingangstür | und machte gleich alle Bewegungen eines ergebenen Dieners;
 - ents: Sebastian (PER)
-- study: Zuvorkommenheit = obligingness; Eingangstür = entrance door, front door
+- study: Zuvorkommenheit = obligingness; Eingangstür = entrance door, front door 🚪
 
 **9. denn der Herr Doktor war nicht nur der erste Freund des Hausherrn und dessen Töchterchen, durch seine Freundlichkeit hatte er sich, wie überall, die sämtlichen Hausbewohner zu guten Freunden gemacht.**  `cc1ff4e3e184`
 - starter: denn der Herr Doktor | war nicht nur | der erste Freund | des Hausherrn | und dessen Töchterchen, | durch seine Freundlichkeit | hatte er sich, | wie überall, | die sämtlichen Hausbewohner | zu guten Freunden gemacht.
@@ -67,7 +67,7 @@
 - intermediate: denn der Herr Doktor | war nicht nur der erste Freund des Hausherrn | und dessen Töchterchen, durch seine Freundlichkeit | hatte er sich, wie überall, die sämtlichen Hausbewohner | zu guten Freunden gemacht.
 - advanced: denn der Herr Doktor war nicht nur der erste Freund des Hausherrn | und dessen Töchterchen, durch seine Freundlichkeit | hatte er sich, wie überall, die sämtlichen Hausbewohner zu guten Freunden gemacht.
 - rung 1: denn der Herr Doktor war nicht nur der erste Freund des Hausherrn und dessen Töchterchen, durch seine Freundlichkeit | hatte er sich, wie überall, die sämtlichen Hausbewohner zu guten Freunden gemacht.
-- study: Hausherr = host; Töchterchen = little daughter; Hausbewohner = occupant, occupier
+- study: Hausherr = host; Töchterchen = little daughter 🤏; Hausbewohner = occupant, occupier
 
 **10. »Alles beim alten, Sebastian?« fragte der Herr Doktor wie gewohnt mit freundlicher Stimme und ging die Treppe hinauf, gefolgt von Sebastian, der nicht aufhörte, allerlei Zeichen der Ergebenheit zu machen, obschon der Herr Doktor sie eigentlich nicht sehen konnte, denn er kehrte dem Nachfolgenden den Rücken.**  `c13e9f02d8a6` ¶
 - starter: »Alles beim alten, Sebastian?« | fragte der Herr Doktor | wie gewohnt | mit freundlicher Stimme | und ging | die Treppe hinauf, | gefolgt von Sebastian, | der nicht aufhörte, | allerlei Zeichen | der Ergebenheit | zu machen, | obschon der Herr Doktor | sie eigentlich | nicht sehen konnte, | denn er kehrte | dem Nachfolgenden | den Rücken.
@@ -99,7 +99,7 @@
 - beginner: »Mein lieber Sesemann, | wie kommst du | mir denn vor?« | entgegnete der Angekommene, | indem er sich zu seinem Freunde | hinsetzte.
 - intermediate: »Mein lieber Sesemann, | wie kommst du mir denn vor?« | entgegnete der Angekommene, | indem er sich zu seinem Freunde hinsetzte.
 - advanced: »Mein lieber Sesemann, wie kommst du mir denn vor?« | entgegnete der Angekommene, indem er sich zu seinem Freunde hinsetzte.
-- study: entgegnen = answer, reply, respond
+- study: entgegnen = answer, reply, respond 🟰
 
 **14. »Ich möchte wirklich wünschen, daß deine Mutter hier wäre;**  `e0124c851a78`
 - starter: »Ich möchte | wirklich wünschen, | daß deine Mutter | hier wäre;
@@ -112,7 +112,7 @@
 - beginner: mit der wird alles | gleich klar und einfach | und kommt | ins rechte Geleise.
 - intermediate: mit der wird alles gleich klar und einfach | und kommt ins rechte Geleise.
 - advanced: mit der wird alles gleich klar und einfach | und kommt ins rechte Geleise.
-- study: Geleise = line of rails, railway line, railroad line
+- study: Geleise = line of rails, railway line, railroad line 🫥
 
 **16. Mit dir aber ist ja kein Fertigwerden.**  `d8df40b2d4c3`
 - starter: Mit dir | aber ist ja | kein Fertigwerden.
@@ -150,7 +150,7 @@
 - intermediate: und nun soll ich dem guten Kinde, | das ja sonst schon so vieles entbehren muß, | die langgenährte Hoffnung mit einemmal | wieder durchstreichen - das ist mir | fast nicht möglich. «
 - advanced: und nun soll ich dem guten Kinde, | das ja sonst schon so vieles entbehren muß, | die langgenährte Hoffnung mit einemmal wieder durchstreichen - das ist mir | fast nicht möglich. «
 - rung 1: und nun soll ich dem guten Kinde, das ja sonst schon so vieles entbehren muß, | die langgenährte Hoffnung mit einemmal wieder durchstreichen - das ist mir fast nicht möglich. «
-- study: entbehren = miss sb./sth.
+- study: entbehren = miss sb./sth. 😘
 
 **21. »Sesemann, das muß sein«, sagte sehr bestimmt der Herr Doktor, und als sein Freund stillschweigend und niedergeschlagen dasaß, fuhr er nach einer Weile fort:**  `2465c3f44fdb` ¶
 - starter: »Sesemann, das muß sein«, | sagte sehr bestimmt | der Herr Doktor, | und als sein Freund | stillschweigend | und niedergeschlagen dasaß, | fuhr er | nach einer Weile fort:
@@ -159,7 +159,7 @@
 - advanced: »Sesemann, das muß sein«, sagte sehr bestimmt der Herr Doktor, | und als sein Freund stillschweigend und niedergeschlagen dasaß, | fuhr er nach einer Weile fort:
 - rung 1: »Sesemann, das muß sein«, sagte sehr bestimmt der Herr Doktor, | und als sein Freund stillschweigend und niedergeschlagen dasaß, fuhr er nach einer Weile fort:
 - ents: Sesemann (MISC)
-- study: Stillschweigen = silence; niederschlagen = knock down, knockdown
+- study: Stillschweigen = silence 😶; niederschlagen = knock down, knockdown
 
 **22. »Bedenke doch, wie die Sache steht.**  `e98d9b18a2ff`
 - starter: »Bedenke doch, | wie die Sache steht.
