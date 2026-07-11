@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@89fbabf",
+ "generator": "build3.py@82b1776",
  "books": [
   {
    "id": "kafka",
@@ -32,7 +32,7 @@
   {
    "id": "alice",
    "title": "Alice's Adventures in Wonderland",
-   "author": "TBD",
+   "author": "Lewis Carroll",
    "lang": "en",
    "levels": [
     "starter",

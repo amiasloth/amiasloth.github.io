@@ -1,4 +1,4 @@
-# review sample — kafka (de_core_news_lg, build3.py@3f65603)
+# review sample — kafka (de_core_news_lg, build3.py@82b1776)
 
 ## I.
 
@@ -51,7 +51,7 @@
 - advanced: Über dem Tisch, auf dem eine auseinandergepackte Musterkollektion von Tuchwaren ausgebreitet war | — Samsa war Reisender — , hing das Bild, | das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten | und in einem hübschen, vergoldeten Rahmen untergebracht hatte.
 - rung 1: Über dem Tisch, auf dem eine auseinandergepackte Musterkollektion von Tuchwaren ausgebreitet war — Samsa war Reisender — , hing das Bild, | das er vor kurzem aus einer illustrierten Zeitschrift ausgeschnitten und in einem hübschen, vergoldeten Rahmen untergebracht hatte.
 - ents: Samsa (PER)
-- study: Musterkollektion = assortment of samples, sample collection; Tuchwaren = cloth goods; ausgebreitet = set out; Reisender = passenger, traveller, traveler; illustrieren = illustrate; ausschneiden = cut out; vergolden = gild, gold-plate, paint gold
+- study: Musterkollektion = assortment of samples, sample collection; Tuchwaren = cloth goods; ausgebreitet = set out; Reisender = passenger, traveller, traveler 🧳; illustrieren = illustrate; ausschneiden = cut out; vergolden = gild, gold-plate, paint gold
 
 **8. Es stellte eine Dame dar, die, mit einem Pelzhut und einer Pelzboa versehen, aufrecht dasaß und einen schweren Pelzmuff, in dem ihr ganzer Unterarm verschwunden war, dem Beschauer entgegenhob.**  `636971bb1dfb`
 - starter: Es stellte | eine Dame dar, | die, mit einem Pelzhut | und einer Pelzboa versehen, | aufrecht dasaß | und einen schweren Pelzmuff, | in dem | ihr ganzer Unterarm | verschwunden war, | dem Beschauer entgegenhob.
@@ -67,7 +67,7 @@
 - intermediate: Gregors Blick richtete sich dann | zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — | machte ihn ganz melancholisch.
 - advanced: Gregors Blick richtete sich dann zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — machte ihn ganz melancholisch.
 - ents: Gregors (PER)
-- study: trüben = dim; Regentropfen = raindrop, drop of rain; aufschlagen = strike; melancholisch = sombre, somber
+- study: trüben = dim; Regentropfen = raindrop, drop of rain 💧; aufschlagen = strike; melancholisch = sombre, somber
 
 **10. »Wie wäre es, wenn ich noch ein wenig weiterschliefe und alle Narrheiten vergäße,« dachte er, aber das war gänzlich undurchführbar, denn er war gewöhnt, auf der rechten Seite zu schlafen, konnte sich aber in seinem gegenwärtigen Zustand nicht in diese Lage bringen.**  `d7958da00c5d`
 - starter: »Wie wäre es, | wenn ich noch | ein wenig weiterschliefe | und alle Narrheiten | vergäße,« dachte er, | aber das war | gänzlich undurchführbar, | denn er war gewöhnt, | auf der rechten Seite | zu schlafen, | konnte sich aber | in seinem gegenwärtigen | Zustand nicht | in diese Lage bringen.
@@ -161,7 +161,7 @@
 - beginner: Andere Reisende | leben wie Haremsfrauen.
 - intermediate: Andere Reisende leben wie Haremsfrauen.
 - advanced: Andere Reisende leben wie Haremsfrauen.
-- study: Reisender = passenger, traveller, traveler
+- study: Reisender = passenger, traveller, traveler 🧳
 
 **23. Wenn ich zum Beispiel im Laufe des Vormittags ins Gasthaus zurückgehe, um die erlangten Aufträge zu überschreiben, sitzen diese Herren erst beim Frühstück.**  `56df74fa0ace`
 - starter: Wenn ich zum Beispiel | im Laufe | des Vormittags | ins Gasthaus zurückgehe, | um die erlangten Aufträge | zu überschreiben, | sitzen diese Herren | erst beim Frühstück.
