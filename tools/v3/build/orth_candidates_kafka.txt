@@ -1,4 +1,5 @@
 Eßbarem	essbar	(lemma key: essbar)
+Hie	Herzindex [UNVERIFIED]	(lemma key: hi)
 Mißlingen	Misslingen	(lemma key: misslingen)
 beeilen	Beil [UNVERIFIED]	(lemma key: beil)
 hie	Herzindex [UNVERIFIED]	(lemma key: hi)

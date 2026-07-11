@@ -1,4 +1,5 @@
 abendschläfchen	Abendschläfchen
+abfallkiste	Abfallkiste
 abhanden	abhanden
 abzahlen	abzuzahlen
 achtuhrzug	Achtuhrzug
@@ -11,6 +12,8 @@ aneinandergedrückt	aneinandergedrückt
 angewöhnt	angewöhnt
 anstarren	anstarrten
 antreffen	anzutreffen
+arbeitserfolge	Arbeitserfolge
+aschenkiste	Aschenkiste
 atemfreiheit	Atemfreiheit
 aufblasen	aufzublasen
 auffallende	Auffallende, auffallende
@@ -25,6 +28,7 @@ beeilen	beeilen
 befreiende	Befreiende
 begnügen	begnügen
 begriffsstützige	begriffsstützige
+beinreihen	Beinreihen
 beirren	beirren
 beisammen	beisammen
 bekreuzen	bekreuzte
@@ -38,9 +42,11 @@ bettrand	Bettrand
 bleiches	bleiches
 bogenförmigen	bogenförmigen
 bürgerschüler	Bürgerschüler
+charlottenstraße	Charlottenstraße
 dachen	dachte, dachten
 dahintorkelte	dahintorkelte
 daliegen	dalag
+damenfreund	Damenfreund
 daransetzen	daranzusetzen
 darnach	darnach
 dasitzen	dasaß
@@ -48,6 +54,7 @@ dienermütze	Dienermütze
 dieneruniform	Dieneruniform
 dreiviertel	dreiviertel
 einemmal	einemmal
+einemmale	einemmale
 einigemale	einigemale
 einmieten	eingemietet
 einrichtungsstücke	Einrichtungsstücke
@@ -71,6 +78,7 @@ erstickungsanfällen	Erstickungsanfällen
 familienglied	Familienglied
 familienpflicht	Familienpflicht
 familienschmuckstücke	Familienschmuckstücke
+fensterblech	Fensterblech
 fensterbrüstung	Fensterbrüstung
 fenstervorhänge	Fenstervorhänge
 festgeriegelt	festgeriegelt
@@ -80,6 +88,7 @@ fleckige	fleckige
 fortgehe	fortgehe
 fortwirkend	fortwirkende
 fragerei	Fragerei
+frühstücksgeschirr	Frühstücksgeschirr
 fußspitze	Fußspitzen
 fünfuhrzug	Fünfuhrzug
 füßestampfen	Füßestampfen
@@ -99,21 +108,25 @@ halblauten	halblauten
 halbverfaultes	halbverfaultes
 handbewegung	Handbewegungen
 handelsakademiker	Handelsakademiker
+haremsfrau	Haremsfrauen
 harren	harrte
 hausmeisterin	Hausmeisterin
+hellerwerdens	Hellerwerdens
 heraushörte	heraushörte
 hereinkamen	hereinkamen
 hereinkäme	hereinkäme
 hereinlassen	hereinlasse, hereinließ
+hereinstellen	hereingestellt
 hereinzukommen	hereinzukommen
 hergehen	Hergehen
 herumschauen	Herumschauen
 herunterneigen	herunterneigen
 hervoreilte	hervoreilte
 herzulaufen	herzulaufen
-hie	hie
+hie	Hie, hie
 himmeln	Himmel
 hinaufzukriechen	hinaufzukriechen
+hinausfliegen	hinausfliegen
 hinauskehren	hinauszukehren
 hinausschaffen	Hinausschaffen
 hinaustragen	hinausgetragen, hinaustrug
@@ -138,6 +151,8 @@ irgendwelcher	irgendwelche, irgendwelchen
 jed	jeder
 jen	jener
 juckende	juckende
+kleiderrechen	Kleiderrechen
+knochenbaues	Knochenbaues
 kommis	Kommis
 komplizieren	komplizierte
 kopfschüttelnd	kopfschüttelnd
@@ -151,6 +166,7 @@ ledersofa	Ledersofa
 letztenmal	letztenmal
 livreerockes	Livreerockes
 losreißen	losreißen
+lächerlicherweise	lächerlicherweise
 magern	mager
 menschenmögliches	Menschenmögliche
 menschenzimmer	Menschenzimmer
@@ -174,6 +190,7 @@ ohnmachtähnlichen	ohnmachtähnlichen
 panzerartig	panzerartig
 pelzboa	Pelzboa
 pelzhut	Pelzhut
+pelzmuff	Pelzmuff
 qu	quer
 ragen	ragte
 rumpelzeug	Rumpelzeug
@@ -181,11 +198,14 @@ rücklehne	Rücklehne
 rückwärtslauf	Rückwärtslauf
 samsa	Samsa
 scheitelfrisur	Scheitelfrisur
+schmeichelworte	Schmeichelworte
+schmutzstreifen	Schmutzstreifen
 schreckenerregender	schreckenerregender
 schreckgestalt	Schreckgestalt
 schreibende	Schreibenden
 schwerkranker	Schwerkranken
 sechzehnjährige	sechzehnjährige
+seitentüre	Seitentüre
 sonders	sonders
 sowiet	soweit
 speiseüberreste	Speiseüberreste
@@ -197,6 +217,7 @@ sämtliches	sämtlicher
 tapet	Tapete
 tickte	tickte
 tränenlos	tränenlos
+türezuschlagen	Türezuschlagen
 umfangen	umfangen
 umflatternd	umflatterndem
 umfließen	umfloß
@@ -212,7 +233,9 @@ verbeugen	verbeugten
 vergessene	Vergessenen
 verlorenheit	Verlorenheit
 vernunftgründen	Vernunftgründen
+vernünftigste	Vernünftigste
 verweinen	verweint
+viertelstundenlang	viertelstundenlang
 viertelstündig	viertelstündiger
 violinspiel	Violinspiel
 violinspieler	Violinspieler
@@ -229,10 +252,13 @@ vorwärtsstieß	vorwärtsstieß
 vorzimmertür	Vorzimmertür
 vorüberkommen	vorüberkam
 wachgeblieben	wachgeblieben
+wahrscheinlicherweise	wahrscheinlicherweise
+weckuhr	Weckuhr
 weigern	weigerte
 weiteressen	gegessen
 weiterschreiben	weiterschreiben
 werdender	werdender
+wertheimkassa	Wertheimkassa
 wohlbekannten	wohlbekannten
 wohnzimmertür	Wohnzimmertür
 wundgerieben	wundgerieben

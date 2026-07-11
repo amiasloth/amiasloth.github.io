@@ -1,4 +1,4 @@
-# review sample — kafka (de_core_news_lg, build3.py@c9ffc2e)
+# review sample — kafka (de_core_news_lg, build3.py@3f65603)
 
 ## I.
 
@@ -59,7 +59,6 @@
 - intermediate: Es stellte eine Dame dar, | die, mit einem Pelzhut und einer Pelzboa versehen, | aufrecht dasaß und einen schweren Pelzmuff, | in dem ihr ganzer Unterarm verschwunden war, | dem Beschauer entgegenhob.
 - advanced: Es stellte eine Dame dar, | die, mit einem Pelzhut und einer Pelzboa versehen, | aufrecht dasaß und einen schweren Pelzmuff, | in dem ihr ganzer Unterarm verschwunden war, dem Beschauer entgegenhob.
 - rung 1: Es stellte eine Dame dar, die, mit einem Pelzhut und einer Pelzboa versehen, | aufrecht dasaß und einen schweren Pelzmuff, in dem ihr ganzer Unterarm verschwunden war, dem Beschauer entgegenhob.
-- ents: Pelzmuff (MISC)
 - study: Unterarm = forearm; Beschauer = inspector
 
 **9. Gregors Blick richtete sich dann zum Fenster, und das trübe Wetter — man hörte Regentropfen auf das Fensterblech aufschlagen — machte ihn ganz melancholisch.**  `ccdad65c14a1` ¶
@@ -67,7 +66,7 @@
 - beginner: Gregors Blick | richtete sich dann | zum Fenster, | und das trübe Wetter | — man hörte Regentropfen | auf das Fensterblech aufschlagen — | machte ihn ganz melancholisch.
 - intermediate: Gregors Blick richtete sich dann | zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — | machte ihn ganz melancholisch.
 - advanced: Gregors Blick richtete sich dann zum Fenster, und das trübe Wetter | — man hörte Regentropfen auf das Fensterblech aufschlagen — machte ihn ganz melancholisch.
-- ents: Gregors (PER), Fensterblech (ORG)
+- ents: Gregors (PER)
 - study: trüben = dim; Regentropfen = raindrop, drop of rain; aufschlagen = strike; melancholisch = sombre, somber
 
 **10. »Wie wäre es, wenn ich noch ein wenig weiterschliefe und alle Narrheiten vergäße,« dachte er, aber das war gänzlich undurchführbar, denn er war gewöhnt, auf der rechten Seite zu schlafen, konnte sich aber in seinem gegenwärtigen Zustand nicht in diese Lage bringen.**  `d7958da00c5d`
@@ -99,7 +98,6 @@
 - beginner: »Ach Gott,« dachte er, | »was für einen anstrengenden Beruf | habe ich gewählt!
 - intermediate: »Ach Gott,« dachte er, | »was für einen anstrengenden Beruf habe ich gewählt!
 - advanced: »Ach Gott,« dachte er, »was für einen anstrengenden Beruf habe ich gewählt!
-- ents: Ach Gott (PER)
 
 **14. Tag aus, Tag ein auf der Reise.**  `6123fc86b10a`
 - starter: Tag aus, Tag | ein auf der Reise.
@@ -120,7 +118,6 @@
 - beginner: Der Teufel | soll das alles holen!
 - intermediate: Der Teufel soll das alles holen!
 - advanced: Der Teufel soll das alles holen!
-- ents: Teufel (PER)
 
 **17. « Er fühlte ein leichtes Jucken oben auf dem Bauch; schob sich auf dem Rücken langsam näher zum Bettpfosten, um den Kopf besser heben zu können; fand die juckende Stelle, die mit lauter kleinen weißen Pünktchen besetzt war, die er nicht zu beurteilen verstand;**  `0450602c0831`
 - starter: « Er fühlte | ein leichtes Jucken oben | auf dem Bauch; | schob sich | auf dem Rücken | langsam näher | zum Bettpfosten, | um den Kopf | besser heben | zu können; | fand die juckende Stelle, | die mit lauter kleinen | weißen Pünktchen | besetzt war, | die er | nicht zu beurteilen verstand;
@@ -164,7 +161,6 @@
 - beginner: Andere Reisende | leben wie Haremsfrauen.
 - intermediate: Andere Reisende leben wie Haremsfrauen.
 - advanced: Andere Reisende leben wie Haremsfrauen.
-- ents: Haremsfrauen (LOC)
 - study: Reisender = passenger, traveller, traveler
 
 **23. Wenn ich zum Beispiel im Laufe des Vormittags ins Gasthaus zurückgehe, um die erlangten Aufträge zu überschreiben, sitzen diese Herren erst beim Frühstück.**  `56df74fa0ace`
@@ -186,4 +182,3 @@
 - beginner: ich würde | auf der Stelle hinausfliegen.
 - intermediate: ich würde auf der Stelle hinausfliegen.
 - advanced: ich würde auf der Stelle hinausfliegen.
-- ents: hinausfliegen (LOC)
