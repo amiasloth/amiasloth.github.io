@@ -21,7 +21,7 @@ venv/
 htmlcov/
 
 # Build artifacts
-build/
+# build/
 dist/
 *.egg-info/
 

@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@37e1dcb",
+ "generator": "build3.py@c9ffc2e",
  "books": [
   {
    "id": "kafka",
@@ -26,6 +26,33 @@
     },
     "avg_sentence_len": 21.8,
     "vocab_below_zipf4": 0.512
+   },
+   "audio": null
+  },
+  {
+   "id": "alice",
+   "title": "Alice's Adventures in Wonderland",
+   "author": "TBD",
+   "lang": "en",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "intermediate",
+   "stats": {
+    "sentences": 1500,
+    "words": 26473,
+    "chunks": {
+     "starter": 9871,
+     "beginner": 7966,
+     "intermediate": 5075,
+     "advanced": 3368
+    },
+    "avg_sentence_len": 17.6,
+    "vocab_below_zipf4": 0.33
    },
    "audio": null
   }
