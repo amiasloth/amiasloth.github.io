@@ -8,7 +8,20 @@ with strength 0; sentence ids widened to 12 hex + uniqueness invariant;
 rungs⊆advanced invariant stated; paragraph flag `p` added (consumer:
 daily-mode paragraph quota); reserved fields `para`/`sum` named; audio
 manifest located; provenance completed for gloss/books.json.
-This is the frozen contract that `tools/build3.py` fills and the v3 reader
+Rev 2.1 (2026-07-11, first implementation — clarifications only, no
+reshape): (a) the omit-when-empty rule is also applied INSIDE `cuts`:
+empty per-level lists are dropped, and `cuts` itself is dropped when all
+levels are empty — reader rule: missing level/missing `cuts` = whole
+sentence is one chunk (reason: ~2% of sentences have no cuts anywhere
+and short sentences rarely cut above beginner; spelling out empty lists
+is pure weight). (b) gloss `sections[].study` is deduped per section
+only, NOT across sections (a lemma can appear in several sections'
+pre-study lists) — matches the 06 wording "the rare lemmas of that
+section", and cross-section dedup stays derivable client-side from
+`study_by_sent` order. Builder lives in `tools/v3/` (build3.py /
+gloss3.py / validate3.py), NOT `tools/build3.py` as written below —
+tools/ top level stays untouched per owner instruction.
+This is the frozen contract that `tools/v3/build3.py` fills and the v3 reader
 consumes. Realises the SETTLED features in `00_v3_overview.md` (tokens
 first-class, stable IDs, POS, NER, nested chunks, glossary, orthography,
 stats, provenance). Nothing here requires AI or audio; AI/audio fields

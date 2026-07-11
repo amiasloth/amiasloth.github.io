@@ -1,0 +1,11 @@
+# Python deps for tools/v3 (build3.py, gloss3.py, validate3.py).
+# Install:  pip install -r tools/v3/requirements.txt
+# Then (build machine, one-time):
+#   python -m spacy download de_core_news_lg     # German default
+#   python -m spacy download en_core_web_sm
+# Sandbox/smoke runs may substitute de_core_news_sm (pass --model);
+# the parse_model provenance stamp keeps sm output distinguishable.
+# One-time dictionary vendoring:  python3 gloss3.py --fetch
+-r ../requirements.txt
+simplemma
+wordfreq

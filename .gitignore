@@ -29,3 +29,7 @@ dist/
 container/secret.env
 
 scripts/Caddyfile
+
+# v3 vendored dictionaries (re-fetch: tools/v3/gloss3.py --fetch)
+tools/v3/vendor/*
+!tools/v3/vendor/README.md

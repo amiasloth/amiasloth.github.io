@@ -1,0 +1,33 @@
+{
+ "schema": 3,
+ "generator": "build3.py@480defe",
+ "books": [
+  {
+   "id": "kafka",
+   "title": "Die Verwandlung",
+   "author": "Franz Kafka",
+   "lang": "de",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "advanced",
+   "stats": {
+    "sentences": 870,
+    "words": 19160,
+    "chunks": {
+     "starter": 7141,
+     "beginner": 5675,
+     "intermediate": 3586,
+     "advanced": 2335
+    },
+    "avg_sentence_len": 22.0,
+    "vocab_below_zipf4": 0.512
+   },
+   "audio": null
+  }
+ ]
+}
