@@ -70,6 +70,7 @@
     sentenceShowText: Store.getPref("sentenceShowText", true),
     abCompare: Store.getPref("abCompare", false),
     checkMode: Store.getPref("checkMode", false),
+    studyWords: Store.getPref("studyWords", true),   // mark study words
   };
 
   // ---------------- data ----------------
@@ -145,15 +146,14 @@
    * Review-mode deck items never get these fields (as in v2). */
 
   function buildSentenceStep(start, end) {
-    let t = "", e = "";
-    for (let k = start; k <= end; k++) {
-      t += (t ? " " : "") + flat[k].t;
-      if (flat[k].e) e += flat[k].e;
-    }
+    let t = "";
+    for (let k = start; k <= end; k++) t += (t ? " " : "") + flat[k].t;
     // all chunks of the step share one sentence — carry its token range
     // so the step gets the same verb/name rendering as a normal chunk
-    return { start, end, t: t.replace(/\s+/g, " ").trim(), e,
-             sent: flat[start].sent, a: flat[start].a, b: flat[end].b };
+    const sent = flat[start].sent, a = flat[start].a, b = flat[end].b;
+    return { start, end, t: t.replace(/\s+/g, " ").trim(),
+             e: gloss && sent ? Data3.chunkEmoji(gloss, sent, a, b) : "",
+             sent, a, b };
   }
 
   /* current text/emoji: the virtual sentence step's joined values while
@@ -245,11 +245,19 @@
    * (POS colouring), entity tokens get .ent (subtle name rendering).
    * Trailing space stays INSIDE each span so the plain-text fallback and
    * renderDiff (which rebuilds .txt from whitespace-split text) agree.
-   * `tappable` (focus line, gloss loaded): word tokens get data-k so a
-   * tap can look them up. */
-  function tokenSpans(sent, a, b, tappable) {
+   * On the focus line (`now`, gloss loaded): word tokens get data-k so
+   * a tap can look them up, and — when the "Mark study words" pref is on
+   * — tokens whose lemma is in the sentence's study list get .sw, a very
+   * subtle underline pointing out the words worth a tap. */
+  function tokenSpans(sent, a, b, now) {
     const frag = document.createDocumentFragment();
     const ents = entMask(sent);
+    const tappable = now && !!gloss;
+    let study = null;
+    if (tappable && prefs.studyWords && gloss.study_by_sent &&
+        Object.prototype.hasOwnProperty.call(gloss.study_by_sent, sent.id)) {
+      study = new Set(gloss.study_by_sent[sent.id]);
+    }
     for (let k = a; k < b; k++) {
       const sp = document.createElement("span");
       let t = sent.toks[k];
@@ -257,8 +265,15 @@
       sp.textContent = t;
       let cls = (sent.pos && POS_CLS[sent.pos[k]]) || "";
       if (ents && ents.has(k)) cls += (cls ? " " : "") + "ent";
+      if (tappable && /[\p{L}\p{N}]/u.test(sent.toks[k])) {
+        sp.dataset.k = k;
+        if (study && study.size) {
+          const r = Data3.glossLookup(gloss, sent, k);
+          if (!r.isEnt && r.lemma && study.has(r.lemma))
+            cls += (cls ? " " : "") + "sw";
+        }
+      }
       if (cls) sp.className = cls;
-      if (tappable && /[\p{L}\p{N}]/u.test(sent.toks[k])) sp.dataset.k = k;
       frag.appendChild(sp);
     }
     return frag;
@@ -267,6 +282,11 @@
   function chunkNode(c, cls) {
     const d = document.createElement("div");
     d.className = "chunk " + cls;
+    // chunk emoji is computed at runtime from the gloss (rarest glossed
+    // word with an emoji) and cached on the item — stars and curEmoji()
+    // then see the same value the reader showed
+    if (cls === "now" && c.e === undefined)
+      c.e = gloss && c.sent ? Data3.chunkEmoji(gloss, c.sent, c.a, c.b) : "";
     if (cls === "now" && c.e) {
       const em = document.createElement("span");
       em.className = "emoji";
@@ -275,8 +295,7 @@
     }
     const txt = document.createElement("span");
     txt.className = "txt";
-    if (c.sent) txt.appendChild(tokenSpans(c.sent, c.a, c.b,
-                                           cls === "now" && !!gloss));
+    if (c.sent) txt.appendChild(tokenSpans(c.sent, c.a, c.b, cls === "now"));
     else txt.textContent = c.t;        // review-deck items: plain text
     if (c.cont) {
       const dot = document.createElement("span");
@@ -943,6 +962,7 @@
       rec.autoStop = value;
       if (checker) checker.setAutoStop(value);   // check takes use it too (VAD endpointing)
     }
+    if (name === "studyWords") render();   // repaint the focus line marks
     if (name === "checkMode") {   // switching modes: hand the mic over cleanly
       if (checker) checker.reset();
       rec.reset();
@@ -954,6 +974,10 @@
     }
     buildSettingsSheet();
   }
+
+  // Settings are tabbed (Reading / Practice / Voice) — the option list
+  // outgrew one column. The active tab is sticky for the session only.
+  let settingsTab = null;
 
   function buildSettingsSheet() {
     const box = $("settingsopts");
@@ -973,20 +997,38 @@
       box.appendChild(h);
     };
 
-    toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take — recording plays back, check takes score right away.", "autoStop");
-    toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
-    toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
-
-    heading("Sentence replay");
-    toggle("Read the whole sentence", "After the last piece of a sentence, read the complete sentence once.", "sentenceReplay");
-    if (prefs.sentenceReplay) {
-      toggle("Show text for full sentences", "Even when chunk text is hidden, the complete-sentence step stays visible.", "sentenceShowText");
+    // ---- tab row (a tab is hidden when its feature is unavailable)
+    const tabs = [];
+    if (gloss) tabs.push(["reading", "Reading"]);
+    tabs.push(["practice", "Practice"]);
+    if (TTS.available()) tabs.push(["voice", "Voice"]);
+    if (!settingsTab || !tabs.some((t) => t[0] === settingsTab))
+      settingsTab = tabs[0][0];
+    if (tabs.length > 1) {
+      const row = document.createElement("div");
+      row.className = "tabrow";
+      tabs.forEach(([id, label]) => {
+        const b = document.createElement("button");
+        b.className = "tabbtn" + (id === settingsTab ? " sel" : "");
+        b.textContent = label;
+        b.addEventListener("click", () => {
+          settingsTab = id;
+          buildSettingsSheet();
+        });
+        row.appendChild(b);
+      });
+      box.appendChild(row);
     }
 
-    if (TTS.available()) {
-      heading("Listening (on-device voice)");
+    if (settingsTab === "reading") {
+      toggle("Mark study words", "A faint underline on the rare words of the current phrase — the ones the study list (Aa) collects. Turn off if it distracts.", "studyWords");
+      return;
+    }
+
+    if (settingsTab === "voice") {
       toggle("Hear the phrase first", "Shadowing: the phrase is spoken aloud, then recording starts — imitate what you heard.", "ttsFirst");
       toggle("Compare with the voice", "After each take: hear your own recording, then the phrase spoken, back to back.", "abCompare");
+      heading("Voice speed");
       const rates = [[0.6, "Slow"], [0.8, "Relaxed"], [1, "Normal"]];
       const row = document.createElement("div");
       rates.forEach(([v, label]) => {
@@ -998,6 +1040,18 @@
       });
       row.className = "raterow";
       box.appendChild(row);
+      return;
+    }
+
+    // ---- practice
+    toggle("Auto-stop when you pause", "No second tap: about a second of silence ends the take — recording plays back, check takes score right away.", "autoStop");
+    toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
+    toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
+
+    heading("Sentence replay");
+    toggle("Read the whole sentence", "After the last piece of a sentence, read the complete sentence once.", "sentenceReplay");
+    if (prefs.sentenceReplay) {
+      toggle("Show text for full sentences", "Even when chunk text is hidden, the complete-sentence step stays visible.", "sentenceShowText");
     }
 
     if (Checker.isSupported() && !checkHidden) {

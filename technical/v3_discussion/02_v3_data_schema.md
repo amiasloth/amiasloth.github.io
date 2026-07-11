@@ -48,10 +48,17 @@ Design deltas from v2 worth stating up front:
       de/<book>.json             # one file per book (all levels)
       en/<book>.json
       gloss/<book>.json          # glossary + forms map + study lists
-      # (later, out of this session)
-      audio/<book>/<sid>.opus     # per-sentence audio, by sentence ID
-      audio/<book>/manifest.json  # voice, version, coverage, per-sid
-                                  #   durations (v4 session time estimate)
+
+Audio (later, out of this session) lives in a SEPARATE repo
+`zzzpeak-audio` with its own GitHub Pages site (decided 2026-07-11;
+rationale in `00_v3_overview.md` §4), reached via the absolute base
+URL in `books.json` `audio`:
+
+    <audio repo>/
+      <book>/<sid>.opus          # per-sentence audio, by sentence ID
+      <book>/manifest.json       # voice (+model card/license), version,
+                                 #   coverage, per-sid durations
+                                 #   (v4 session time estimate)
 
 localStorage namespace: `zzzpeak.v3` only. `docs/data/**` (v1/v2) stays
 frozen and untouched.
@@ -307,7 +314,9 @@ Amends the 06 spec into the v3 layout (per book, not per level).
             "avg_sentence_len": 8.0,
             "vocab_below_zipf4": 0.12          // share of rare lemmas
           },
-          "audio": null                        // set when audio exists
+          "audio": null                        // absolute base URL of the
+                                               //   audio repo's Pages site
+                                               //   when audio exists
         }
       ]
     }

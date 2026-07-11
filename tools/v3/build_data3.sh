@@ -28,6 +28,15 @@
 # Optional per-book inputs (used automatically when present):
 #   tools/v3/maps/orth_<id>.json     reviewed archaic->modern list
 #   tools/v3/maps/emoji_<id>.json    reviewed lemma->emoji map
+#
+# Emoji-map TEST fallback (owner-approved for the UI-test phase): when no
+# reviewed maps/emoji_<id>.json exists, gloss3 is fed the GENERATED
+# build/emoji_map_<id>.json from the previous run. The generator reads
+# the gloss file, so it runs after gloss3 — but the map depends only on
+# the lemma set, which the emoji map does not change, so the previous
+# run's map is always valid (maps for all 8 books already exist; a fresh
+# tree just needs one bootstrap run). The curated emoji_map.py stays the
+# per-lemma fallback inside gloss3 either way.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -49,7 +58,13 @@ build_one() {                   # id lang infile title author extra-args...
   python3 build3.py "${args[@]}"
 
   local gargs=(--book "$DATA/$lang/$id.json")
-  [ -f "maps/emoji_${id}.json" ] && gargs+=(--emoji-map "maps/emoji_${id}.json")
+  if [ -f "maps/emoji_${id}.json" ]; then
+    echo "     emoji map: maps/emoji_${id}.json (reviewed)"
+    gargs+=(--emoji-map "maps/emoji_${id}.json")
+  elif [ -f "build/emoji_map_${id}.json" ]; then
+    echo "     emoji map: build/emoji_map_${id}.json (GENERATED, ui-test)"
+    gargs+=(--emoji-map "build/emoji_map_${id}.json")
+  fi
   python3 gloss3.py "${gargs[@]}"
 
   python3 validate3.py --book "$DATA/$lang/$id.json" \

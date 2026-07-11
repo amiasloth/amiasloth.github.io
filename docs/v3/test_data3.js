@@ -189,5 +189,68 @@ for (const meta of index.books) {
   console.log("ok  gloss semantics (ents, lemma, entry, override, orth)");
 }
 
+// ---------------- chunk emoji pick ----------------
+// Unit checks of the 02-schema pick rules on a synthetic gloss, then an
+// end-to-end estimate on grimm with the GENERATED test map merged
+// in-memory (predicts what the UI shows once the gloss is rebuilt with
+// the build-script fallback — docs/data3 itself is not touched).
+{
+  const sent = {
+    id: "s1",
+    toks: ["Anna", "sah", "das", "Schloss", "und", "das", "Einhorn",
+           "und", "das", "Schloss", "."],
+    sp: "11111111100",
+    ents: [[0, 1, "PER"]],
+  };
+  const g = {
+    forms: { anna: "anna", sah: "sehen", schloss: "schloss", einhorn: "einhorn" },
+    words: {
+      sehen: { l: "sehen", g_en: "to see", e: "👁" },
+      schloss: { l: "Schloss", g_en: "castle", e: "🏰" },
+      einhorn: { l: "Einhorn", g_en: "unicorn", e: "🦄" },
+      anna: { l: "Anna", g_en: "should never win", e: "🚫" },
+    },
+    freq: { sehen: 5.5, schloss: 3.0 },     // einhorn missing = OOV = 0
+    overrides: {},
+  };
+  const E = (a, b, gg) => Data3.chunkEmoji(gg || g, sent, a, b);
+  // rarest wins: einhorn (OOV=0) < schloss (3.0) < sehen (5.5)
+  if (E(1, 10) !== "🦄") bad("chunkEmoji: rarest pick, got " + E(1, 10));
+  // entity token never a candidate even though glossed
+  if (E(0, 2) !== "👁") bad("chunkEmoji: ent skip, got " + E(0, 2));
+  // rarest-WITH-emoji fallback: strip einhorn's e -> schloss's 🏰
+  const g2 = JSON.parse(JSON.stringify(g));
+  g2.words.einhorn.e = "";
+  if (E(1, 10, g2) !== "🏰") bad("chunkEmoji: empty-e fallthrough, got " + E(1, 10, g2));
+  // zipf-0 tie: two OOV lemmas -> first in word order wins
+  const g3 = JSON.parse(JSON.stringify(g));
+  delete g3.freq.schloss;                    // schloss now OOV too
+  if (E(1, 10, g3) !== "🏰") bad("chunkEmoji: zipf-0 order tie, got " + E(1, 10, g3));
+  // no candidate has an emoji -> "" (empty beats bad)
+  const g4 = JSON.parse(JSON.stringify(g));
+  for (const k in g4.words) g4.words[k].e = "";
+  if (E(0, 11, g4) !== "") bad("chunkEmoji: all-empty must be \"\"");
+  // per-occurrence override changes the winner's emoji
+  const g5 = JSON.parse(JSON.stringify(g));
+  g5.overrides.s1 = { einhorn: { e: "🔒" } };
+  if (E(1, 10, g5) !== "🔒") bad("chunkEmoji: override emoji, got " + E(1, 10, g5));
+  console.log("ok  chunkEmoji rules (rarity, ents, fallthrough, tie, empty, override)");
+
+  // grimm estimate with the generated test map (in-memory merge)
+  const gloss = JSON.parse(fs.readFileSync(path.join(ROOT, "gloss", "grimm.json"), "utf8"));
+  const map = JSON.parse(fs.readFileSync(
+    path.join(__dirname, "..", "..", "tools", "v3", "build", "emoji_map_grimm.json"), "utf8"));
+  for (const l in map)
+    if (gloss.words[l] && !gloss.words[l].e) gloss.words[l].e = map[l];
+  const book = JSON.parse(fs.readFileSync(path.join(ROOT, "de", "grimm.json"), "utf8"));
+  for (const lv of ["beginner", "advanced"]) {
+    const flat = Data3.flatten(book, lv);
+    let withE = 0;
+    flat.forEach((c) => { if (Data3.chunkEmoji(gloss, c.sent, c.a, c.b)) withE++; });
+    console.log("ok  grimm/" + lv + " with test map: " + withE + "/" + flat.length +
+      " chunks would show an emoji (" + Math.round(100 * withE / flat.length) + "%)");
+  }
+}
+
 console.log(fails ? fails + " FAILURES" : "ALL CHECKS PASSED");
 process.exit(fails ? 1 : 0);

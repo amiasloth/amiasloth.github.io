@@ -132,6 +132,32 @@
     return { surface: raw, modern: modern, lemma: lemma, entry: entry, isEnt: isEnt };
   }
 
+  var WORD_RE = /[\p{L}\p{N}]/u;   // token contains a letter/digit
+
+  /* Chunk emoji, computed at runtime (02 schema notes): the emoji of
+   * the chunk's RAREST glossed non-entity word that HAS a non-empty
+   * emoji — rarity (lemma zipf, missing/OOV = 0 = rarest) is the proxy
+   * for "the word the learner most likely does not know". Repeated
+   * lemmas are deduplicated; zipf ties (OOV compounds) break by word
+   * order (first wins); per-occurrence sense overrides are honoured via
+   * glossLookup. Returns "" when no candidate has an emoji — empty
+   * beats bad. */
+  function chunkEmoji(gloss, sent, a, b) {
+    var seen = {}, bestE = "", bestZ = Infinity;
+    for (var k = a; k < b; k++) {
+      if (!WORD_RE.test(sent.toks[k])) continue;
+      var r = glossLookup(gloss, sent, k);
+      if (r.isEnt || !r.lemma || !r.entry) continue;   // glossed words only
+      if (seen[r.lemma]) continue;
+      seen[r.lemma] = 1;
+      if (!r.entry.e) continue;               // fall through to next rarest
+      var z = get(gloss.freq, r.lemma);
+      if (z == null) z = 0;                   // OOV = maximally rare
+      if (z < bestZ) { bestZ = z; bestE = r.entry.e; }   // strict <: first wins ties
+    }
+    return bestE;
+  }
+
   var Data3 = {
     sliceText: sliceText,
     boundaries: boundaries,
@@ -139,6 +165,7 @@
     findPosition: findPosition,
     nfcLower: nfcLower,
     glossLookup: glossLookup,
+    chunkEmoji: chunkEmoji,
   };
 
   global.Data3 = Data3;

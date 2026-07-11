@@ -84,6 +84,22 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    derivation from study_by_sent on ALL 8 built books (test now runs
    the full library; heidi's merged-chapter issue shows as a 563-word
    section list — data, not reader).
+   Study-word marks: faint accent underline on focus-line words whose
+   lemma is in the sentence's study list; settings toggle ("Mark study
+   words", default on). v3 entry link added to the v1 landing page
+   (owner-approved touch of docs/index.html).
+   Chunk emoji at runtime: Data3.chunkEmoji implements the 02 pick
+   (rarest glossed non-entity lemma with non-empty `e`, OOV=0 rarest,
+   word-order tie-break, dedup, overrides honoured), cached on the flat
+   item so stars/veil hint reuse it; sentence step included. Unit-tested
+   + estimated on grimm with the generated test map: ~6% of beginner /
+   14% of advanced chunks get an emoji.
+   Settings sheet is tabbed (Reading / Practice / Voice; tabs hidden
+   when their feature is unavailable).
+   Emoji-map test phase: build_data3.sh now falls back to the GENERATED
+   build/emoji_map_<id>.json when no reviewed maps/emoji_<id>.json
+   exists (owner-approved for UI testing; rerun bakes it — the map
+   depends only on the lemma set, which the emoji map doesn't change).
    Feature list still to add (all data-ready):
    - level selection + nested chunk stepping; progressive-rung mode
      (rungs ⊆ advanced; ladder valid from any level);
@@ -92,8 +108,8 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      study words~~ (done);
    - ~~verb coloring from POS; subtle name rendering from ents~~ (done);
    - orthography display toggle (orth field);
-   - chunk emoji at runtime: rarest glossed word with non-empty `e`
-     (zipf-0 tie-break by word order, dedup lemmas, skip ents);
+   - ~~chunk emoji at runtime: rarest glossed word with non-empty `e`
+     (zipf-0 tie-break by word order, dedup lemmas, skip ents)~~ (done);
    - check mode: grade against modernized form, discount entities;
    - chapter/section jump (TOC); tap/long-press → external dictionary;
    - library screen from `books.json` (stats, difficulty);
@@ -108,12 +124,38 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
 
 4. **Audio pass (script-only, no AI)** — Piper thorsten-medium on the
    build machine; one opus per sentence named by sentence id (all
-   levels share files); `audio/<book>/manifest.json` with voice,
-   coverage, per-sid durations; `books.json` audio field. Reader:
-   sentence replay with Web Speech fallback; partial coverage fine.
-   Rollout shortest-first (velveteen/kafka), judge on device.
-   Chunk-level playback stays deferred (word timestamps via later
-   forced alignment; no audio regeneration needed).
+   levels share files); `manifest.json` with voice, coverage, per-sid
+   durations; `books.json` audio field. Reader: sentence replay with
+   Web Speech fallback; partial coverage fine. Rollout shortest-first
+   (velveteen/kafka), judge on device. Chunk-level playback stays
+   deferred (word timestamps via later forced alignment; no audio
+   regeneration needed).
+   Decisions 2026-07-11:
+   - Per-sentence files CONFIRMED over one whole-book file +
+     timestamps. Whole-book loses for a sentence-replay reader: a
+     long book at 24 kbps exceeds GitHub's 100 MB per-file limit;
+     playing one sentence means HTTP-range seeking into Ogg (fragile
+     on mobile) or downloading the whole book vs ~15 KB fetches; no
+     incremental regeneration; identical sentences can't share a
+     file. Whole-book + forced alignment (aeneas) only makes sense
+     if a human-read audiobook (LibriVox) is ever aligned — v4+
+     idea, and even then it gets sliced to per-sentence files.
+   - Hosting: SEPARATE repo (`zzzpeak-audio`) with its own GitHub
+     Pages site. Keeps the app repo small, gets its own ~1 GB Pages
+     budget (whole corpus ≈ 350–450 MB at 24 kbps; 16 kbps mono is
+     the fallback lever, judge on device). github.io serves
+     `Access-Control-Allow-Origin: *`, so cross-origin fetch works.
+     `books.json` `audio` = absolute base URL; manifests live with
+     the audio. Audio is write-once (sid-named), so no git churn.
+   - Build: NOT in the dev image (at its size budget — spaCy trf
+     already didn't fit). Ephemeral second image
+     `container/Dockerfile.audio`: debian-slim + `pip piper-tts`
+     (piper1-gpl, ONNX — no torch, ~300 MB total) + `opus-tools`
+     (opusenc); voice `.onnx` bind-mounted from the host, run with
+     `--rm` writing into the audio repo checkout. piper1-gpl is
+     GPL-3.0: no impact — generated audio is ours, no piper code is
+     vendored. Stamp voice name + model card/license in the
+     manifest provenance.
 
 5. **AI passes (optional, additive, Mistral; reviewable artifacts)**
    - `g_de` one-line learner definitions (~A2), two-pass

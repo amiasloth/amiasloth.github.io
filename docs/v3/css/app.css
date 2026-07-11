@@ -205,6 +205,14 @@ header.bar a, header.bar button.iconbtn {
    Context rows inherit the .ctx opacity, so coloured verbs stay muted
    there. Names get a quiet dotted underline, no colour shift. */
 .chunk .txt .vb { color: var(--verb); }
+/* study words: VERY subtle — a faint accent underline, quieter than the
+   red check-mode miss marks and the dotted entity underline */
+.chunk .txt .sw {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  text-underline-offset: 5px;
+  text-decoration-thickness: 2px;
+}
 .chunk .txt .ent {
   text-decoration: underline dotted var(--dim);
   text-underline-offset: 4px;
@@ -275,6 +283,16 @@ header.bar a, header.bar button.iconbtn {
 .wordrow .wr-emoji { margin-left: 8px; }
 .wordrow .wr-gloss { color: var(--dim); font-size: 14px; margin-top: 1px; }
 .wr-empty { color: var(--dim); font-size: 14px; padding: 6px 2px; }
+
+/* v3: settings tabs */
+.tabrow { display: flex; gap: 8px; margin-bottom: 14px; }
+.tabrow .tabbtn {
+  flex: 1; padding: 10px 0; text-align: center;
+  background: var(--card2); border: 1px solid transparent;
+  color: var(--dim); border-radius: 10px; font-size: 14px; cursor: pointer;
+  touch-action: manipulation;
+}
+.tabrow .tabbtn.sel { border-color: var(--accent); color: var(--accent); }
 
 .raterow { display: flex; gap: 10px; }
 .raterow .rateopt { text-align: center; margin-bottom: 10px; }
