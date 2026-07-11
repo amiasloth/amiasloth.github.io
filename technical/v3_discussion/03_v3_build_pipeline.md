@@ -60,6 +60,29 @@ invariants PASS.
   reviewed candidates become build3's `--orth-subst` input — that is
   the orthography pass of `00_v3_overview.md`.
 
+## Round 2 (2026-07-11, after owner review of the lg run)
+
+- **NER guard**: build3 now trims every entity span to its maximal
+  PROPN runs and drops spans without one. On the owner's lg Kafka this
+  removes all 124 junk spans (Teufel PER, Pelzmuff MISC, Zeit MISC…)
+  and shrinks padded ones ("Gregor das Kriechen" → "Gregor"), keeping
+  the padding glossable. Needs a lg rebuild to take effect in
+  `docs/data3`. Note: sm/lg still mislabel the *label* (Gregor LOC);
+  consumers should trust the span ("is a name"), not the label.
+- **Orthography flow confirmed conservative**: displayed text is never
+  changed by the pipeline. A human-reviewed `--orth-subst` list bakes
+  `orth` fields; gloss3 then looks up the modern form (and maps BOTH
+  surfaces in `forms`), check mode grades against it. Without a list,
+  only the near-lossless th/ey/ß lookup fallbacks are live; aggressive
+  rules stay report-only.
+- **Emoji**: `emoji_suggest3.py` generates CLDR-based suggestions
+  (report-only, `build/emoji_suggestions_<book>.txt`; de-keyword +
+  en-gloss-keyword matches, stopword/symbol-filtered; Kafka: 249/699
+  empty lemmas get candidates, quality mixed — English polysemy like
+  Türflügel="leaf"→🌿 is why nothing is auto-applied). Reviewed picks
+  go into a `{lemma: emoji}` JSON consumed by `gloss3.py --emoji-map`
+  — the same entry point the future AI-drafted map will use.
+
 ## Next steps (in owner's preferred order: small batch → review → repeat)
 
 1. Owner reviews `tools/v3/build/review_kafka.md` (+ misses/orth
