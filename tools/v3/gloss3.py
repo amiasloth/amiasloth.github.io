@@ -240,21 +240,32 @@ def run(args):
     orth_cand = {}                           # archaic surface -> (key, head)
     n_tokens = 0
 
+    emoji_map = {}
+    if args.emoji_map:
+        emoji_map = json.loads(Path(args.emoji_map).read_text("utf-8"))
+
     for sec in book["sections"]:
         sec_study, sec_seen = [], set()
         for sent in sec["sentences"]:
             ent_toks = set()
             for a, b, _ in sent.get("ents", []):
                 ent_toks.update(range(a, b))
+            orth = sent.get("orth", {})
             sent_study, sent_seen = [], set()
             for i, tok in enumerate(sent["toks"]):
                 if i in ent_toks or not is_word(tok):
                     continue
                 n_tokens += 1
-                surf = nfc_lower(tok)
-                lemma = lemmatize(tok)
+                # baked orth (reviewed substitution list) wins: lookup
+                # runs on the MODERN form per the pinned schema; the
+                # original surface still maps in `forms` so a tap on
+                # the displayed old spelling resolves too.
+                mod = orth.get(str(i), tok)
+                surf = nfc_lower(mod)
+                lemma = lemmatize(mod)
                 key, archaic = resolve(surf, nfc_lower(lemma))
                 forms[surf] = key
+                forms[nfc_lower(tok)] = key
                 if zipf(key) >= args.threshold:
                     continue                 # common word: not study material
                 if key not in index:
@@ -270,12 +281,13 @@ def run(args):
                             break
                     continue
                 if key not in words:
-                    head, g_en = entry(key, lemmatize(tok))
+                    head, g_en = entry(key, lemma)
                     if not g_en:             # no entry with a usable line
                         misses.setdefault(key, set()).add(tok)
                         continue
                     words[key] = {"l": head, "g_en": g_en,
-                                  "e": EMOJI["de"].get(key, "")}
+                                  "e": emoji_map.get(
+                                      key, EMOJI["de"].get(key, ""))}
                     freq[key] = round(zipf(key), 2)
                 if archaic:
                     orth_cand[tok] = (key, words[key]["l"])
@@ -334,6 +346,10 @@ def main():
                     help="output path (default: sibling gloss/<book>.json)")
     ap.add_argument("--threshold", type=float, default=3.5,
                     help="zipf below which a lemma is glossed (default 3.5)")
+    ap.add_argument("--emoji-map", default=None,
+                    help="reviewed {lemma: emoji} JSON — overrides the "
+                         "curated fallback; the future AI-drafted map "
+                         "uses this same entry point")
     ap.add_argument("--fetch", action="store_true",
                     help="download + extract the FreeDict dictionary")
     args = ap.parse_args()

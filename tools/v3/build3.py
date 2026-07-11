@@ -104,6 +104,26 @@ def sentence_unit(sent, cfg):
     sp = ["1" if t.whitespace_ else "0" for t in toks]
     sp[-1] = "0"                            # sentence-final
 
+    # NER guard (owner review of the lg run, 2026-07-11): the de models
+    # over-tag capitalised common nouns (Teufel PER, Pelzmuff MISC,
+    # Zeit MISC — 124/441 lg spans on Kafka) and pad real names with
+    # neighbours ("Gregor das Kriechen").  Deterministic fix: keep only
+    # the maximal PROPN runs inside each span — junk spans contain no
+    # PROPN and vanish; padded spans shrink to the name, so the padding
+    # (Kriechen, Rücken...) stays glossable.
+    ents = []
+    for e in sent.ents:
+        run = None
+        for i in range(e.start - sent.start, e.end - sent.start):
+            if toks[i].pos_ == "PROPN":
+                run = [i, i + 1, e.label_] if run is None else run
+                run[1] = i + 1
+            elif run:
+                ents.append(run)
+                run = None
+        if run:
+            ents.append(run)
+
     strengths = hier.break_strengths(sent, cfg)
     cuts = hier.derive_levels(sent, strengths, cfg)
     wcount = hier.make_wcount(sent)
@@ -119,8 +139,7 @@ def sentence_unit(sent, cfg):
         "toks": words,
         "sp": sp,                           # list of "0"/"1", joined later
         "pos": [t.pos_ for t in toks],
-        "ents": [[e.start - sent.start, e.end - sent.start, e.label_]
-                 for e in sent.ents],
+        "ents": ents,
         "breaks": breaks,
         "cuts": {lvl: list(cuts[lvl]) for lvl in LEVEL_ORDER_FINE},
         "rungs": [list(r) for r in rungs],
