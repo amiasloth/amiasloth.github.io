@@ -105,6 +105,36 @@ invariants PASS.
   hellcat" (figurative sense first), "Schwenk = panning shot". The
   planned AI `g_de`/sense pass is the real fix.
 
+## Round 4 (2026-07-11, English NER labels + WordNet senses)
+
+- **en label whitelist** (build3): English models use the 18-label
+  OntoNotes set; only name-like labels {PERSON, GPE, LOC, FAC, NORP}
+  are kept as ents now (Christmas TIME, Rabbit WORK_OF_ART, Aunts ORG
+  → gone). German's 4-label set stays whole. Personified characters
+  (Boy, Bunny, Fairy → PERSON) are kept deliberately — they function
+  as names. Residual sm noise remains ("china" GPE, "Rabbit" FAC);
+  try `--model en_core_web_lg` on the build machine if it bothers.
+- **POS-aware WordNet senses** (gloss3): the occurrence's baked UPOS
+  picks the sense block — "peep" (verb) now glosses "look furtively",
+  not the bird cry. Sense order WITHIN one part of speech is still
+  WordNet's ("whisker" n 1 = "a very small distance"); that residue is
+  AI-pass territory, not deterministic.
+
+## Round 5 (2026-07-11, POS-aware German lookup)
+
+FreeDict headword lines carry `<n>/<v>/<adj>/<adv>` tags; gloss3 now
+narrows homograph entries to the tag matching the occurrence's baked
+UPOS before the exact-case tiebreak (Leben the noun vs leben the verb).
+German twist discovered on the first diff: German adjectives work as
+unmarked adverbs, so spaCy tags them ADV and the `<adv>` entries gave
+awkward English ("clownishly", fake "unhurtly") — de maps ADV→adj (the
+base adjective IS the vocabulary item; true adverbs like "gern" reach
+their adv entry via pool fallback). Kafka diff: 43/713 glosses changed,
+mostly upgrades ("hungern = fast" → "Hungern = fasting", "führend =
+going" → "leading", "zumachen = cap a pen" → "seal sth.",
+"augenblicklich = at the moment" → "immediate"). `docs/data3/gloss/`
+regenerated (kafka); book files unchanged.
+
 ## Next steps (in owner's preferred order: small batch → review → repeat)
 
 1. Owner reviews `tools/v3/build/review_kafka.md` (+ misses/orth

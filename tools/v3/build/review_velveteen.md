@@ -1,4 +1,4 @@
-# review sample — velveteen (en_core_web_sm, build3.py@89fbabf)
+# review sample — velveteen (en_core_web_sm, build3.py@01fb9e6)
 
 ## 
 
@@ -23,7 +23,6 @@
 - intermediate: On Christmas morning, when he sat wedged | in the top of the Boy's stocking, | with a sprig of holly between his paws, | the effect was charming.
 - advanced: On Christmas morning, when he sat wedged | in the top of the Boy's stocking, | with a sprig of holly between his paws, the effect was charming.
 - rung 1: On Christmas morning, when he sat wedged in the top of the Boy's stocking, | with a sprig of holly between his paws, the effect was charming.
-- ents: Christmas (TIME)
 - study: sprig = a small branch or division of a branch (especially a terminal division); paw = a clawed foot of an animal especially a quadruped
 
 **4. There were other things in the stocking, nuts and oranges and a toy engine, and chocolate almonds and a clockwork mouse, but the Rabbit was quite the best of all.**  `4f381d35b9c8` ¶
@@ -32,7 +31,6 @@
 - intermediate: There were other things in the stocking, nuts | and oranges and a toy engine, | and chocolate almonds and a clockwork mouse, | but the Rabbit | was quite the best of all.
 - advanced: There were other things in the stocking, nuts | and oranges and a toy engine, | and chocolate almonds and a clockwork mouse, | but the Rabbit was quite the best of all.
 - rung 1: There were other things in the stocking, nuts and oranges and a toy engine, | and chocolate almonds and a clockwork mouse, but the Rabbit was quite the best of all.
-- ents: Rabbit (WORK_OF_ART)
 - study: clockwork = any mechanism of geared wheels that is driven by a coiled spring
 
 **5. For at least two hours the Boy loved him, and then Aunts and Uncles came to dinner, and there was a great rustling of tissue paper and unwrapping of parcels, and in the excitement of looking at all the new presents the Velveteen Rabbit was forgotten.**  `222be6821b8a`
@@ -42,8 +40,8 @@
 - advanced: For at least two hours the Boy loved him, | and then Aunts and Uncles came to dinner, | and there was a great rustling of tissue paper and unwrapping | of parcels, and in the excitement of looking | at all the new presents the Velveteen Rabbit was forgotten.
 - rung 1: For at least two hours the Boy loved him, and then Aunts and Uncles came to dinner, | and there was a great rustling of tissue paper and unwrapping of parcels, and in the excitement of looking at all the new presents the Velveteen Rabbit was forgotten.
 - rung 2: For at least two hours the Boy loved him, and then Aunts and Uncles came to dinner, | and there was a great rustling of tissue paper and unwrapping | of parcels, and in the excitement of looking at all the new presents the Velveteen Rabbit was forgotten.
-- ents: Boy (PERSON), Aunts (ORG), Uncles (ORG), Velveteen Rabbit (WORK_OF_ART)
-- study: rustling = characterized by soft sounds; unwrap = remove the outer cover or wrapping of
+- ents: Boy (PERSON)
+- study: rustling = the stealing of cattle; unwrap = remove the outer cover or wrapping of; velveteen = a usually cotton fabric with a short pile imitating velvet
 
 ## Christmas Morning
 
@@ -60,7 +58,7 @@
 - beginner: He was naturally shy, | and being only made | of velveteen, | some of the more expensive toys | quite snubbed him.
 - intermediate: He was naturally shy, | and being only made of velveteen, | some of the more expensive toys | quite snubbed him.
 - advanced: He was naturally shy, and being only made of velveteen, | some of the more expensive toys quite snubbed him.
-- study: velveteen = a usually cotton fabric with a short pile imitating velvet; snub = unusually short
+- study: velveteen = a usually cotton fabric with a short pile imitating velvet; snub = refuse to acknowledge
 
 **8. The mechanical toys were very superior, and looked down upon every one else; they were full of modern ideas, and pretended they were real.**  `dffcc287b0b2`
 - starter: The mechanical toys | were very superior, | and looked down | upon every one else; | they were full | of modern ideas, | and pretended | they were real.

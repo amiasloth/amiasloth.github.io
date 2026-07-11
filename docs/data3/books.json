@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@82b1776",
+ "generator": "build3.py@01fb9e6",
  "books": [
   {
    "id": "kafka",
@@ -79,7 +79,7 @@
      "advanced": 499
     },
     "avg_sentence_len": 17.2,
-    "vocab_below_zipf4": 0.225
+    "vocab_below_zipf4": 0.224
    },
    "audio": null
   }

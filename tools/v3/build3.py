@@ -111,8 +111,19 @@ def sentence_unit(sent, cfg):
     # the maximal PROPN runs inside each span — junk spans contain no
     # PROPN and vanish; padded spans shrink to the name, so the padding
     # (Kriechen, Rücken...) stays glossable.
+    #
+    # English label whitelist (owner review round 4): en models use the
+    # 18-label OntoNotes set, most of which are not NAMES in our sense —
+    # ents exist to mark "not vocabulary", and Christmas (TIME) or
+    # Rabbit (WORK_OF_ART) are vocabulary.  German's 4-label set is kept
+    # whole.  Personified characters used as names (the Boy, the Rabbit
+    # → PERSON) are kept: that reading is correct.
+    keep_labels = ({"PERSON", "GPE", "LOC", "FAC", "NORP"}
+                   if sent.doc.lang_ == "en" else None)
     ents = []
     for e in sent.ents:
+        if keep_labels is not None and e.label_ not in keep_labels:
+            continue
         run = None
         for i in range(e.start - sent.start, e.end - sent.start):
             if toks[i].pos_ == "PROPN":

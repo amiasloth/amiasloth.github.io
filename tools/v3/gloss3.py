@@ -177,26 +177,53 @@ def load_dict(lang):
 TAG_RE = re.compile(r"<[^>]*>|\[[^\]]*\]|\{[^}]*\}")
 
 
-def parse_entry_wordnet(raw):
+WN_MARK = re.compile(r"\b(n|v|adj|adv|s)?\s*(\d+):\s*")
+UPOS2WN = {"NOUN": "n", "PROPN": "n", "VERB": "v", "AUX": "v",
+           "ADJ": "adj", "ADV": "adv"}
+
+
+def parse_entry_wordnet(raw, want=None):
     """(headword, one_line_gloss) from a WordNet dictd block:
     headword line, then '  n 1: definition [syn: ...] "example"' with
-    indented wrap lines.  First sense only.  Known limitation: WordNet
-    sense order is not frequency order (turtle -> 'a sweater...')."""
+    indented wrap lines, senses grouped per part of speech.  `want`
+    (n/v/adj/adv) picks the first sense of THAT part of speech — the
+    caller passes the occurrence's actual UPOS from the book file, so
+    'peep' used as a verb glosses as looking, not as a bird cry.
+    Fallback: first sense of the block (WordNet sense order is not
+    frequency order, hence the whole exercise)."""
     lines = raw.decode("utf-8").split("\n")
     head = lines[0].strip()
     body = " ".join(l.strip() for l in lines[1:])
-    m = re.search(r"\b1:\s*(.+)", body)
-    if not m:
+    senses, cur = {}, None
+    marks = list(WN_MARK.finditer(body))
+    for m, nxt in zip(marks, marks[1:] + [None]):
+        if m.group(1):
+            cur = "adj" if m.group(1) == "s" else m.group(1)
+        if m.group(2) == "1" and cur and cur not in senses:
+            t = body[m.end(): nxt.start() if nxt else len(body)]
+            t = re.split(r'\[syn|"|;', t)[0]
+            senses[cur] = " ".join(t.split()).strip(" ,;")[:80]
+    if not senses:
         return head, ""
-    t = re.split(r'\s+(?:n|v|adj|adv|s)?\s*\d+:\s|\[syn|"|;', m.group(1))[0]
-    t = " ".join(t.split()).strip(" ,;")
-    return head, t[:80]
+    if want in senses:
+        return head, senses[want]
+    return head, next(iter(senses.values()))
+
+
+WN_POS_TAGS = {"n", "v", "adj", "adv"}
 
 
 def parse_entry(raw):
-    """(display_headword, one_line_gloss) from a FreeDict entry block."""
+    """(display_headword, one_line_gloss, pos_tags) from a FreeDict
+    entry block.  pos_tags ⊆ {n,v,adj,adv}, from the headword line's
+    <neut, n, sg> / <v, trans> annotation — used to pick the homograph
+    entry matching the occurrence's actual UPOS (Leben the noun vs
+    leben the verb), which beats guessing from lemma capitalisation."""
     lines = raw.decode("utf-8").split("\n")
     head = lines[0].split("/")[0].strip() or lines[0].strip()
+    m = re.search(r"<([^>]*)>", lines[0])
+    tags = ({t.strip() for t in m.group(1).split(",")} & WN_POS_TAGS
+            if m else set())
     for ln in lines[1:]:
         t = ln.strip()
         if not t or t.startswith(('"', "Note", "Synonym", "see:", "-")):
@@ -207,8 +234,8 @@ def parse_entry(raw):
         if t:
             t = t.split(";")[0]
             syns = [p.strip() for p in t.split(",") if p.strip()]
-            return head, ", ".join(syns[:3])[:80]
-    return head, ""
+            return head, ", ".join(syns[:3])[:80], tags
+    return head, "", tags
 
 
 # ------------------------------------------------------------ archaic forms
@@ -251,15 +278,25 @@ def run(args):
     if lang not in DICTS:
         sys.exit(f"gloss3.py: no dictionary configured for lang {lang!r}")
     index, data = load_dict(lang)
-    parse = (parse_entry_wordnet if DICTS[lang]["format"] == "wordnet"
-             else parse_entry)
+    wordnet = DICTS[lang]["format"] == "wordnet"
 
-    def entry(key, lemma_display):
-        """Among the key's homograph entries, prefer one whose headword
-        matches the lemma's exact case (verb 'flimmern' over noun
-        'Flimmern'); else the first entry with a usable gloss line."""
-        parsed = [parse(data[off:off + ln]) for off, ln in index[key]]
-        usable = [(h, g) for h, g in parsed if g]
+    def entry(key, lemma_display, want=None):
+        """Pick among the key's homograph entries.  `want` (n/v/adj/adv
+        from the occurrence's baked UPOS) narrows to entries of that
+        part of speech first — FreeDict via headword tags, WordNet via
+        its per-POS sense blocks; then exact-case headword match (verb
+        'flimmern' over noun 'Flimmern'); then first usable entry."""
+        if wordnet:
+            usable = [(h, g) for h, g in
+                      (parse_entry_wordnet(data[off:off + ln], want)
+                       for off, ln in index[key]) if g]
+        else:
+            parsed = [parse_entry(data[off:off + ln])
+                      for off, ln in index[key]]
+            usable = [(h, g, t) for h, g, t in parsed if g]
+            if want:
+                usable = ([e for e in usable if want in e[2]] or usable)
+            usable = [(h, g) for h, g, _ in usable]
         if not usable:
             return None, None
         for h, g in usable:
@@ -354,7 +391,17 @@ def run(args):
                             break
                     continue
                 if key not in words:
-                    head, g_en = entry(key, lemma)
+                    # sense choice follows the FIRST rare occurrence's POS.
+                    # German ADV maps to adj: German adjectives are used
+                    # adverbially unmarked ("lächelte närrisch"), and the
+                    # base-adjective gloss is the vocabulary item — the
+                    # <adv> entries give awkward English ("clownishly",
+                    # "unhurtly").  True adverbs (gern) have only adv
+                    # entries and reach them via the pool fallback.
+                    want = UPOS2WN.get(sent["pos"][i])
+                    if lang == "de" and want == "adv":
+                        want = "adj"
+                    head, g_en = entry(key, lemma, want)
                     if not g_en:             # no entry with a usable line
                         misses.setdefault(key, set()).add(tok)
                         continue
