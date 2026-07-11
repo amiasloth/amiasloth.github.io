@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@3f65603",
+ "generator": "build3.py@89fbabf",
  "books": [
   {
    "id": "kafka",
@@ -53,6 +53,33 @@
     },
     "avg_sentence_len": 17.6,
     "vocab_below_zipf4": 0.33
+   },
+   "audio": null
+  },
+  {
+   "id": "velveteen",
+   "title": "The Velveteen Rabbit",
+   "author": "Margery Williams",
+   "lang": "en",
+   "levels": [
+    "starter",
+    "beginner",
+    "intermediate",
+    "advanced"
+   ],
+   "source": "Project Gutenberg",
+   "difficulty": "intermediate",
+   "stats": {
+    "sentences": 226,
+    "words": 3877,
+    "chunks": {
+     "starter": 1424,
+     "beginner": 1173,
+     "intermediate": 735,
+     "advanced": 499
+    },
+    "avg_sentence_len": 17.2,
+    "vocab_below_zipf4": 0.225
    },
    "audio": null
   }

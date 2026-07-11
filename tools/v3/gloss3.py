@@ -24,8 +24,9 @@ Usage:
   python3 gloss3.py --book ../../docs/data3/de/kafka.json \
       [--out ../../docs/data3/gloss/kafka.json] [--threshold 3.5]
 
-German only for now (owner's main use; en glossing needs a different
-dictionary source and is not wired up).
+Languages: de (FreeDict deu-eng, de->en glosses) and en (WordNet 3.0
+dictd, en->en definitions).  The archaic-orthography machinery is
+German-only.
 """
 
 import argparse
@@ -48,10 +49,32 @@ from wordfreq import zipf_frequency         # noqa: E402
 
 SCHEMA = 3
 VENDOR = HERE / "vendor"
-DICT_URL = ("https://download.freedict.org/dictionaries/deu-eng/"
-            "1.9-fd1/freedict-deu-eng-1.9-fd1.dictd.tar.xz")
-DICT_VERSION = "freedict-deu-eng-1.9-fd1"
-DICT_DIR = VENDOR / "deu-eng"
+
+# Per-language dictionary config.  de: FreeDict deu-eng (de->en gloss).
+# en: WordNet 3.0 in dictd format (en->en definitions — same-language
+# glosses, which is also the owner-preferred direction).  Both are
+# dictd, so one index/data reader serves both; only the entry FORMAT
+# parser differs.
+DICTS = {
+    "de": {
+        "url": ("https://download.freedict.org/dictionaries/deu-eng/"
+                "1.9-fd1/freedict-deu-eng-1.9-fd1.dictd.tar.xz"),
+        "archive": "freedict-deu-eng-1.9-fd1.dictd.tar.xz",
+        "version": "freedict-deu-eng-1.9-fd1",
+        "index": VENDOR / "deu-eng" / "deu-eng.index",
+        "dict": VENDOR / "deu-eng" / "deu-eng.dict.dz",
+        "format": "freedict",
+    },
+    "en": {
+        "url": ("http://ftp.debian.org/debian/pool/main/w/wordnet/"
+                "dict-wn_3.0-41_all.deb"),
+        "archive": "dict-wn_3.0-41_all.deb",
+        "version": "wordnet-3.0-dictd (dict-wn 3.0-41)",
+        "index": VENDOR / "wn" / "wn.index",
+        "dict": VENDOR / "wn" / "wn.dict.dz",
+        "format": "wordnet",
+    },
+}
 
 B64ALPH = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
@@ -76,17 +99,47 @@ def is_word(s):
 
 # ------------------------------------------------------------ vendoring
 
+def ar_members(path):
+    """Minimal Unix ar reader (a .deb is an ar archive) — 60-byte
+    headers: name[16] mtime[12] uid[6] gid[6] mode[8] size[10] magic[2]."""
+    blob = Path(path).read_bytes()
+    assert blob[:8] == b"!<arch>\n"
+    i = 8
+    while i + 60 <= len(blob):
+        name = blob[i:i + 16].decode().strip().rstrip("/")
+        size = int(blob[i + 48:i + 58].decode().strip())
+        yield name, blob[i + 60:i + 60 + size]
+        i += 60 + size + (size & 1)
+
+
 def fetch_vendor():
+    import io
+    import tarfile
     import urllib.request
     VENDOR.mkdir(parents=True, exist_ok=True)
-    tarball = VENDOR / f"{DICT_VERSION}.dictd.tar.xz"
-    if not tarball.exists():
-        print(f"downloading {DICT_URL} ...")
-        urllib.request.urlretrieve(DICT_URL, tarball)
-    import tarfile
-    with tarfile.open(tarball) as tf:
-        tf.extractall(VENDOR)
-    print(f"vendored -> {DICT_DIR}")
+    for lang, cfg in DICTS.items():
+        if cfg["index"].exists():
+            print(f"{lang}: already vendored ({cfg['version']})")
+            continue
+        archive = VENDOR / cfg["archive"]
+        if not archive.exists():
+            print(f"downloading {cfg['url']} ...")
+            urllib.request.urlretrieve(cfg["url"], archive)
+        if archive.suffix == ".deb":
+            for name, blob in ar_members(archive):
+                if name.startswith("data.tar"):
+                    with tarfile.open(fileobj=io.BytesIO(blob)) as tf:
+                        out = cfg["index"].parent
+                        out.mkdir(parents=True, exist_ok=True)
+                        for m in tf.getmembers():
+                            base = Path(m.name).name
+                            if base in (cfg["index"].name, cfg["dict"].name):
+                                (out / base).write_bytes(
+                                    tf.extractfile(m).read())
+        else:
+            with tarfile.open(archive) as tf:
+                tf.extractall(VENDOR)
+        print(f"vendored -> {cfg['index'].parent}")
 
 
 # ------------------------------------------------------------ dictd access
@@ -98,13 +151,13 @@ def b64int(s):
     return v
 
 
-def load_dict():
+def load_dict(lang):
     """headword(lower) -> [(offset, length), ...] of ALL its entry blocks
     (homographs: FreeDict indexes 'Flimmern' the noun and 'flimmern' the
     verb under the same folded key — the caller picks by case).  Data =
     the whole decompressed .dict (dictzip is gzip-compatible)."""
-    idx_path = DICT_DIR / "deu-eng.index"
-    dict_path = DICT_DIR / "deu-eng.dict.dz"
+    idx_path = DICTS[lang]["index"]
+    dict_path = DICTS[lang]["dict"]
     if not idx_path.exists():
         sys.exit(f"vendored dictionary missing — run: {sys.argv[0]} --fetch")
     index = {}
@@ -124,8 +177,24 @@ def load_dict():
 TAG_RE = re.compile(r"<[^>]*>|\[[^\]]*\]|\{[^}]*\}")
 
 
+def parse_entry_wordnet(raw):
+    """(headword, one_line_gloss) from a WordNet dictd block:
+    headword line, then '  n 1: definition [syn: ...] "example"' with
+    indented wrap lines.  First sense only.  Known limitation: WordNet
+    sense order is not frequency order (turtle -> 'a sweater...')."""
+    lines = raw.decode("utf-8").split("\n")
+    head = lines[0].strip()
+    body = " ".join(l.strip() for l in lines[1:])
+    m = re.search(r"\b1:\s*(.+)", body)
+    if not m:
+        return head, ""
+    t = re.split(r'\s+(?:n|v|adj|adv|s)?\s*\d+:\s|\[syn|"|;', m.group(1))[0]
+    t = " ".join(t.split()).strip(" ,;")
+    return head, t[:80]
+
+
 def parse_entry(raw):
-    """(display_headword, one_line_gloss) from a dictd entry block."""
+    """(display_headword, one_line_gloss) from a FreeDict entry block."""
     lines = raw.decode("utf-8").split("\n")
     head = lines[0].split("/")[0].strip() or lines[0].strip()
     for ln in lines[1:]:
@@ -178,15 +247,18 @@ def propose_variants(k):
 
 def run(args):
     book = json.loads(Path(args.book).read_text("utf-8"))
-    if book.get("lang") != "de":
-        sys.exit("gloss3.py currently supports German books only")
-    index, data = load_dict()
+    lang = book.get("lang")
+    if lang not in DICTS:
+        sys.exit(f"gloss3.py: no dictionary configured for lang {lang!r}")
+    index, data = load_dict(lang)
+    parse = (parse_entry_wordnet if DICTS[lang]["format"] == "wordnet"
+             else parse_entry)
 
     def entry(key, lemma_display):
         """Among the key's homograph entries, prefer one whose headword
         matches the lemma's exact case (verb 'flimmern' over noun
         'Flimmern'); else the first entry with a usable gloss line."""
-        parsed = [parse_entry(data[off:off + ln]) for off, ln in index[key]]
+        parsed = [parse(data[off:off + ln]) for off, ln in index[key]]
         usable = [(h, g) for h, g in parsed if g]
         if not usable:
             return None, None
@@ -199,7 +271,7 @@ def run(args):
 
     def zipf(k):
         if k not in zipf_cache:
-            zipf_cache[k] = zipf_frequency(k, "de")
+            zipf_cache[k] = zipf_frequency(k, lang)
         return zipf_cache[k]
 
     lemma_cache = {}
@@ -207,7 +279,7 @@ def run(args):
     def lemmatize(tok):
         if tok not in lemma_cache:
             lemma_cache[tok] = simplemma.lemmatize(
-                unicodedata.normalize("NFC", tok), lang="de")
+                unicodedata.normalize("NFC", tok), lang=lang)
         return lemma_cache[tok]
 
     resolve_cache = {}                       # surface_lower -> (key, archaic)
@@ -219,7 +291,8 @@ def run(args):
         if surface_lower in resolve_cache:
             return resolve_cache[surface_lower]
         res = (lemma_lower, False)
-        if lemma_lower not in index and zipf(lemma_lower) < args.threshold:
+        if lang == "de" and lemma_lower not in index \
+                and zipf(lemma_lower) < args.threshold:
             found = False
             for v in variants(surface_lower):
                 l2 = nfc_lower(lemmatize(v))
@@ -271,8 +344,8 @@ def run(args):
                 if key not in index:
                     misses.setdefault(key, set()).add(tok)
                     # report-only proposal from the aggressive variants —
-                    # never glossed from (see propose_variants)
-                    for v in propose_variants(surf):
+                    # never glossed from (see propose_variants); German only
+                    for v in propose_variants(surf) if lang == "de" else []:
                         l2 = nfc_lower(lemmatize(v))
                         if l2 in index:
                             h, g = entry(l2, lemmatize(v))
@@ -287,7 +360,7 @@ def run(args):
                         continue
                     words[key] = {"l": head, "g_en": g_en,
                                   "e": emoji_map.get(
-                                      key, EMOJI["de"].get(key, ""))}
+                                      key, EMOJI[lang].get(key, ""))}
                     freq[key] = round(zipf(key), 2)
                 if archaic:
                     orth_cand[tok] = (key, words[key]["l"])
@@ -304,9 +377,9 @@ def run(args):
     out = {
         "schema": SCHEMA,
         "generator": f"gloss3.py@{git_short()}",
-        "lang": "de",
+        "lang": lang,
         "source_hash": book["source_hash"],
-        "dict_version": DICT_VERSION,
+        "dict_version": DICTS[lang]["version"],
         "words": words,
         "forms": forms,
         "freq": freq,

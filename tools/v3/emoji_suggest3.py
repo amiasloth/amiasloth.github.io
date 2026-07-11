@@ -16,10 +16,15 @@ Matching (deterministic):
 Only single-word keywords are indexed; generic keywords that label
 hundreds of emoji (Tier, Gesicht, ...) are skipped via a fan-out cap.
 
-Vendored data (gitignored; see vendor/README.md):
+English gloss files (lang "en"): the lemma IS English, so it is matched
+against the en keywords directly; the g_en field is a WordNet definition
+sentence there, far too noisy for keyword matching, so it is skipped.
+
+Vendored data (gitignored; --fetch downloads; see vendor/README.md):
   tools/v3/vendor/cldr/annotations_{de,en}.json
 
 Usage:
+  python3 emoji_suggest3.py --fetch                # one-time vendoring
   python3 emoji_suggest3.py --gloss ../../docs/data3/gloss/kafka.json
   -> tools/v3/build/emoji_suggestions_<book>.txt
 """
@@ -28,6 +33,10 @@ import argparse
 import json
 import unicodedata
 from pathlib import Path
+
+CLDR_URL = ("https://raw.githubusercontent.com/unicode-org/cldr-json/"
+            "main/cldr-json/cldr-annotations-full/annotations/{lang}/"
+            "annotations.json")
 
 HERE = Path(__file__).resolve().parent
 CLDR = HERE / "vendor" / "cldr"
@@ -77,16 +86,39 @@ def keyword_index(lang):
     return {k: v for k, v in idx.items() if len(v) <= MAX_FANOUT}
 
 
+def fetch_vendor():
+    import urllib.request
+    CLDR.mkdir(parents=True, exist_ok=True)
+    for lang in ("de", "en"):
+        dest = CLDR / f"annotations_{lang}.json"
+        if dest.exists():
+            print(f"{lang}: already vendored")
+            continue
+        url = CLDR_URL.format(lang=lang)
+        print(f"downloading {url} ...")
+        urllib.request.urlretrieve(url, dest)
+    print(f"vendored -> {CLDR}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--gloss", required=True)
+    ap.add_argument("--gloss")
     ap.add_argument("--out", default=None)
+    ap.add_argument("--fetch", action="store_true",
+                    help="download the CLDR annotation files")
     args = ap.parse_args()
+    if args.fetch:
+        fetch_vendor()
+        if not args.gloss:
+            return
+    if not args.gloss:
+        ap.error("--gloss is required (or use --fetch alone)")
 
     gloss = json.loads(Path(args.gloss).read_text("utf-8"))
-    de_idx = keyword_index("de")
+    lang = gloss.get("lang", "de")
     en_idx = keyword_index("en")
+    de_idx = keyword_index("de") if lang == "de" else {}
 
     lines, n_hit = [], 0
     for key, w in sorted(gloss["words"].items()):
@@ -99,13 +131,17 @@ def main():
                 seen.add(emoji)
                 cands.append((emoji, via))
 
-        for e in de_idx.get(key, []):
-            add(e, f"de:{key}")
-        for word in nfc_lower(w["g_en"]).replace(",", " ").split():
-            if word in EN_STOP or len(word) < 3:
-                continue
-            for e in en_idx.get(word, []):
-                add(e, f"en:{word}")
+        if lang == "de":
+            for e in de_idx.get(key, []):
+                add(e, f"de:{key}")
+            for word in nfc_lower(w["g_en"]).replace(",", " ").split():
+                if word in EN_STOP or len(word) < 3:
+                    continue
+                for e in en_idx.get(word, []):
+                    add(e, f"en:{word}")
+        else:                               # en: lemma-only (see docstring)
+            for e in en_idx.get(key, []):
+                add(e, f"en:{key}")
         if cands:
             n_hit += 1
             lines.append(f"{key}\t{w['l']} = {w['g_en']}\t"

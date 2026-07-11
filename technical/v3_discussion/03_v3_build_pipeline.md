@@ -83,6 +83,28 @@ invariants PASS.
   go into a `{lemma: emoji}` JSON consumed by `gloss3.py --emoji-map`
   — the same entry point the future AI-drafted map will use.
 
+## Round 3 (2026-07-11, English + emoji-map flow)
+
+- **English glossing**: gloss3 now handles `lang: en` books using
+  WordNet 3.0 (dictd build, vendored via `--fetch` alongside FreeDict)
+  — eng-eng, i.e. same-language definitions, matching the owner's
+  same-language preference. Archaic-orthography machinery stays
+  German-only. Velveteen built end-to-end (en_core_web_sm IS the
+  production en model): 226 sentences, 72 glossed lemmas, all
+  invariants PASS. Limitation: WordNet sense order isn't frequency
+  order ("whisker = a very small distance").
+- **emoji_suggest3 --fetch + en mode**: for en gloss files the lemma is
+  matched against en CLDR keywords directly (definition text is too
+  noisy); precision is high (🐾 paw, 🧑‍🌾 gardener, 🧸 plaything).
+- **Emoji-map flow demonstrated** (`build/emoji_map_demo_kafka.json`):
+  review `emoji_suggestions_<book>.txt` → keep good lines in a
+  `{lemma: emoji}` JSON → `gloss3.py --emoji-map map.json` → study
+  lists render "aufsperren = unlock 🔓". The demo file is Claude-picked,
+  NOT owner-reviewed; replace before shipping.
+- FreeDict first-sense weakness noted for later: "Besen = shrew,
+  hellcat" (figurative sense first), "Schwenk = panning shot". The
+  planned AI `g_de`/sense pass is the real fix.
+
 ## Next steps (in owner's preferred order: small batch → review → repeat)
 
 1. Owner reviews `tools/v3/build/review_kafka.md` (+ misses/orth
