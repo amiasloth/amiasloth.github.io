@@ -1,0 +1,83 @@
+{
+  "_note": "SAMPLE for schema review — 1 book file + its gloss, 2 short real sentences. Not a real build output. ents corrected to PER (lg default); de_core_news_sm mislabels 'Gregor' as LOC, which is why lg is the German default.",
+
+  "book_file  docs/data3/de/kafka.json": {
+    "schema": 3,
+    "generator": "build3.py@0000000",
+    "source_hash": "sha256:1c9f3a70b2e4",
+    "parse_model": "de_core_news_sm",
+    "id": "kafka",
+    "title": "Die Verwandlung",
+    "author": "Franz Kafka",
+    "lang": "de",
+    "levels": {
+      "starter":      {"min": 2, "target": 2, "max": 3,  "pref": 0},
+      "beginner":     {"min": 2, "target": 3, "max": 5,  "pref": 30},
+      "intermediate": {"min": 2, "target": 5, "max": 8,  "pref": 55},
+      "advanced":     {"min": 3, "target": 8, "max": 12, "pref": 80}
+    },
+    "stats": {
+      "sentences": 2,
+      "words": 13,
+      "chunks": {"starter": 4, "beginner": 3, "intermediate": 3, "advanced": 2},
+      "avg_sentence_len": 6.5,
+      "vocab_below_zipf4": 0.15
+    },
+    "sections": [
+      {
+        "title": "I.",
+        "sentences": [
+          {
+            "id": "e16b0a3a",
+            "toks": ["Sie", "werden", "ihn", "gleich", "sehen", ",", "wenn", "Gregor", "aufmacht", "."],
+            "sp": "1111011100",
+            "pos": ["PRON", "AUX", "PRON", "ADV", "VERB", "PUNCT", "SCONJ", "PROPN", "VERB", "PUNCT"],
+            "ents": [[7, 8, "PER"]],
+            "breaks": [[2, 10], [6, 85], [8, 45]],
+            "cuts": {
+              "advanced": [],
+              "intermediate": [6],
+              "beginner": [6],
+              "starter": [2, 6]
+            },
+            "rungs": []
+          },
+          {
+            "id": "f1a9b1ea",
+            "toks": ["Er", "öffnete", "die", "Thür", "."],
+            "sp": "11100",
+            "pos": ["PRON", "VERB", "DET", "NOUN", "PUNCT"],
+            "breaks": [],
+            "cuts": {"advanced": [], "intermediate": [], "beginner": [], "starter": []},
+            "rungs": [],
+            "orth": {"3": "Tür"}
+          }
+        ]
+      }
+    ]
+  },
+
+  "gloss_file  docs/data3/gloss/kafka.json": {
+    "schema": 3,
+    "generator": "gloss.py@0000000",
+    "lang": "de",
+    "words": {
+      "aufmachen": {"l": "aufmachen", "g_en": "to open", "e": ""},
+      "tür":       {"l": "Tür",       "g_en": "door",    "e": "🚪"}
+    },
+    "forms": {
+      "aufmacht": "aufmachen",
+      "thür":     "tür",
+      "tür":      "tür"
+    },
+    "freq": {"aufmachen": 3.8, "tür": 4.6},
+    "study_by_sent": {
+      "e16b0a3a": ["aufmachen"],
+      "f1a9b1ea": ["tür"]
+    },
+    "overrides": {},
+    "sections": [
+      {"title": "I.", "study": ["aufmachen", "tür"]}
+    ]
+  }
+}
