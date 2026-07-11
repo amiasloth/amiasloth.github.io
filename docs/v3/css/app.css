@@ -177,6 +177,30 @@ header.bar a, header.bar button.iconbtn {
   opacity: 0.35;
 }
 
+/* v3: gloss bubble (tap a word in the focus line). The focus chunk is
+   raised above the .tapzone overlays so word spans get their own taps;
+   taps on the rest of the zone still navigate. */
+.chunk.now { position: relative; z-index: 6; }
+.chunk.now .txt span[data-k] { cursor: pointer; }
+.chunk.now .txt .gb-hit {
+  background: var(--accent-soft);
+  border-radius: 4px;
+}
+.glossbubble {
+  position: fixed; z-index: 40;
+  max-width: min(280px, calc(100vw - 32px));
+  background: var(--card2); color: var(--text);
+  border: 1px solid var(--dimmer);
+  border-radius: 12px; padding: 10px 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  font-size: 16px; line-height: 1.4;
+  pointer-events: none;          /* dismissal is handled globally */
+}
+.glossbubble .gb-word { font-weight: 600; }
+.glossbubble .gb-lemma { color: var(--accent); }
+.glossbubble .gb-emoji { margin-left: 8px; }
+.glossbubble .gb-gloss { color: var(--dim); font-size: 14px; margin-top: 2px; }
+
 /* v3: verb colouring + subtle name rendering (from POS / NER data).
    Context rows inherit the .ctx opacity, so coloured verbs stay muted
    there. Names get a quiet dotted underline, no colour shift. */

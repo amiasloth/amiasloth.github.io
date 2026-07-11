@@ -70,11 +70,19 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    DONE so far: verb colouring (UPOS VERB+AUX → `--verb`) and subtle
    name rendering (ents → dotted underline), incl. the sentence-replay
    step; span join tested against chunk text in `test_data3.js`.
+   Tap-word gloss bubble: focus-line word taps (focus chunk raised above
+   the nav tap zones) → surface → lemma via forms, g_de-else-g_en from
+   words, lemma emoji, `overrides[sid]` merge layer, orth-modernised
+   lookup; entities gloss to "a name"; bubble dismissed on any other
+   tap / nav / veil. Lookup lives in js/data3.js (glossLookup) and is
+   node-tested: 100% lemma coverage of non-entity word tokens on all
+   three built books.
    Feature list still to add (all data-ready):
    - level selection + nested chunk stepping; progressive-rung mode
      (rungs ⊆ advanced; ladder valid from any level);
-   - tap a word → gloss bubble (`forms` → `words`, no runtime
-     lemmatizer); per-section pre-study list; per-sentence study words;
+   - ~~tap a word → gloss bubble (`forms` → `words`, no runtime
+     lemmatizer)~~ (done); per-section pre-study list; per-sentence
+     study words;
    - ~~verb coloring from POS; subtle name rendering from ents~~ (done);
    - orthography display toggle (orth field);
    - chunk emoji at runtime: rarest glossed word with non-empty `e`

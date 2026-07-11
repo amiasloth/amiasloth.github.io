@@ -84,11 +84,61 @@
     return -1;
   }
 
+  /* Same normalisation as the build side (gloss3.py nfc_lower). */
+  function nfcLower(s) {
+    return String(s).normalize("NFC").toLowerCase();
+  }
+
+  // own-property map read (never fish helpers off Object.prototype)
+  function get(map, key) {
+    return map && Object.prototype.hasOwnProperty.call(map, key)
+      ? map[key] : undefined;
+  }
+
+  /* Gloss lookup for token k of a sentence, mirroring the build:
+   * orth-modernised surface → nfcLower → forms → lemma → words[lemma],
+   * with the per-occurrence `overrides[sid][lemma]` layer merged on top
+   * (sense exceptions, per the pinned schema — empty today).
+   * Returns { surface, modern, lemma, entry, isEnt }:
+   *   surface = token as printed; modern = orth form used for lookup;
+   *   lemma   = normalised lemma or null (forms is book-complete, so a
+   *             miss usually means punctuation or an entity);
+   *   entry   = {l, g_en, g_de?, e} or null (words holds only rare
+   *             lemmas — common words gloss to lemma-only);
+   *   isEnt   = token sits inside a named-entity span (gloss skips
+   *             names by design; ents is the single source of truth). */
+  function glossLookup(gloss, sent, k) {
+    var isEnt = false;
+    if (sent.ents) {
+      for (var i = 0; i < sent.ents.length; i++)
+        if (k >= sent.ents[i][0] && k < sent.ents[i][1]) { isEnt = true; break; }
+    }
+    var raw = sent.toks[k];
+    var modern = get(sent.orth, String(k)) || raw;
+    var key = nfcLower(modern);
+    var lemma = get(gloss.forms, key);
+    if (lemma === undefined) lemma = get(gloss.words, key) ? key : null;
+    var entry = null;
+    if (lemma) {
+      var base = get(gloss.words, lemma);
+      var ov = get(get(gloss.overrides, sent.id), lemma);
+      if (base || ov) {
+        entry = {};
+        var f;
+        for (f in base || {}) entry[f] = base[f];
+        for (f in ov || {}) entry[f] = ov[f];
+      }
+    }
+    return { surface: raw, modern: modern, lemma: lemma, entry: entry, isEnt: isEnt };
+  }
+
   var Data3 = {
     sliceText: sliceText,
     boundaries: boundaries,
     flatten: flatten,
     findPosition: findPosition,
+    nfcLower: nfcLower,
+    glossLookup: glossLookup,
   };
 
   global.Data3 = Data3;

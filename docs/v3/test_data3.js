@@ -86,5 +86,67 @@ for (const meta of index.books) {
     console.log("ok  " + tag + "  " + flat.length + " chunks");
   }
 }
+// ---------------- gloss lookup ----------------
+// Every word token of every book must resolve through the runtime chain
+// (orth → nfcLower → forms/words) unless it is an entity token or an
+// out-of-vocabulary miss the build also reported. Spot-check semantics
+// on kafka, then assert the bulk invariant: lookups never throw and
+// entity tokens never produce entries.
+for (const meta of index.books) {
+  const book = JSON.parse(fs.readFileSync(
+    path.join(ROOT, meta.lang, meta.id + ".json"), "utf8"));
+  let gloss;
+  try {
+    gloss = JSON.parse(fs.readFileSync(
+      path.join(ROOT, "gloss", meta.id + ".json"), "utf8"));
+  } catch (e) { bad(meta.id + ": no gloss file"); continue; }
+  let words = 0, lemmaHits = 0, entryHits = 0, entTok = 0;
+  book.sections.forEach((s) => s.sentences.forEach((sent) => {
+    for (let k = 0; k < sent.toks.length; k++) {
+      if (!/[\p{L}\p{N}]/u.test(sent.toks[k])) continue;
+      words++;
+      const r = Data3.glossLookup(gloss, sent, k);
+      if (r.isEnt) { entTok++; continue; }
+      if (r.lemma) lemmaHits++;
+      if (r.entry) {
+        entryHits++;
+        if (typeof r.entry.g_en !== "string")
+          bad(meta.id + " " + sent.id + ": entry without g_en for '" +
+              sent.toks[k] + "'");
+      }
+    }
+  }));
+  console.log("ok  gloss " + meta.id + "  " + words + " word tokens, " +
+    lemmaHits + " lemma hits, " + entryHits + " glossed, " + entTok + " in ents");
+  if (lemmaHits / (words - entTok) < 0.9)
+    bad(meta.id + ": lemma coverage below 90% — forms map not book-complete?");
+}
+
+// semantic spot checks (kafka sentence 1) + override merge
+{
+  const gloss = JSON.parse(fs.readFileSync(path.join(ROOT, "gloss", "kafka.json"), "utf8"));
+  const book = JSON.parse(fs.readFileSync(path.join(ROOT, "de", "kafka.json"), "utf8"));
+  const sent = book.sections[0].sentences[0];   // "Als Gregor Samsa …"
+  const t = (k) => Data3.glossLookup(gloss, sent, k);
+  if (!t(1).isEnt || !t(2).isEnt) bad("kafka s1: Gregor Samsa not flagged as ents");
+  if (t(10).lemma !== "finden") bad("kafka s1: 'fand' → " + t(10).lemma + ", want finden");
+  const ung = t(19);   // "Ungeziefer"
+  if (!ung.entry || !/vermin/.test(ung.entry.g_en))
+    bad("kafka s1: 'Ungeziefer' entry wrong: " + JSON.stringify(ung.entry));
+  // override layer: per-occurrence sense exception wins over the default
+  const g2 = JSON.parse(JSON.stringify(gloss));
+  g2.overrides[sent.id] = { ungeziefer: { g_en: "OVERRIDDEN", e: "🪲" } };
+  const ov = Data3.glossLookup(g2, sent, 19);
+  if (ov.entry.g_en !== "OVERRIDDEN" || ov.entry.e !== "🪲" || ov.entry.l !== "Ungeziefer")
+    bad("override merge broken: " + JSON.stringify(ov.entry));
+  // orth layer: archaic surface looks up by the modern form
+  const sFake = { id: "x", toks: ["Thür"], sp: "0", orth: { "0": "Tür" } };
+  const gFake = { forms: { "tür": "tür" }, words: { "tür": { l: "Tür", g_en: "door", e: "" } }, overrides: {} };
+  const th = Data3.glossLookup(gFake, sFake, 0);
+  if (th.lemma !== "tür" || th.entry.g_en !== "door")
+    bad("orth lookup broken: " + JSON.stringify(th));
+  console.log("ok  gloss semantics (ents, lemma, entry, override, orth)");
+}
+
 console.log(fails ? fails + " FAILURES" : "ALL CHECKS PASSED");
 process.exit(fails ? 1 : 0);

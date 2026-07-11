@@ -41,6 +41,7 @@
 
   let meta = null;       // entry from books.json
   let book = null;       // loaded book json (null in review mode)
+  let gloss = null;      // loaded gloss json (null in review mode / on miss)
   let flat = [];         // [{t, e?, cont?, sec, secTitle, i, lv?, sentStart?, sentEnd?}]
   let idx = 0;
   let level = null;
@@ -125,6 +126,9 @@
         fail("Could not load “" + meta.title + "”.");
         return;
       }
+      // gloss is optional — without it word taps are simply off
+      try { gloss = await fetchJSON("../data3/gloss/" + bookId + ".json"); }
+      catch (e) { gloss = null; }
       buildLevelSheet();
       loadLevel(level, true);
     }
@@ -236,8 +240,10 @@
   /* Per-token spans for the slice [a, b) of a sentence: verbs get .vb
    * (POS colouring), entity tokens get .ent (subtle name rendering).
    * Trailing space stays INSIDE each span so the plain-text fallback and
-   * renderDiff (which rebuilds .txt from whitespace-split text) agree. */
-  function tokenSpans(sent, a, b) {
+   * renderDiff (which rebuilds .txt from whitespace-split text) agree.
+   * `tappable` (focus line, gloss loaded): word tokens get data-k so a
+   * tap can look them up. */
+  function tokenSpans(sent, a, b, tappable) {
     const frag = document.createDocumentFragment();
     const ents = entMask(sent);
     for (let k = a; k < b; k++) {
@@ -248,6 +254,7 @@
       let cls = (sent.pos && POS_CLS[sent.pos[k]]) || "";
       if (ents && ents.has(k)) cls += (cls ? " " : "") + "ent";
       if (cls) sp.className = cls;
+      if (tappable && /[\p{L}\p{N}]/u.test(sent.toks[k])) sp.dataset.k = k;
       frag.appendChild(sp);
     }
     return frag;
@@ -264,7 +271,8 @@
     }
     const txt = document.createElement("span");
     txt.className = "txt";
-    if (c.sent) txt.appendChild(tokenSpans(c.sent, c.a, c.b));
+    if (c.sent) txt.appendChild(tokenSpans(c.sent, c.a, c.b,
+                                           cls === "now" && !!gloss));
     else txt.textContent = c.t;        // review-deck items: plain text
     if (c.cont) {
       const dot = document.createElement("span");
@@ -277,6 +285,7 @@
   }
 
   function render() {
+    hideGloss();
     if (!flat.length) { fail("This book has no content."); return; }
     const c = flat[idx];
     el.sec.textContent = c.secTitle || meta.title;
@@ -328,7 +337,73 @@
   }
 
   function veil(on) {
+    if (on) hideGloss();               // no meaning hints during recall
     el.zone.classList.toggle("veil", !!on);
+  }
+
+  // ---------------- gloss bubble ----------------
+
+  let bubble = null;      // open bubble element (carries ._k)
+
+  function hideGloss() {
+    if (!bubble) return;
+    bubble.remove();
+    bubble = null;
+    const hit = el.zone.querySelector(".gb-hit");
+    if (hit) hit.classList.remove("gb-hit");
+  }
+
+  /* Tap a word in the focus line: surface → lemma (forms map), gloss
+   * text where the lemma is rare enough to be in `words` (g_de preferred
+   * once the AI pass fills it, g_en otherwise), lemma emoji if any.
+   * Entities gloss to "a name" (the gloss file skips them by design). */
+  function showGloss(spanEl) {
+    const k = +spanEl.dataset.k;
+    if (bubble && bubble._k === k) { hideGloss(); return; }   // toggle off
+    hideGloss();
+    const cur = sentenceStep || flat[idx];
+    if (!gloss || !cur || !cur.sent) return;
+    const info = Data3.glossLookup(gloss, cur.sent, k);
+
+    const d = document.createElement("div");
+    d.className = "glossbubble";
+    const head = document.createElement("div");
+    head.className = "gb-word";
+    head.textContent = info.surface;
+    const lemmaDisp = info.entry ? info.entry.l : info.lemma;
+    if (lemmaDisp && Data3.nfcLower(lemmaDisp) !== Data3.nfcLower(info.surface)) {
+      head.appendChild(document.createTextNode(" → "));
+      const lm = document.createElement("span");
+      lm.className = "gb-lemma";
+      lm.textContent = lemmaDisp;
+      head.appendChild(lm);
+    }
+    if (info.entry && info.entry.e) {
+      const em = document.createElement("span");
+      em.className = "gb-emoji";
+      em.textContent = info.entry.e;
+      head.appendChild(em);
+    }
+    d.appendChild(head);
+    const body = document.createElement("div");
+    body.className = "gb-gloss";
+    body.textContent = info.isEnt ? "a name"
+      : info.entry ? (info.entry.g_de || info.entry.g_en || "")
+      : info.lemma ? "" : "no glossary entry";
+    if (body.textContent) d.appendChild(body);
+
+    document.body.appendChild(d);
+    // position above the tapped word, clamped to the viewport; flip
+    // below when there is no room above
+    const r = spanEl.getBoundingClientRect();
+    const bw = d.offsetWidth, bh = d.offsetHeight, m = 8;
+    d.style.left = Math.max(m, Math.min(r.left + r.width / 2 - bw / 2,
+                                        innerWidth - bw - m)) + "px";
+    const above = r.top - bh - m;
+    d.style.top = (above >= m ? above : r.bottom + m) + "px";
+    d._k = k;
+    bubble = d;
+    spanEl.classList.add("gb-hit");
   }
 
   // ---------------- stars ----------------
@@ -704,6 +779,19 @@
   }
 
   function bind() {
+    // word taps (gloss bubble) — the focus line is raised above the tap
+    // zones in CSS, so word spans receive their own clicks
+    el.zone.addEventListener("click", (e) => {
+      const sp = e.target.closest && e.target.closest(".chunk.now span[data-k]");
+      if (sp) { e.stopPropagation(); showGloss(sp); }
+    });
+    // any tap that is not on a word dismisses the bubble (capture phase,
+    // so it runs before navigation handlers)
+    document.addEventListener("click", (e) => {
+      if (bubble && !(e.target.closest && e.target.closest("span[data-k]")))
+        hideGloss();
+    }, true);
+
     el.next.addEventListener("click", () => go(1));
     el.prev.addEventListener("click", () => go(-1));
     document.querySelector(".tapzone.right").addEventListener("click", () => go(1));
