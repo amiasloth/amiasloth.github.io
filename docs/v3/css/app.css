@@ -265,6 +265,17 @@ header.bar a, header.bar button.iconbtn {
 }
 .sheet .opt.sel { border-color: var(--accent); color: var(--accent); }
 .sheet .opt small { display: block; color: var(--dim); margin-top: 2px; }
+/* v3: study-word rows (study sheet) — compact list, panel scrolls */
+.wr-head {
+  margin: 18px 0 8px; font-size: 13px; text-transform: uppercase;
+  letter-spacing: 0.06em; color: var(--dim);
+}
+.wordrow { padding: 8px 2px; border-bottom: 1px solid var(--card2); }
+.wordrow .wr-lemma { font-weight: 600; color: var(--accent); }
+.wordrow .wr-emoji { margin-left: 8px; }
+.wordrow .wr-gloss { color: var(--dim); font-size: 14px; margin-top: 1px; }
+.wr-empty { color: var(--dim); font-size: 14px; padding: 6px 2px; }
+
 .raterow { display: flex; gap: 10px; }
 .raterow .rateopt { text-align: center; margin-bottom: 10px; }
 

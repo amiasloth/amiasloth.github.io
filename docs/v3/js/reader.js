@@ -30,6 +30,8 @@
     ring: $("levelring"),
     gearBtn: $("gearbtn"),
     settingsSheet: $("settingssheet"),
+    studyBtn: $("studybtn"),
+    studySheet: $("studysheet"),
   };
 
   const LEVEL_INFO = {
@@ -116,6 +118,7 @@
     buildSettingsSheet();
     if (review) {
       el.levelBtn.style.display = "none";
+      el.studyBtn.style.display = "none";
       loadDeck();
     } else {
       // v3: ONE file per book, fetched once — level switches re-derive
@@ -126,9 +129,10 @@
         fail("Could not load “" + meta.title + "”.");
         return;
       }
-      // gloss is optional — without it word taps are simply off
+      // gloss is optional — without it word taps and study lists are off
       try { gloss = await fetchJSON("../data3/gloss/" + bookId + ".json"); }
       catch (e) { gloss = null; }
+      if (!gloss) el.studyBtn.style.display = "none";
       buildLevelSheet();
       loadLevel(level, true);
     }
@@ -838,6 +842,13 @@
     el.settingsSheet.addEventListener("click", (e) => {
       if (e.target === el.settingsSheet) el.settingsSheet.classList.remove("open");
     });
+    el.studyBtn.addEventListener("click", () => {
+      buildStudySheet();               // rebuilt on open: follows position
+      el.studySheet.classList.add("open");
+    });
+    el.studySheet.addEventListener("click", (e) => {
+      if (e.target === el.studySheet) el.studySheet.classList.remove("open");
+    });
 
     // release mic when the page goes away / is hidden
     document.addEventListener("visibilitychange", () => {
@@ -865,6 +876,64 @@
       });
       el.levelOpts.appendChild(b);
     });
+  }
+
+  /* Study words (gloss file): the current sentence's rare lemmas
+   * (study_by_sent, keyed by sentence id — identical sentences share the
+   * list by design) and the current section's pre-study list
+   * (sections[].study, first-occurrence order). Display-only for now;
+   * known-word tracking is a v4 concern. */
+  function studyRow(lemma) {
+    const w = gloss.words &&
+      Object.prototype.hasOwnProperty.call(gloss.words, lemma)
+      ? gloss.words[lemma] : null;
+    const d = document.createElement("div");
+    d.className = "wordrow";
+    const head = document.createElement("div");
+    head.className = "wr-lemma";
+    head.textContent = (w && w.l) || lemma;
+    if (w && w.e) {
+      const em = document.createElement("span");
+      em.className = "wr-emoji";
+      em.textContent = w.e;
+      head.appendChild(em);
+    }
+    d.appendChild(head);
+    const g = document.createElement("div");
+    g.className = "wr-gloss";
+    g.textContent = w ? (w.g_de || w.g_en || "") : "";
+    d.appendChild(g);
+    return d;
+  }
+
+  function buildStudySheet() {
+    const box = $("studyopts");
+    box.innerHTML = "";
+    const c = flat[idx];
+    if (!gloss || !c) return;
+    const heading = (t) => {
+      const h = document.createElement("h3");
+      h.textContent = t;
+      h.className = "wr-head";
+      box.appendChild(h);
+    };
+    const sentList = (gloss.study_by_sent &&
+      Object.prototype.hasOwnProperty.call(gloss.study_by_sent, c.sid)
+      ? gloss.study_by_sent[c.sid] : []) || [];
+    heading("In this sentence");
+    if (sentList.length) sentList.forEach((l) => box.appendChild(studyRow(l)));
+    else {
+      const p = document.createElement("div");
+      p.className = "wr-empty";
+      p.textContent = "Nothing rare here — read on.";
+      box.appendChild(p);
+    }
+    const sec = gloss.sections && gloss.sections[c.sec];
+    if (sec && sec.study && sec.study.length) {
+      heading((c.secTitle || "This section") + " — before you read (" +
+              sec.study.length + ")");
+      sec.study.forEach((l) => box.appendChild(studyRow(l)));
+    }
   }
 
   function setPref(name, value) {

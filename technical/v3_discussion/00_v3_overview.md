@@ -77,12 +77,19 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    tap / nav / veil. Lookup lives in js/data3.js (glossLookup) and is
    node-tested: 100% lemma coverage of non-entity word tokens on all
    three built books.
+   Study lists: "Aa" header button → sheet with the current sentence's
+   study words (study_by_sent[sid]) + the section pre-study list
+   (sections[].study), lemma/emoji/gloss rows, display-only (known-word
+   tracking is v4). Tested: section lists equal the first-occurrence
+   derivation from study_by_sent on ALL 8 built books (test now runs
+   the full library; heidi's merged-chapter issue shows as a 563-word
+   section list — data, not reader).
    Feature list still to add (all data-ready):
    - level selection + nested chunk stepping; progressive-rung mode
      (rungs ⊆ advanced; ladder valid from any level);
    - ~~tap a word → gloss bubble (`forms` → `words`, no runtime
-     lemmatizer)~~ (done); per-section pre-study list; per-sentence
-     study words;
+     lemmatizer)~~ (done); ~~per-section pre-study list; per-sentence
+     study words~~ (done);
    - ~~verb coloring from POS; subtle name rendering from ents~~ (done);
    - orthography display toggle (orth field);
    - chunk emoji at runtime: rarest glossed word with non-empty `e`

@@ -122,6 +122,47 @@ for (const meta of index.books) {
     bad(meta.id + ": lemma coverage below 90% — forms map not book-complete?");
 }
 
+// ---------------- study lists ----------------
+// study_by_sent keys must be real sentence ids; every study lemma must
+// have a words entry (they are the rare *glossed* lemmas); gloss
+// sections must align 1:1 with book sections, and each section's
+// pre-study list must equal the first-occurrence dedup of its
+// sentences' study_by_sent entries (the 02 schema derivation).
+for (const meta of index.books) {
+  const book = JSON.parse(fs.readFileSync(
+    path.join(ROOT, meta.lang, meta.id + ".json"), "utf8"));
+  const gloss = JSON.parse(fs.readFileSync(
+    path.join(ROOT, "gloss", meta.id + ".json"), "utf8"));
+  if ((gloss.sections || []).length !== book.sections.length)
+    bad(meta.id + ": gloss sections " + (gloss.sections || []).length +
+        " != book sections " + book.sections.length);
+  const ids = new Set();
+  book.sections.forEach((s) => s.sentences.forEach((x) => ids.add(x.id)));
+  for (const sid in gloss.study_by_sent) {
+    if (!ids.has(sid)) bad(meta.id + ": study_by_sent unknown sid " + sid);
+    gloss.study_by_sent[sid].forEach((l) => {
+      if (!Object.prototype.hasOwnProperty.call(gloss.words, l))
+        bad(meta.id + ": study lemma '" + l + "' has no words entry");
+    });
+  }
+  book.sections.forEach((s, si) => {
+    const derived = [], seen = new Set();
+    s.sentences.forEach((sent) => {
+      (gloss.study_by_sent[sent.id] || []).forEach((l) => {
+        if (!seen.has(l)) { seen.add(l); derived.push(l); }
+      });
+    });
+    const stored = (gloss.sections[si] && gloss.sections[si].study) || [];
+    if (JSON.stringify(derived) !== JSON.stringify(stored))
+      bad(meta.id + " section " + si + ": stored study list != " +
+          "first-occurrence derivation (" + stored.length + " vs " +
+          derived.length + ")");
+  });
+  console.log("ok  study " + meta.id + "  " +
+    Object.keys(gloss.study_by_sent).length + " sentences, " +
+    gloss.sections.map((s) => s.study.length).join("/") + " per section");
+}
+
 // semantic spot checks (kafka sentence 1) + override merge
 {
   const gloss = JSON.parse(fs.readFileSync(path.join(ROOT, "gloss", "kafka.json"), "utf8"));
