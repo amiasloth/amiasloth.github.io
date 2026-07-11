@@ -1,6 +1,6 @@
 {
  "schema": 3,
- "generator": "build3.py@480defe",
+ "generator": "build3.py@37e1dcb",
  "books": [
   {
    "id": "kafka",
@@ -16,15 +16,15 @@
    "source": "Project Gutenberg",
    "difficulty": "advanced",
    "stats": {
-    "sentences": 870,
+    "sentences": 878,
     "words": 19160,
     "chunks": {
-     "starter": 7141,
-     "beginner": 5675,
-     "intermediate": 3586,
-     "advanced": 2335
+     "starter": 7146,
+     "beginner": 5672,
+     "intermediate": 3600,
+     "advanced": 2342
     },
-    "avg_sentence_len": 22.0,
+    "avg_sentence_len": 21.8,
     "vocab_below_zipf4": 0.512
    },
    "audio": null
