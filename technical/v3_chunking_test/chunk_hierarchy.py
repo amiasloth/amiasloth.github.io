@@ -125,7 +125,21 @@ SEVER_PENALTY = 35    # strength malus for cutting a verb from its
 
 RUNG_MAX = 14         # sentences ≤ this get no progressive rung
 
+# desperation scoring weights (DESP_WEIGHTED; see desperation_cuts)
+W_DESP_FUSE = 3.0      # per fusion_grade step (0/1/2)
+W_DESP_PAIR = 4.0      # cut between adjacent head↔dependent tokens
+W_DESP_CROSS = 1.0     # per crossing dependency edge
+W_DESP_ONEWORD = 2.0   # a side ends up with exactly 1 word
+W_DESP_BALANCE = 0.5   # per word of |left - right| imbalance
+
 # feature flags (test_improvements.py toggles these to show diffs)
+DESP_WEIGHTED = True       # desperation: weighted score instead of the
+                           # lexicographic key (owner round 5: the old
+                           # key ranked balance dead last, so it chose
+                           # 4|1 splits of adjacent pairs — "…eine
+                           # auseinandergepackte | Musterkollektion" —
+                           # over stranding "auf dem |"; 38% of Kafka
+                           # starter desperation cuts had a 1-word side)
 DESP_CROSSINGS = True      # desperation cuts minimize crossing dep edges
 CHEAP_STRONG_CUTS = True   # cuts at/above the level's pref strength
                            # cost 30% — separates intermediate from
@@ -593,7 +607,34 @@ def desperation_cuts(toks, wcount, a, b, mx, cfg):
             return 1
         return 0
 
-    if DESP_CROSSINGS:
+    def adjacent_pair(k):
+        """Cut between two tokens directly linked head↔dependent —
+        the formal version of "these two belong together" ("ganzer |
+        Unterarm", "auseinandergepackte | Musterkollektion")."""
+        prev, cur = toks[k - 1], toks[k]
+        if prev.is_punct or cur.is_punct:
+            return False
+        return prev.head is cur or cur.head is prev
+
+    if DESP_WEIGHTED:
+        # Weighted trade-off instead of lexicographic priority.  The old
+        # key could never let balance rescue a 4|1 over a 2|3, and rated
+        # splitting a modifier from its head (grade 1) better than
+        # stranding a function word (grade 2) — so in spans where every
+        # boundary strands a function word, it split the content pair at
+        # the end.  Weighted, «auf dem | eine auseinandergepackte
+        # Musterkollektion» (strand, balanced) now beats «… | Muster-
+        # kollektion» (pair split, 4|1).  Severed verb tails stay
+        # effectively forbidden via the large constant.
+        def key(k):
+            lw, rw = wcount(a, k), wcount(k, b)
+            return (1000.0 * severs_verb_tail(toks, k, cfg)
+                    + W_DESP_FUSE * fusion_grade(k)
+                    + W_DESP_PAIR * adjacent_pair(k)
+                    + W_DESP_CROSS * crossings(k)
+                    + W_DESP_ONEWORD * (lw == 1 or rw == 1)
+                    + W_DESP_BALANCE * abs(lw - rw))
+    elif DESP_CROSSINGS:
         key = lambda k: (severs_verb_tail(toks, k, cfg), fusion_grade(k),
                          crossings(k), abs(wcount(a, k) - wcount(k, b)))
     else:                               # legacy: balance only

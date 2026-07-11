@@ -1,7 +1,13 @@
-# v3 data schema (PINNED — 2026-07-11)
+# v3 data schema (PINNED — 2026-07-11, rev 2)
 
 Status: PINNED. Owner-accepted after two clarifications folded in
 (sense-override emoji layer; per-sentence study lists for daily mode).
+Rev 2 (same day, post-review): desperation cuts surfaced in `breaks`
+with strength 0; sentence ids widened to 12 hex + uniqueness invariant;
+`freq` promoted from reserved to required (chunk-emoji pick needs it);
+rungs⊆advanced invariant stated; paragraph flag `p` added (consumer:
+daily-mode paragraph quota); reserved fields `para`/`sum` named; audio
+manifest located; provenance completed for gloss/books.json.
 This is the frozen contract that `tools/build3.py` fills and the v3 reader
 consumes. Realises the SETTLED features in `00_v3_overview.md` (tokens
 first-class, stable IDs, POS, NER, nested chunks, glossary, orthography,
@@ -31,6 +37,8 @@ Design deltas from v2 worth stating up front:
       gloss/<book>.json          # glossary + forms map + study lists
       # (later, out of this session)
       audio/<book>/<sid>.opus     # per-sentence audio, by sentence ID
+      audio/<book>/manifest.json  # voice, version, coverage, per-sid
+                                  #   durations (v4 session time estimate)
 
 localStorage namespace: `zzzpeak.v3` only. `docs/data/**` (v1/v2) stays
 frozen and untouched.
@@ -80,11 +88,23 @@ Every field except `id`, `toks`, `sp` is omitted when empty, to keep
 files small.
 
     {
-      "id":   "e16b0a3a",       // content hash: sha256(NFC-normalised,
-                                //   whitespace-collapsed text)[:8]
+      "id":   "e16b0a3a91c4",   // content hash: sha256(NFC-normalised,
+                                //   whitespace-collapsed text)[:12].
+                                //   12 hex (48 bits): 8 hex gave ~1%
+                                //   odds per 10k-sentence book that two
+                                //   DIFFERENT sentences collide (wrong
+                                //   audio file, wrong study list).
       "occ":  0,                 // occurrence counter; omitted when 0.
-                                //   Distinguishes repeated identical
-                                //   sentences so (id,occ) is unique.
+                                //   Repeated IDENTICAL sentences share
+                                //   id BY DESIGN (and share audio —
+                                //   same words, same file); occ makes
+                                //   (id,occ) unique for progress keys.
+
+      "p":    1,                 // sentence starts a new paragraph
+                                //   (from the source's blank-line
+                                //   breaks); omitted otherwise.
+                                //   Consumer: daily mode "one paragraph
+                                //   per day" quota; display grouping.
 
       "toks": ["Sie","werden","ihn","gleich","sehen",",",
                "wenn","Gregor","aufmacht","."],
@@ -110,6 +130,18 @@ files small.
                                 // candidate break BEFORE token k with
                                 //   strength s: [k,s]. The full hierarchy;
                                 //   levels/dial derive from this.
+                                //   INCLUDES strength-0 entries: forced
+                                //   ("desperation") cuts the level
+                                //   derivation had to place where the
+                                //   target length is below the break
+                                //   density (starter mostly: ~17-30% of
+                                //   sentences; ~0 above beginner). s=0
+                                //   marks them as forced, not
+                                //   linguistically motivated; a client
+                                //   dial treats them as last-resort
+                                //   positions. (It cannot re-derive
+                                //   them — that needs the dep parse —
+                                //   which is why they are baked here.)
 
       "cuts": {                 // baked chunk boundaries per level =
         "advanced": [],          //   token indices to cut before. Derived
@@ -122,6 +154,9 @@ files small.
                                 //   as lists of cut-index sets; adaptive
                                 //   count (2 short / 3 long). [] when the
                                 //   sentence is short enough for none.
+                                //   Every rung ⊆ cuts.advanced; since
+                                //   levels nest, the ladder is therefore
+                                //   valid starting from ANY level.
 
       "orth": {},                // token index → modernised form, only
                                 //   where it differs (e.g. {"3":"Tür"}).
@@ -133,9 +168,16 @@ files small.
                                 //   difficulty score. Consumer: v4 daily
                                 //   ease-in. Omitted until computed.
 
-      "rebus": null              // RESERVED (AI, absent now): 2–4 emoji
+      "rebus": null,             // RESERVED (AI, absent now): 2–4 emoji
                                 //   sentence summary for hide-text recall.
+
+      "para": null               // RESERVED (AI, absent now): simplified-
+                                //   German paraphrase. Consumer: same-
+                                //   language comprehension hint.
     }
+
+Section objects likewise reserve `"sum"` (AI, absent now): one-line
+section summary; consumer: "previously on…" recap in daily mode.
 
 Notes:
 
@@ -144,7 +186,24 @@ Notes:
   emoji everywhere; a chunk's emoji is computed at runtime as the emoji
   of its rarest word(s). This keeps emoji independent of which level's
   cuts are active. The optional sentence-level `rebus` is the one emoji
-  field that lives here.
+  field that lives here. Pick rule + intent: candidates are the chunk's
+  glossed non-entity words (all already rare by the gloss threshold);
+  take the lowest-zipf one(s) via the gloss `freq` map — rarity is the
+  measurable proxy for "the word the learner most likely does not
+  know", which is the emoji's job. v4 refinement (client policy, no
+  data change): subtract the learner's known-word set first, then take
+  the rarest. This makes `freq` runtime-REQUIRED, not reserved.
+  Two rules that make the pick well-defined:
+  - **Rarest word WITH a non-empty emoji.** Since empty-`e` is allowed
+    and preferred over a bad emoji, the rarest word often has none —
+    fall through to the next rarest with `e` set; show nothing if no
+    candidate has one. Otherwise the empty-allowed policy would kill
+    chunk emoji exactly on the hardest chunks.
+  - **zipf-0 tie-break.** wordfreq returns 0 for OOV words, and rare
+    German compounds are mostly OOV, so they tie as "maximally rare"
+    (correct for the intent — compounds ARE the hard words). Break the
+    tie deterministically by word order within the chunk. Deduplicate
+    repeated lemmas before picking.
 - **Sense overrides refine the emoji per occurrence.** "Same word →
   same emoji" is the default; the gloss file's `overrides` block (keyed
   by sentence `id`) is the exception layer for occurrences that use a
@@ -161,15 +220,28 @@ Amends the 06 spec into the v3 layout (per book, not per level).
 
     {
       "schema": 3, "generator": "gloss.py@...", "lang": "de",
-      "words": {                          // key = normalised lemma
-        "aufmachen": {"l":"aufmachen","g_en":"to open","e":""},
-        "gregor":    null                  // named entities excluded
+      "source_hash": "sha256:...",        // same book-text hash as the
+                                          //   book file (regen check)
+      "dict_version": "freedict-deu-eng-1.9",
+                                          // vendored dictionary snapshot —
+                                          //   changes output like
+                                          //   parse_model does
+      "words": {                          // key = normalised lemma.
+                                          //   Named entities simply
+                                          //   OMITTED (the book file's
+                                          //   `ents` is the single
+                                          //   source of truth; no null
+                                          //   placeholders)
+        "aufmachen": {"l":"aufmachen","g_en":"to open","e":""}
       },
       "forms": {                          // runtime-critical: surface→lemma
         "aufmacht":"aufmachen","öffnet":"öffnen","thür":"tür"
       },
-      "freq": {"aufmachen":3.8},          // RESERVED (script): lemma zipf,
-                                          //   for "you know X% of this book"
+      "freq": {"aufmachen":3.8},          // REQUIRED (script): lemma zipf.
+                                          //   Runtime consumer NOW: the
+                                          //   chunk-emoji rarest-word pick.
+                                          //   Also v4 "you know X% of
+                                          //   this book"
       "study_by_sent": {                  // per-sentence study lemmas,
         "e16b0a3a": ["aufmachen"]          //   keyed by sentence id. Daily
       },                                   //   mode unions the window's ids;
@@ -208,6 +280,7 @@ Amends the 06 spec into the v3 layout (per book, not per level).
 
     {
       "schema": 3,
+      "generator": "build3.py@0000000",   // provenance rule applies here too
       "books": [
         {
           "id":"kafka","title":"Die Verwandlung","author":"Franz Kafka",
@@ -226,27 +299,37 @@ Amends the 06 spec into the v3 layout (per book, not per level).
       ]
     }
 
-Per-book `stats` (counts per level/section, avg length, vocab profile,
+Per-book `stats` (counts per level, avg length, vocab profile,
 difficulty) also live in each book file's `stats` header; `books.json`
 carries the aggregate the library screen and daily-mode arithmetic need
-without opening every book.
+without opening every book. Per-SECTION counts (promised in
+`00_v3_overview`) are NOT stored: the client has the whole book file
+loaded and counts sentences/cuts per section trivially at load —
+derivable, not baked.
 
 ## Invariants the builder must check
 
 1. **Reconstruction**: for each sentence, `join(toks, sp)` equals the
-   source sentence exactly.
+   NORMALISED source sentence (NFC, whitespace-collapsed — same
+   normalisation the id hashes; `sp` cannot encode in-sentence
+   newlines and must not have to).
 2. **Nesting**: `cuts[coarser] ⊆ cuts[finer]` for every level pair; each
-   rung's cut-set ⊆ the next finer rung's.
+   rung's cut-set ⊆ the next finer rung's; every rung ⊆ `cuts.advanced`.
 3. **Legal cuts**: every index in `cuts` / `rungs` appears in `breaks`
-   (or is a sentence boundary).
-4. **ID uniqueness**: `(id, occ)` unique within a book.
+   (or is a sentence boundary). Desperation cuts satisfy this because
+   the builder records them in `breaks` with strength 0.
+4. **ID uniqueness**: `(id, occ)` unique within a book, AND two
+   sentences with DIFFERENT normalised text never share an `id`
+   (true hash collision → build fails loudly; at 48 bits this is
+   ~2e-7 per 10k-sentence book, but sure is sure).
 5. **No punct-only chunk**: every chunk slice contains ≥1 alnum token.
 
 ## What is NOT in this schema yet (by design, this session)
 
-- `g_de`, sense overrides, AI emoji map, `rebus`, paraphrases, section
-  summaries — the external-AI passes.
-- `audio` files and per-sentence durations — the Piper pass.
+- `g_de`, sense overrides, AI emoji map, `rebus`, `para` (paraphrase),
+  `sum` (section summary) — the external-AI passes.
+- `audio/<book>/*.opus` + `audio/<book>/manifest.json` (incl.
+  per-sentence durations) — the Piper pass.
 
 Both are additive: they fill reserved keys or add sibling files, never
 reshape what is above. Provenance stamps + stable `(id,occ)` make the

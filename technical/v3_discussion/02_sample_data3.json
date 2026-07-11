@@ -1,5 +1,5 @@
 {
-  "_note": "SAMPLE for schema review — 1 book file + its gloss, 2 short real sentences. Not a real build output. ents corrected to PER (lg default); de_core_news_sm mislabels 'Gregor' as LOC, which is why lg is the German default.",
+  "_note": "SAMPLE for schema review (rev 2) — 1 book file + its gloss, 2 short real sentences. Not a real build output. ents corrected to PER (lg default); de_core_news_sm mislabels 'Gregor' as LOC, which is why lg is the German default. Rev 2 deltas shown: 12-hex ids, paragraph flag p, freq required, gloss provenance; no null entries for named entities.",
 
   "book_file  docs/data3/de/kafka.json": {
     "schema": 3,
@@ -28,7 +28,8 @@
         "title": "I.",
         "sentences": [
           {
-            "id": "e16b0a3a",
+            "id": "e16b0a3a91c4",
+            "p": 1,
             "toks": ["Sie", "werden", "ihn", "gleich", "sehen", ",", "wenn", "Gregor", "aufmacht", "."],
             "sp": "1111011100",
             "pos": ["PRON", "AUX", "PRON", "ADV", "VERB", "PUNCT", "SCONJ", "PROPN", "VERB", "PUNCT"],
@@ -43,7 +44,7 @@
             "rungs": []
           },
           {
-            "id": "f1a9b1ea",
+            "id": "f1a9b1ea3d07",
             "toks": ["Er", "öffnete", "die", "Thür", "."],
             "sp": "11100",
             "pos": ["PRON", "VERB", "DET", "NOUN", "PUNCT"],
@@ -57,9 +58,13 @@
     ]
   },
 
+  "_note_breaks": "This short sample happens to need no desperation cuts (no span exceeds any level's max+1 without a clean break inside). In real books they appear mostly at starter (~17-30% of sentences): the builder records each forced position in breaks as [k, 0] — strength 0 marks 'forced, not linguistically motivated' — so invariant 3 (every cut is in breaks) holds and the client dial sees them as last-resort positions.",
+
   "gloss_file  docs/data3/gloss/kafka.json": {
     "schema": 3,
     "generator": "gloss.py@0000000",
+    "source_hash": "sha256:1c9f3a70b2e4",
+    "dict_version": "freedict-deu-eng-1.9",
     "lang": "de",
     "words": {
       "aufmachen": {"l": "aufmachen", "g_en": "to open", "e": ""},
@@ -72,8 +77,8 @@
     },
     "freq": {"aufmachen": 3.8, "tür": 4.6},
     "study_by_sent": {
-      "e16b0a3a": ["aufmachen"],
-      "f1a9b1ea": ["tür"]
+      "e16b0a3a91c4": ["aufmachen"],
+      "f1a9b1ea3d07": ["tür"]
     },
     "overrides": {},
     "sections": [

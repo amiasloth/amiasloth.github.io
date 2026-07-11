@@ -127,10 +127,12 @@ never transcribe them right; the reader shouldn't lose points).
 
 ### Book stats / difficulty (script-only)
 Computed at build time into `books.json` and per-book files:
-word/sentence/chunk counts per level, per-section counts, average
-sentence length, vocabulary profile (share of lemmas below zipf 4.0),
-derived difficulty label, per-sentence difficulty score. The counts
-are exactly what v4's "N sentences/day → M days" needs.
+word/sentence/chunk counts per level, average sentence length,
+vocabulary profile (share of lemmas below zipf 4.0), derived difficulty
+label, per-sentence difficulty score. The counts are exactly what v4's
+"N sentences/day → M days" needs. (Per-SECTION counts are not baked —
+the client counts them trivially from the loaded book file; see the
+pinned schema, `02_v3_data_schema.md`.)
 
 ### Audio (optional per book, script-only — no AI API)
 - Piper (thorsten-medium, ~60 MB model; owner judged it clearly better
@@ -168,10 +170,24 @@ are exactly what v4's "N sentences/day → M days" needs.
 - Per-section one-line summaries (optional, AI). Consumer: "previously
   on…" recap when daily mode resumes after a gap.
 - Per-sentence audio duration (trivially recorded when audio is
-  generated). Consumer: daily-session time estimate ("today ≈ 4 min").
+  generated; lives in `audio/<book>/manifest.json`). Consumer:
+  daily-session time estimate ("today ≈ 4 min").
+- Per-sentence paragraph-start flag (script; from the source's
+  blank-line paragraph breaks, free at build time). Consumer: daily
+  mode "one paragraph per day" quota; display grouping. (Added
+  2026-07-11 with the pinned schema.)
 - Rule: no field without a nameable consumer.
 
-## OPEN — chunking strategy (experiment before deciding)
+## Chunking strategy — RESOLVED 2026-07-11 (was OPEN)
+
+**Owner verdict:** candidate B (nested break-point hierarchy +
+progressive rungs) is accepted — not perfect, improvement wanted, but
+acceptable. Working mode: test small batches, review, refine; no
+changes beyond bug fixes / small patches for now. The baked
+representation is pinned in `02_v3_data_schema.md` (breaks + strengths
+incl. strength-0 forced cuts, per-level cuts, rungs ⊆ advanced).
+Original decision record kept below unchanged.
+
 
 Owner verdict on current chunker: acceptable, hard-won, but
 intermediate/advanced lengths fluctuate badly (2–6–2 words), some
