@@ -50,7 +50,7 @@ word-shaped is a token position.
   (misses / orth candidates / emoji suggestions / review sample).
 - **Emoji**: curated map fallback; reviewed per-book
   `maps/emoji_<id>.json` via `--emoji-map`; CLDR suggestions
-  report-only. Empty beats bad.
+  report-only. Empty beats bad. While testing will use python script to generate emoji-map.
 - **Orthography**: NOTHING changes displayed text. Reviewed
   `maps/orth_<id>.json` bakes per-token `orth` (display = user
   toggle; check mode and gloss lookup use the modern form).
@@ -102,7 +102,7 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    - optional gloss-miss fills (OOV compounds from
      `gloss_misses_<id>.txt`).
 
-6. **Difficulty**: per-sentence `d` score (reserved field, formula
+6. Not gonna do: **Difficulty**: per-sentence `d` score (reserved field, formula
    TBD) + calibrate the provisional book-level difficulty label once
    several books are built.
 
