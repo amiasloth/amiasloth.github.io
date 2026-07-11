@@ -158,8 +158,37 @@
     return bestE;
   }
 
+  /* Display runs of the token slice [a, b): the whitespace-separated
+   * units the reader shows (tokens glue to the next one when their sp
+   * bit is 0 — "sah" + "," renders as "sah,"). Per run: the original
+   * text, the orth-modernised text, and whether any glued token sits in
+   * an entity span. Check mode builds its reference (modern), its
+   * entity-discount vector and its diff display (orig or modern) from
+   * ONE runs array, so the three always align token-for-token. */
+  function displayRuns(sent, a, b) {
+    var ents = null;
+    if (sent.ents && sent.ents.length) {
+      ents = {};
+      sent.ents.forEach(function (sp) {
+        for (var k = sp[0]; k < sp[1]; k++) ents[k] = 1;
+      });
+    }
+    var runs = [], orig = "", modern = "", ent = false;
+    for (var k = a; k < b; k++) {
+      orig += sent.toks[k];
+      modern += get(sent.orth, String(k)) || sent.toks[k];
+      if (ents && ents[k]) ent = true;
+      if (sent.sp.charAt(k) === "1" || k === b - 1) {
+        if (orig) runs.push({ orig: orig, modern: modern, ent: ent });
+        orig = ""; modern = ""; ent = false;
+      }
+    }
+    return runs;
+  }
+
   var Data3 = {
     sliceText: sliceText,
+    displayRuns: displayRuns,
     boundaries: boundaries,
     flatten: flatten,
     findPosition: findPosition,

@@ -1,8 +1,11 @@
-/* Zzzpeak v2 — Check mode text scoring (Phase 04).
+/* Zzzpeak v3 — Check mode text scoring (v2 copy + entity discount).
  *
  * PURE functions, no DOM, no globals beyond the exported `Match`. Runs in
  * the browser (attaches window.Match) and in Node (module.exports) so the
- * same code is unit-tested — see docs/v2/test_match.html.
+ * same code is unit-tested — see test_data3.js (match section).
+ * v3 delta: score() takes an optional per-token `discount` vector so
+ * named entities are not held against the speaker (02 schema: check
+ * mode discounts entities).
  *
  * Semantics are deliberately FORGIVING: this checks word RECALL, not
  * pronunciation. Dictation returns modern spellings and sometimes digits,
@@ -128,8 +131,15 @@
    * where `tokens` covers every whitespace-split token of the ORIGINAL
    * reference (so it can be rendered verbatim). Each token:
    *   { display, ok }  ok === true|false for scorable words,
-   *                    ok === null for punctuation-only tokens (not scored). */
-  function score(reference, hypothesis) {
+   *                    ok === null for punctuation-only tokens (not scored).
+   *
+   * `discount` (optional, v3): boolean per whitespace-split reference
+   * token; true = do not hold this word against the speaker (named
+   * entities — nobody should fail recall on "Samsa"). Discounted words
+   * still take part in the alignment, so saying them counts (ok: true),
+   * but missing them is not a miss (ok: null) and they are excluded
+   * from matched/total. An all-discounted reference scores 1. */
+  function score(reference, hypothesis, discount) {
     var display = String(reference == null ? "" : reference).split(/\s+/).filter(Boolean);
     var refNorm = display.map(normWord);
     var scorableIdx = [];
@@ -138,18 +148,19 @@
     var hypWords = normalizeWords(hypothesis);
 
     var marks = alignMarks(refWords, hypWords);
-    var matched = 0;
-    for (var a = 0; a < marks.length; a++) if (marks[a]) matched++;
-    var total = refWords.length;
-    var scoreVal = total ? matched / total : 1;
 
-    // Map marks back onto the display tokens.
-    var pos = 0;
+    // Map marks back onto the display tokens; count matched/total over
+    // the scorable, non-discounted words only.
+    var pos = 0, matched = 0, total = 0;
     var tokens = display.map(function (d, i) {
       if (!refNorm[i]) return { display: d, ok: null };
       var ok = marks[pos]; pos++;
+      if (discount && discount[i]) return { display: d, ok: ok ? true : null };
+      total++;
+      if (ok) matched++;
       return { display: d, ok: !!ok };
     });
+    var scoreVal = total ? matched / total : 1;
 
     return { score: scoreVal, matched: matched, total: total, tokens: tokens };
   }

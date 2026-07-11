@@ -71,7 +71,10 @@
     abCompare: Store.getPref("abCompare", false),
     checkMode: Store.getPref("checkMode", false),
     studyWords: Store.getPref("studyWords", true),   // mark study words
+    orthModern: Store.getPref("orthModern", false),  // modernised spelling
   };
+
+  let bookHasOrth = false;   // any sentence carries an orth map
 
   // ---------------- data ----------------
 
@@ -134,6 +137,8 @@
       try { gloss = await fetchJSON("../data3/gloss/" + bookId + ".json"); }
       catch (e) { gloss = null; }
       if (!gloss) el.studyBtn.style.display = "none";
+      bookHasOrth = book.sections.some(
+        (s) => s.sentences.some((x) => x.orth));
       buildLevelSheet();
       loadLevel(level, true);
     }
@@ -258,9 +263,10 @@
         Object.prototype.hasOwnProperty.call(gloss.study_by_sent, sent.id)) {
       study = new Set(gloss.study_by_sent[sent.id]);
     }
+    const orth = prefs.orthModern && sent.orth;   // display toggle
     for (let k = a; k < b; k++) {
       const sp = document.createElement("span");
-      let t = sent.toks[k];
+      let t = (orth && sent.orth[String(k)]) || sent.toks[k];
       if (k + 1 < b && sent.sp.charAt(k) === "1") t += " ";
       sp.textContent = t;
       let cls = (sent.pos && POS_CLS[sent.pos[k]]) || "";
@@ -626,6 +632,23 @@
     if (checker && checker.state === "listening" && text) status("… " + text);
   }
 
+  /* Check-mode reference (02 schema): grade against the MODERNISED
+   * form and discount entities. One displayRuns walk yields the modern
+   * reference, the per-token entity-discount vector and the display
+   * tokens for the diff (original or modern, following the orth
+   * toggle) — always aligned. Review-deck items have no sentence data:
+   * v2 behavior (plain text, no discount). */
+  function checkRef() {
+    const cur = sentenceStep || flat[idx];
+    if (!cur || !cur.sent) return { ref: curText(), discount: null, disp: null };
+    const runs = Data3.displayRuns(cur.sent, cur.a, cur.b);
+    return {
+      ref: runs.map((r) => r.modern).join(" "),
+      discount: runs.map((r) => r.ent),
+      disp: runs.map((r) => (prefs.orthModern ? r.modern : r.orig)),
+    };
+  }
+
   function onCheckResult(res) {
     const auto = checkAuto;
     veil(false);
@@ -636,13 +659,20 @@
       return;
     }
     checkSilent = 0;
-    const ref = curText();
-    let best = Match.score(ref, res.transcript);
+    const cr = checkRef();
+    let best = Match.score(cr.ref, res.transcript, cr.discount);
     (res.alternatives || []).forEach((alt) => {           // score the best alternative
-      const sc = Match.score(ref, alt);
+      const sc = Match.score(cr.ref, alt, cr.discount);
       if (sc.score > best.score) best = sc;
     });
-    renderDiff(best.tokens);
+    // diff shows the DISPLAY form of each token, marks from the modern
+    // scoring (token counts align — both come from the same runs)
+    renderDiff(cr.disp
+      ? best.tokens.map((tk, i) => ({
+          display: cr.disp[i] !== undefined ? cr.disp[i] : tk.display,
+          ok: tk.ok,
+        }))
+      : best.tokens);
     const passed = best.score >= Match.PASS;
     if (passed) { checkRetry = 0; status("✓ " + Math.round(best.score * 100) + "% — you said it."); }
     else {
