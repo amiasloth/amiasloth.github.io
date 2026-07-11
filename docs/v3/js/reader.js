@@ -32,6 +32,7 @@
     settingsSheet: $("settingssheet"),
     studyBtn: $("studybtn"),
     studySheet: $("studysheet"),
+    tocSheet: $("tocsheet"),
   };
 
   const LEVEL_INFO = {
@@ -317,7 +318,7 @@
     hideGloss();
     if (!flat.length) { fail("This book has no content."); return; }
     const c = flat[idx];
-    el.sec.textContent = c.secTitle || meta.title;
+    el.sec.textContent = (c.secTitle || meta.title) + (review ? "" : " ▾");
     const old = el.zone.querySelector(".empty");
     if (old) old.remove();
     el.zone.querySelectorAll(".chunk").forEach((n) => n.remove());
@@ -898,6 +899,14 @@
     el.studySheet.addEventListener("click", (e) => {
       if (e.target === el.studySheet) el.studySheet.classList.remove("open");
     });
+    el.sec.addEventListener("click", () => {
+      if (review || !book) return;
+      buildTocSheet();                 // rebuilt on open: marks the current section
+      el.tocSheet.classList.add("open");
+    });
+    el.tocSheet.addEventListener("click", (e) => {
+      if (e.target === el.tocSheet) el.tocSheet.classList.remove("open");
+    });
 
     // release mic when the page goes away / is hidden
     document.addEventListener("visibilitychange", () => {
@@ -924,6 +933,43 @@
         }
       });
       el.levelOpts.appendChild(b);
+    });
+  }
+
+  /* TOC: tap the section-title line -> sheet with every section; tap a
+   * section -> jump to its first chunk (the current section jumps back
+   * to its own start — "restart chapter"). Sentence counts are counted
+   * client-side per the schema (derivable, not baked). */
+  function jumpToSection(si) {
+    const at = flat.findIndex((c) => c.sec === si);
+    if (at < 0) return;
+    TTS.stop();                       // clean handover, like a level switch
+    rec.reset();
+    if (checker) checker.reset();
+    checkRetry = 0; checkSilent = 0; checkDiffShown = false;
+    sentenceStep = null;
+    idx = at;
+    render();
+  }
+
+  function buildTocSheet() {
+    const box = $("tocopts");
+    box.innerHTML = "";
+    const cur = flat.length ? flat[idx].sec : -1;
+    book.sections.forEach((s, si) => {
+      const b = document.createElement("button");
+      b.className = "opt" + (si === cur ? " sel" : "");
+      const t = document.createElement("div");
+      t.textContent = s.title || "Section " + (si + 1);
+      const small = document.createElement("small");
+      small.textContent = s.sentences.length + " sentences";
+      b.appendChild(t);
+      b.appendChild(small);
+      b.addEventListener("click", () => {
+        el.tocSheet.classList.remove("open");
+        jumpToSection(si);
+      });
+      box.appendChild(b);
     });
   }
 
@@ -992,7 +1038,7 @@
       rec.autoStop = value;
       if (checker) checker.setAutoStop(value);   // check takes use it too (VAD endpointing)
     }
-    if (name === "studyWords") render();   // repaint the focus line marks
+    if (name === "studyWords" || name === "orthModern") render();  // repaint text
     if (name === "checkMode") {   // switching modes: hand the mic over cleanly
       if (checker) checker.reset();
       rec.reset();
@@ -1029,7 +1075,7 @@
 
     // ---- tab row (a tab is hidden when its feature is unavailable)
     const tabs = [];
-    if (gloss) tabs.push(["reading", "Reading"]);
+    if (gloss || bookHasOrth) tabs.push(["reading", "Reading"]);
     tabs.push(["practice", "Practice"]);
     if (TTS.available()) tabs.push(["voice", "Voice"]);
     if (!settingsTab || !tabs.some((t) => t[0] === settingsTab))
@@ -1051,7 +1097,10 @@
     }
 
     if (settingsTab === "reading") {
-      toggle("Mark study words", "A faint underline on the rare words of the current phrase — the ones the study list (Aa) collects. Turn off if it distracts.", "studyWords");
+      if (gloss)
+        toggle("Mark study words", "A faint underline on the rare words of the current phrase — the ones the study list (Aa) collects. Turn off if it distracts.", "studyWords");
+      if (bookHasOrth)
+        toggle("Modernised spelling", "Show Tür instead of Thür, dass instead of daß. Speaking checks always accept the modern form either way.", "orthModern");
       return;
     }
 

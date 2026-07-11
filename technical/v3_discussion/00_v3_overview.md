@@ -96,6 +96,18 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    14% of advanced chunks get an emoji.
    Settings sheet is tabbed (Reading / Practice / Voice; tabs hidden
    when their feature is unavailable).
+   Orthography + check grading: "Modernised spelling" display toggle
+   (Reading tab, auto-hidden until a book carries orth); check mode
+   grades against the MODERNISED reference with entities discounted
+   (Match.score grew an optional per-token discount vector — missed
+   names cost nothing, spoken names still count; diff renders the
+   display form with marks from the modern scoring, all aligned via
+   Data3.displayRuns). Node-tested incl. runs invariant on 13k real
+   chunks. TTS keeps speaking the display text.
+   TOC: the section-title line (now with ▾) opens a Contents sheet —
+   every section with client-counted sentence count, current marked;
+   tap jumps to the section's first chunk (current section = restart
+   chapter) with clean mic/TTS handover. Hidden in review mode.
    Emoji-map test phase: build_data3.sh now falls back to the GENERATED
    build/emoji_map_<id>.json when no reviewed maps/emoji_<id>.json
    exists (owner-approved for UI testing; rerun bakes it — the map
@@ -107,11 +119,13 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      lemmatizer)~~ (done); ~~per-section pre-study list; per-sentence
      study words~~ (done);
    - ~~verb coloring from POS; subtle name rendering from ents~~ (done);
-   - orthography display toggle (orth field);
+   - ~~orthography display toggle (orth field)~~ (done);
    - ~~chunk emoji at runtime: rarest glossed word with non-empty `e`
      (zipf-0 tie-break by word order, dedup lemmas, skip ents)~~ (done);
-   - check mode: grade against modernized form, discount entities;
-   - chapter/section jump (TOC); tap/long-press → external dictionary;
+   - ~~check mode: grade against modernized form, discount entities~~
+     (done);
+   - ~~chapter/section jump (TOC)~~ (done); tap/long-press → external
+     dictionary;
    - library screen from `books.json` (stats, difficulty);
    - localStorage `zzzpeak.v3` progress keyed by (id, occ).
 

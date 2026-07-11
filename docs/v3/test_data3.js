@@ -252,5 +252,64 @@ for (const meta of index.books) {
   }
 }
 
+// ---------------- displayRuns + check-mode grading ----------------
+{
+  const Match = require("./js/match.js");
+
+  // runs invariant on real data (kafka + alice, every chunk, beginner):
+  // orig runs joined by " " == the chunk display text
+  for (const id of [["de", "kafka"], ["en", "alice"]]) {
+    const book = JSON.parse(fs.readFileSync(
+      path.join(ROOT, id[0], id[1] + ".json"), "utf8"));
+    const flat = Data3.flatten(book, "beginner");
+    flat.forEach((c) => {
+      const runs = Data3.displayRuns(c.sent, c.a, c.b);
+      if (runs.map((r) => r.orig).join(" ") !== c.t.replace(/\s+/g, " "))
+        bad(id[1] + " " + c.sid + ": displayRuns orig != chunk text");
+    });
+    console.log("ok  displayRuns invariant " + id[1] + " (" + flat.length + " chunks)");
+  }
+
+  // orth: modern runs differ exactly at the mapped token
+  const sent = {
+    id: "x",
+    toks: ["Die", "Thür", "gieng", "auf", ",", "sprach", "Gregor", "."],
+    sp: "11101100",
+    ents: [[6, 7, "PER"]],
+    orth: { "1": "Tür", "2": "ging" },
+  };
+  const runs = Data3.displayRuns(sent, 0, 8);
+  if (runs.map((r) => r.orig).join(" ") !== "Die Thür gieng auf, sprach Gregor.")
+    bad("displayRuns orig: " + runs.map((r) => r.orig).join(" "));
+  if (runs.map((r) => r.modern).join(" ") !== "Die Tür ging auf, sprach Gregor.")
+    bad("displayRuns modern: " + runs.map((r) => r.modern).join(" "));
+  if (runs.map((r) => +r.ent).join("") !== "000001")
+    bad("displayRuns ent flags: " + runs.map((r) => +r.ent).join(""));
+
+  // check grading: modern ref, entity discounted
+  const ref = runs.map((r) => r.modern).join(" ");
+  const disc = runs.map((r) => r.ent);
+  // speaker says everything except the name -> perfect score, name ok:null
+  let r1 = Match.score(ref, "die tür ging auf sprach", disc);
+  if (r1.score !== 1) bad("discount: missing name should not cost, score " + r1.score);
+  if (r1.tokens[5].ok !== null) bad("discount: missed name must be ok:null");
+  // speaker says the name too -> still 1, name marked ok:true
+  let r2 = Match.score(ref, "die tür ging auf sprach gregor", disc);
+  if (r2.score !== 1 || r2.tokens[5].ok !== true)
+    bad("discount: spoken name should mark ok:true");
+  // dictation returns modern forms: grading vs the modern ref is exact,
+  // no reliance on the edit-distance mercy
+  let r3 = Match.score(ref, "die tür ging", disc);
+  if (r3.matched !== 3 || r3.total !== 5)
+    bad("modern ref grading off: " + r3.matched + "/" + r3.total);
+  // all-discounted reference passes trivially
+  let r4 = Match.score("Gregor", "x", [true]);
+  if (r4.score !== 1) bad("all-discounted ref must score 1");
+  // no-discount call keeps v2 behavior
+  let r5 = Match.score("die Tür", "die tür");
+  if (r5.score !== 1 || r5.total !== 2) bad("v2-compatible score broken");
+  console.log("ok  check grading (modern ref, entity discount, v2 compat)");
+}
+
 console.log(fails ? fails + " FAILURES" : "ALL CHECKS PASSED");
 process.exit(fails ? 1 : 0);
