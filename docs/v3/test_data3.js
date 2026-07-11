@@ -311,5 +311,73 @@ for (const meta of index.books) {
   console.log("ok  check grading (modern ref, entity discount, v2 compat)");
 }
 
+// ---------------- rungs + ladder ----------------
+// Data invariants (02 schema): every rung ⊆ cuts.advanced; successive
+// rungs nest (coarse→fine); no rung is empty or equals the advanced cut
+// set (the app appends both ends of the ladder). Then ladderRanges
+// behavior: ranges tile the sentence per rung, rungs come out
+// fine→coarse, the whole sentence is last, and a rung equal to the
+// level's cuts is skipped.
+{
+  const sub = (x, y) => x.every((v) => y.includes(v));
+  for (const meta of index.books) {
+    const book = JSON.parse(fs.readFileSync(
+      path.join(ROOT, meta.lang, meta.id + ".json"), "utf8"));
+    let withRungs = 0;
+    book.sections.forEach((s) => s.sentences.forEach((sent) => {
+      const rungs = sent.rungs || [];
+      if (!rungs.length) return;
+      withRungs++;
+      const adv = (sent.cuts && sent.cuts.advanced) || [];
+      rungs.forEach((r, i) => {
+        if (!r.length) bad(meta.id + " " + sent.id + ": empty rung");
+        if (!sub(r, adv)) bad(meta.id + " " + sent.id + ": rung ⊄ advanced");
+        if (JSON.stringify(r) === JSON.stringify(adv))
+          bad(meta.id + " " + sent.id + ": rung == advanced cuts");
+        if (i && !sub(rungs[i - 1], r))
+          bad(meta.id + " " + sent.id + ": rungs do not nest");
+      });
+      // ladder from every level: tiles, fine→coarse, whole last
+      for (const lv of meta.levels) {
+        const ranges = Data3.ladderRanges(sent, lv);
+        const last = ranges[ranges.length - 1];
+        if (last[0] !== 0 || last[1] !== sent.toks.length)
+          bad(meta.id + " " + sent.id + ": ladder must end with the whole sentence");
+        let pos = 0, sizes = [];
+        ranges.slice(0, -1).forEach((r) => {
+          if (r[0] !== pos && r[0] !== 0)
+            bad(meta.id + " " + sent.id + ": ladder ranges do not tile");
+          if (r[0] === 0) { if (pos !== 0) sizes.push(pos); }  // new rung started
+          pos = r[1];
+        });
+        // piece count per rung must strictly DECREASE (fine→coarse)
+        const counts = [];
+        let cnt = 0;
+        ranges.slice(0, -1).forEach((r) => {
+          if (r[0] === 0 && cnt) { counts.push(cnt); cnt = 0; }
+          cnt++;
+        });
+        if (cnt) counts.push(cnt);
+        for (let i = 1; i < counts.length; i++)
+          if (counts[i] >= counts[i - 1])
+            bad(meta.id + " " + sent.id + "/" + lv + ": ladder not fine→coarse: " + counts);
+      }
+    }));
+    console.log("ok  rungs " + meta.id + "  " + withRungs + " sentences with a ladder");
+  }
+
+  // level-dedup: a synthetic rung equal to the level's cuts is skipped
+  const sent = { toks: "a b c d e f".split(" "), sp: "111110",
+                 cuts: { advanced: [3], beginner: [3] }, rungs: [[3]] };
+  const r = Data3.ladderRanges(sent, "beginner");
+  if (r.length !== 1 || r[0][0] !== 0 || r[0][1] !== 6)
+    bad("ladder level-dedup: rung equal to level cuts must be skipped, got " +
+        JSON.stringify(r));
+  // no rungs at all -> just the whole sentence
+  const r2 = Data3.ladderRanges({ toks: ["x", "y"], sp: "10", cuts: {} }, "starter");
+  if (r2.length !== 1) bad("ladder without rungs must be [whole]");
+  console.log("ok  ladderRanges semantics (tiling, order, dedup, no-rungs)");
+}
+
 console.log(fails ? fails + " FAILURES" : "ALL CHECKS PASSED");
 process.exit(fails ? 1 : 0);

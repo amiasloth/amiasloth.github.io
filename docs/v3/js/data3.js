@@ -186,9 +186,32 @@
     return runs;
   }
 
+  /* Progressive-rung ladder for one sentence at one level: the token
+   * ranges [a, b) to practice AFTER the level's own chunks, in order.
+   * Rungs are stored coarse→fine ([[18],[18,29]] = halves, thirds) and
+   * hold only distinct intermediate steps — so the ladder walks them in
+   * REVERSE (fine→coarse: thirds before halves), skips a rung equal to
+   * the level's own cut set (nothing repeats), and always ends with the
+   * whole sentence. Valid from any level: every rung ⊆ cuts.advanced ⊆
+   * every finer level's cuts. */
+  function ladderRanges(sent, level) {
+    var n = sent.toks.length;
+    var out = [];
+    var lvl = JSON.stringify((sent.cuts && sent.cuts[level]) || []);
+    var rungs = sent.rungs || [];
+    for (var i = rungs.length - 1; i >= 0; i--) {
+      if (JSON.stringify(rungs[i]) === lvl) continue;
+      var bnd = [0].concat(rungs[i], [n]);
+      for (var j = 0; j + 1 < bnd.length; j++) out.push([bnd[j], bnd[j + 1]]);
+    }
+    out.push([0, n]);
+    return out;
+  }
+
   var Data3 = {
     sliceText: sliceText,
     displayRuns: displayRuns,
+    ladderRanges: ladderRanges,
     boundaries: boundaries,
     flatten: flatten,
     findPosition: findPosition,

@@ -108,13 +108,37 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    every section with client-counted sentence count, current marked;
    tap jumps to the section's first chunk (current section = restart
    chapter) with clean mic/TTS handover. Hidden in review mode.
+   Progressive rungs: v2's sentenceReplay generalised into a virtual-
+   step QUEUE — after a sentence's last chunk, "After each sentence" =
+   Keep reading / Read the whole sentence (old behavior) / Climb the
+   ladder (each rung fine→coarse via Data3.ladderRanges, whole sentence
+   last; rung equal to the level's cuts skipped). Old boolean pref seeds
+   the new sentenceMode once. Back-swipe bails out of the ladder. Rung
+   data invariants (⊆ advanced, nesting, ≠ advanced) now tested on all
+   8 books; ladder tiling/order/dedup unit-tested.
+   No-repeat guarantee (owner question, confirmed): a chunking is never
+   shown twice in a row — builder never emits a rung equal to the
+   advanced cuts or the whole sentence; the app skips a rung equal to
+   the CURRENT level's cuts; single-chunk sentences never enter the
+   ladder at all.
+
+   SESSION CLOSE 2026-07-11. The v3 reader is feature-complete except
+   two small items: (a) tap/long-press → external dictionary,
+   (b) library-screen stats/difficulty polish. Regression check:
+   `node docs/v3/test_data3.js` (no deps) validates the derivation
+   layer + all data invariants against whatever is in docs/data3 —
+   run it after any rebuild; it doubles as a data-review gate.
+   On-device review still pending for: gloss bubble taps vs nav zones,
+   study-word mark subtlety, ladder feel (no rung 2/3 indicator yet —
+   five-minute add if disorienting), emoji density once the gloss
+   rebuild with the generated maps lands.
    Emoji-map test phase: build_data3.sh now falls back to the GENERATED
    build/emoji_map_<id>.json when no reviewed maps/emoji_<id>.json
    exists (owner-approved for UI testing; rerun bakes it — the map
    depends only on the lemma set, which the emoji map doesn't change).
    Feature list still to add (all data-ready):
-   - level selection + nested chunk stepping; progressive-rung mode
-     (rungs ⊆ advanced; ladder valid from any level);
+   - ~~level selection + nested chunk stepping; progressive-rung mode
+     (rungs ⊆ advanced; ladder valid from any level)~~ (done);
    - ~~tap a word → gloss bubble (`forms` → `words`, no runtime
      lemmatizer)~~ (done); ~~per-section pre-study list; per-sentence
      study words~~ (done);

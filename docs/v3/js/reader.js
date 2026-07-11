@@ -48,7 +48,8 @@
   let flat = [];         // [{t, e?, cont?, sec, secTitle, i, lv?, sentStart?, sentEnd?}]
   let idx = 0;
   let level = null;
-  let sentenceStep = null;  // null | {start, end, t, e} — virtual full-sentence step
+  let sentenceStep = null;  // null | current virtual step {start, end, t, e, sent, a, b}
+  let ladderQueue = [];     // steps still ahead of sentenceStep (rungs mode)
 
   // ---- Check mode (Phase 04) ----
   let checker = null;       // Checker instance (only if SpeechRecognition exists)
@@ -67,7 +68,10 @@
     recordOnNext: Store.getPref("recordOnNext", false),
     ttsFirst: Store.getPref("ttsFirst", false),
     ttsRate: Store.getPref("ttsRate", 1),
-    sentenceReplay: Store.getPref("sentenceReplay", false),
+    // off | whole | ladder — supersedes v2's sentenceReplay toggle
+    // (old boolean pref seeds the default once)
+    sentenceMode: Store.getPref("sentenceMode",
+      Store.getPref("sentenceReplay", false) ? "whole" : "off"),
     sentenceShowText: Store.getPref("sentenceShowText", true),
     abCompare: Store.getPref("abCompare", false),
     checkMode: Store.getPref("checkMode", false),
@@ -151,15 +155,24 @@
    * flatten — v3 sentences are explicit, no `cont`-run reconstruction.
    * Review-mode deck items never get these fields (as in v2). */
 
-  function buildSentenceStep(start, end) {
-    let t = "";
-    for (let k = start; k <= end; k++) t += (t ? " " : "") + flat[k].t;
-    // all chunks of the step share one sentence — carry its token range
-    // so the step gets the same verb/name rendering as a normal chunk
-    const sent = flat[start].sent, a = flat[start].a, b = flat[end].b;
-    return { start, end, t: t.replace(/\s+/g, " ").trim(),
-             e: gloss && sent ? Data3.chunkEmoji(gloss, sent, a, b) : "",
-             sent, a, b };
+  /* The virtual steps practiced after a sentence's last chunk. "whole"
+   * mode: one step, the full sentence (v2's sentence replay). "ladder"
+   * mode: the rung ladder fine→coarse, whole sentence last (ranges from
+   * Data3.ladderRanges). Steps carry the same fields as a flat chunk
+   * so rendering, TTS, recording and check mode treat them as drop-in
+   * replacements. */
+  function buildLadder(c) {
+    const sent = c.sent;
+    const stepFor = (a, b) => ({
+      start: c.sentStart, end: c.sentEnd,
+      t: Data3.sliceText(sent.toks, sent.sp, a, b),
+      e: gloss ? Data3.chunkEmoji(gloss, sent, a, b) : "",
+      sent, a, b,
+    });
+    const ranges = prefs.sentenceMode === "ladder"
+      ? Data3.ladderRanges(sent, level)
+      : [[0, sent.toks.length]];
+    return ranges.map((r) => stepFor(r[0], r[1]));
   }
 
   /* current text/emoji: the virtual sentence step's joined values while
@@ -174,6 +187,7 @@
   /* review mode: the deck is every starred phrase, across levels */
   function loadDeck() {
     sentenceStep = null;
+    ladderQueue = [];
     flat = [];
     meta.levels.forEach((lv) => {
       Store.getStars(bookId, lv).forEach((s) => {
@@ -199,6 +213,7 @@
     level = lv;
     Store.setLevel(bookId, lv);
     sentenceStep = null;
+    ladderQueue = [];
     flat = Data3.flatten(book, lv);
     if (restore) {
       // sentence-keyed resume; fraction fallback if the sentence is gone
@@ -773,11 +788,20 @@
     // render() (below) redraws the focus line clean.
     if (checkActive()) { if (checker) checker.endTake(); checkRetry = 0; checkSilent = 0; checkDiffShown = false; }
 
-    // Leaving an active sentence step: next continues after it, prev
-    // returns to its last (real) chunk. Either way the step ends.
+    // Inside a virtual step: next goes to the next rung of the ladder
+    // (if any), then past the sentence; prev bails out of the ladder
+    // back to the sentence's last (real) chunk.
     if (sentenceStep) {
       const step = sentenceStep;
       if (delta > 0) {
+        if (ladderQueue.length) {          // climb: next rung's next piece
+          sentenceStep = ladderQueue.shift();
+          if (opts.keepMic || prefs.recordOnNext) rec.halt();
+          else rec.reset();
+          render();
+          autoStartOnNav(opts);
+          return true;
+        }
         const n = step.end + 1;
         if (n >= flat.length) return false;
         sentenceStep = null;
@@ -789,6 +813,7 @@
         return true;
       } else {
         sentenceStep = null;
+        ladderQueue = [];
         if (opts.keepMic || prefs.recordOnNext) rec.halt();
         else rec.reset();
         idx = step.end;
@@ -797,14 +822,16 @@
       }
     }
 
-    // Leaving the last chunk of a multi-chunk sentence (advancing forward):
-    // insert the virtual whole-sentence step instead of moving idx.
-    if (delta > 0 && !review && prefs.sentenceReplay) {
+    // Leaving the last chunk of a multi-chunk sentence (advancing
+    // forward): insert the virtual steps (whole sentence, or the full
+    // rung ladder) instead of moving idx.
+    if (delta > 0 && !review && prefs.sentenceMode !== "off") {
       const c = flat[idx];
       if (c && c.sentEnd === idx && c.sentEnd > c.sentStart) {
         if (opts.keepMic || prefs.recordOnNext) rec.halt();
         else rec.reset();
-        sentenceStep = buildSentenceStep(c.sentStart, c.sentEnd);
+        ladderQueue = buildLadder(c);
+        sentenceStep = ladderQueue.shift();
         render();
         autoStartOnNav(opts);
         return true;
@@ -948,6 +975,7 @@
     if (checker) checker.reset();
     checkRetry = 0; checkSilent = 0; checkDiffShown = false;
     sentenceStep = null;
+    ladderQueue = [];
     idx = at;
     render();
   }
@@ -1127,10 +1155,19 @@
     toggle("Hide text while you speak", "The phrase disappears the moment your voice starts (emoji hint stays) and comes back for playback — recall practice.", "hideText");
     toggle("Record when you go to the next phrase", "Tapping next immediately starts the next take.", "recordOnNext");
 
-    heading("Sentence replay");
-    toggle("Read the whole sentence", "After the last piece of a sentence, read the complete sentence once.", "sentenceReplay");
-    if (prefs.sentenceReplay) {
-      toggle("Show text for full sentences", "Even when chunk text is hidden, the complete-sentence step stays visible.", "sentenceShowText");
+    heading("After each sentence");
+    [["off", "Keep reading", "Straight on to the next sentence's chunks."],
+     ["whole", "Read the whole sentence", "After the last piece of a sentence, read the complete sentence once."],
+     ["ladder", "Climb the ladder", "Bigger and bigger pieces: your level's chunks, then each rung of the sentence, then the whole sentence."]]
+      .forEach(([val, label, hint]) => {
+        const b = document.createElement("button");
+        b.className = "opt" + (prefs.sentenceMode === val ? " sel" : "");
+        b.innerHTML = label + "<small>" + hint + "</small>";
+        b.addEventListener("click", () => setPref("sentenceMode", val));
+        box.appendChild(b);
+      });
+    if (prefs.sentenceMode !== "off") {
+      toggle("Show text for sentence steps", "Even when chunk text is hidden, the sentence/ladder steps stay visible.", "sentenceShowText");
     }
 
     if (Checker.isSupported() && !checkHidden) {
