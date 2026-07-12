@@ -1,5 +1,9 @@
-/* Zzzpeak service worker — app shell cache-first, book data stale-while-revalidate. */
-const VERSION = "zzzpeak-v5";
+/* Zzzpeak service worker — app shell cache-first, book data stale-while-revalidate.
+   v6 (2026-07-12): /v3/ pages+js network-first (active development) and
+   /data3/ stale-while-revalidate — previously both fell through to the
+   cache-first shell rule ("/data3/" does not match "/data/") and were
+   pinned forever, so v3 readers kept stale gloss/book files. */
+const VERSION = "zzzpeak-v6";
 const SHELL = [
   "./",
   "./index.html",
@@ -36,8 +40,8 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET" || url.origin !== location.origin) return;
 
-  // v2 app: network-first, fall back to cache when offline.
-  if (url.pathname.includes("/v2/")) {
+  // v2 + v3 apps: network-first, fall back to cache when offline.
+  if (url.pathname.includes("/v2/") || url.pathname.includes("/v3/")) {
     e.respondWith(
       fetch(e.request)
         .then((r) => {
@@ -50,8 +54,9 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // book data: serve cached immediately, refresh in the background
-  if (url.pathname.includes("/data/")) {
+  // book data (v1/v2 and v3): serve cached immediately, refresh in
+  // the background
+  if (url.pathname.includes("/data/") || url.pathname.includes("/data3/")) {
     e.respondWith(
       caches.open(VERSION).then(async (cache) => {
         const cached = await cache.match(e.request);
