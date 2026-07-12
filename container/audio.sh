@@ -5,7 +5,8 @@
 #
 #   container/audio.sh kafka                    # full book
 #   container/audio.sh velveteen --limit 20     # smoke test
-#   container/audio.sh kafka --dry-run          # counts only
+#   container/audio.sh kafka --dry-run          # section table + counts
+#   container/audio.sh kafka --sections 1       # one chapter per run
 #   extra args go to tools/v3/audio3.py (--bitrate 16, --force, ...)
 #
 # Env overrides:

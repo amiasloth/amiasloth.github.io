@@ -18,6 +18,10 @@ checkout (zzzpeak-audio), never into docs/.
 Properties:
   - Incremental: existing .opus files are kept (use --force to redo);
     durations for kept files come from the previous manifest.
+  - --sections '2' / '1-2' / '1,3' scopes ONE RUN to those chapters
+    (session-sized batches on the build machine); files, manifest and
+    coverage remain per-sentence and book-total. --dry-run prints the
+    section table with indices and audio estimates.
   - Repeated identical sentences share one sid → one file, by design.
   - Text = join(toks, sp) with orth modernisation applied (better TTS
     pronunciation; same form check mode grades against). --raw-orth
@@ -123,6 +127,22 @@ def iter_sentences(book):
             yield sent
 
 
+def parse_sections(spec, n):
+    """'2', '1-2', '1,3' (1-based, as printed by --dry-run) -> 0-based set."""
+    idx = set()
+    for part in spec.split(","):
+        part = part.strip()
+        if "-" in part:
+            a, b = part.split("-", 1)
+            idx.update(range(int(a) - 1, int(b)))
+        else:
+            idx.add(int(part) - 1)
+    bad = sorted(i + 1 for i in idx if not 0 <= i < n)
+    if bad:
+        raise SystemExit(f"--sections: no section {bad}; book has 1-{n}")
+    return idx
+
+
 def sha256_12(path):
     h = hashlib.sha256()
     with open(path, "rb") as f:
@@ -168,6 +188,11 @@ def main():
                     help="audio repo root; files go to <out>/<book_id>/")
     ap.add_argument("--bitrate", type=int, default=24,
                     help="opus bitrate in kbps (default 24; 16 = size fallback)")
+    ap.add_argument("--sections", metavar="SPEC",
+                    help="only synthesise these sections, 1-based: "
+                         "'2', '1-2', '1,3' (indices as shown by --dry-run). "
+                         "Files/manifest stay per-sentence & book-total; "
+                         "this only scopes one run.")
     ap.add_argument("--limit", type=int, default=0,
                     help="synthesise at most N new sentences (smoke tests)")
     ap.add_argument("--force", action="store_true",
@@ -183,23 +208,42 @@ def main():
     book = json.loads(Path(args.book).read_text(encoding="utf-8"))
     book_id, lang = book["id"], book["lang"]
 
-    # unique sids in book order; repeated identical sentences share a file
+    # unique sids in book order; repeated identical sentences share a file.
+    # texts always covers the WHOLE book (manifest coverage is book-total);
+    # --sections only scopes which sids this run synthesises.
+    sections = book["sections"]
     texts = {}  # sid -> text
     total_occurrences = 0
     for sent in iter_sentences(book):
         total_occurrences += 1
         texts.setdefault(sent["id"], sentence_text(sent, not args.raw_orth))
 
+    sel = parse_sections(args.sections, len(sections)) if args.sections \
+        else set(range(len(sections)))
+    scope = {s["id"] for i in sel for s in sections[i]["sentences"]}
+
     out_dir = Path(args.out) / book_id
     existing = {p.stem for p in out_dir.glob("*.opus")} if out_dir.is_dir() else set()
-    todo = [sid for sid in texts if args.force or sid not in existing]
+    todo = [sid for sid in texts
+            if sid in scope and (args.force or sid not in existing)]
     if args.limit:
         todo = todo[: args.limit]
 
     print(f"==== {book_id} ({lang}): {len(texts)} unique sentences "
           f"({total_occurrences} occurrences), {len(existing)} on disk, "
-          f"{len(todo)} to synthesise")
+          f"{len(todo)} to synthesise"
+          + (f" [sections {args.sections}]" if args.sections else ""))
     if args.dry_run:
+        # per-section table; audio estimate ~14 chars/s (medium voices)
+        print(f"  {'#':>3} {'sentences':>9} {'new':>5} {'~audio':>8}  title")
+        for i, sec in enumerate(sections):
+            sids = {s["id"] for s in sec["sentences"]}
+            chars = sum(len(texts[sid]) for sid in sids)
+            mins = chars / 14 / 60
+            mark = "*" if i in sel else " "
+            print(f" {mark}{i + 1:>3} {len(sec['sentences']):>9} "
+                  f"{len(sids - existing):>5} {mins:>6.0f}m   "
+                  f"{sec.get('title', '')[:40]}")
         for sid in todo[:5]:
             print(f"  {sid}  {texts[sid][:70]}")
         if len(todo) > 5:
