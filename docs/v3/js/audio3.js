@@ -27,6 +27,7 @@
     var el = new Audio();              // single element, like TTS's utterance
     el.preload = "auto";
     var watcher = 0, done = null;      // pending resolve of the active play
+    var fetched = {};                  // sids already prefetch-warmed
 
     var unlocked = false;
     function arm() {
@@ -107,6 +108,20 @@
           };
           el.onloadedmetadata = begin;
           el.src = root + sid + ".opus";   // (re)setting src triggers load
+        });
+      },
+
+      /* Warm the HTTP cache for upcoming sentences while the current one
+       * plays (fetch-nothing-until-play is the caller's job: the reader
+       * only calls this alongside play()).  Fire-and-forget; a failed
+       * fetch is forgotten so it can be retried later. */
+      prefetch: function (sids) {
+        (sids || []).forEach(function (sid) {
+          if (!api.has(sid) || fetched[sid]) return;
+          fetched[sid] = true;
+          fetch(root + sid + ".opus")
+            .then(function (r) { return r.ok ? r.blob() : Promise.reject(); })
+            .catch(function () { delete fetched[sid]; });
         });
       },
 

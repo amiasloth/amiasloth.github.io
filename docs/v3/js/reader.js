@@ -504,6 +504,21 @@
     if (bookAudio) bookAudio.stop();
   }
 
+  /* fetch nothing until the user actually plays; from then on, warm the
+   * next 2–3 DISTINCT sentences' files while the current one plays, so
+   * stepping forward never waits on the network (see audio3.js) */
+  function prefetchAudio() {
+    if (!bookAudio) return;
+    const ids = [], seen = {};
+    const cur = (sentenceStep || flat[idx] || {}).sent;
+    if (cur) seen[cur.id] = true;
+    for (let i = idx + 1; i < flat.length && ids.length < 3; i++) {
+      const s = flat[i].sent;
+      if (s && !seen[s.id]) { seen[s.id] = true; ids.push(s.id); }
+    }
+    bookAudio.prefetch(ids);
+  }
+
   function speakCurrent() {
     if (!flat.length || !modelAvailable()) return Promise.resolve(false);
     rec.halt();                      // never TTS into an open take
@@ -516,6 +531,7 @@
     // a chunk; false (no file / no slice / playback error) → Web Speech
     const ref = sentenceStep || flat[idx];
     if (bookAudio && ref.sent) {
+      prefetchAudio();               // warm the next sentences meanwhile
       return bookAudio.play(ref.sent, ref.a != null ? ref.a : 0,
                             ref.b != null ? ref.b : ref.sent.toks.length,
                             prefs.ttsRate)

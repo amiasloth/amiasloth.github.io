@@ -13,13 +13,18 @@
 #   AUDIO_REPO   checkout of zzzpeak-audio   (default ../zzzpeak-audio)
 #   VOICES_DIR   host dir for voice models   (default ~/piper-voices)
 #   VOICE_DE     (default de_DE-thorsten-medium)
-#   VOICE_EN     (default en_US-lessac-medium)
+#   VOICE_EN     (default en_GB-alba-medium)
 #   IMAGE        (default zzzpeak-audio)
 #
 # The image is built on first use; `podman rmi zzzpeak-audio` reclaims
 # the disk when the audio pass is done. Voices are downloaded once into
-# VOICES_DIR (host-owned, survives image removal). The app repo is
-# mounted READ-ONLY — this pass can never touch docs/.
+# VOICES_DIR (host-owned, survives image removal), then PATCHED once in
+# place: stock rhasspy/piper-voices .onnx files export only the audio
+# tensor, so `include_alignments=True` yields nothing (timing.json ends
+# up empty — observed 2026-07-12). piper ships the fix:
+# `python3 -m piper.patch_voice_with_alignment` exposes the duration
+# ("Ceil") tensor as a second graph output. The app repo is mounted
+# READ-ONLY — this pass can never touch docs/.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -62,6 +67,34 @@ if [ ! -f "${VOICES_DIR}/${VOICE}.onnx" ]; then
       -v "${VOICES_DIR}:/voices" -w /voices \
       "$IMAGE" python3 -m piper.download_voices "$VOICE"
 fi
+
+# alignment patch: run-timing (timing.json) needs the voice to emit the
+# per-phoneme duration tensor; patch once, in place. Idempotent — skips
+# when the model already has the second output. Voices dir mounted rw
+# ONLY here; the synth run below keeps it ro.
+# NB the -i is load-bearing: the script arrives on stdin, and without it
+# podman closes stdin and `python3 -` runs an EMPTY script, exit 0 —
+# exactly the silent no-op that shipped unpatched voices on 2026-07-12.
+podman run --rm -i --userns=keep-id \
+    -v "${VOICES_DIR}:/voices" \
+    "$IMAGE" python3 - "/voices/${VOICE}.onnx" <<'PYEOF'
+import subprocess, sys
+import onnxruntime
+path = sys.argv[1]
+def n_outputs():
+    return len(onnxruntime.InferenceSession(path).get_outputs())
+if n_outputs() >= 2:
+    print(f"voice already alignment-patched: {path}")
+    sys.exit(0)
+print(f"patching voice with alignment output: {path}")
+subprocess.run(
+    [sys.executable, "-m", "piper.patch_voice_with_alignment", path],
+    check=True)
+# the patcher does not propagate failures via exit code — verify
+if n_outputs() < 2:
+    sys.exit(f"ERROR: patch did not add the alignment output to {path}")
+print("patched ok (2 outputs)")
+PYEOF
 
 exec podman run --rm --userns=keep-id \
     -v "$(pwd):/project:ro" \

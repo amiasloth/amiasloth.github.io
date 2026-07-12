@@ -195,8 +195,17 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      IMPLEMENTED (2026-07-12) with piper1-gpl's NATIVE phoneme
      alignments (`include_alignments=True`; space phonemes delimit
      words) — no forced-alignment tool at all, timing extracted
-     during synthesis in audio3.py (supersedes the aeneas plan; no
-     new container deps). Granularity = display runs (whitespace
+     during synthesis in audio3.py (supersedes the aeneas plan).
+     CORRECTION (2026-07-12, first real run): stock rhasspy voices
+     export ONLY the audio tensor, so alignments came back None for
+     every sentence (timing.json empty). The library supports it but
+     the .onnx must be patched once —
+     `python3 -m piper.patch_voice_with_alignment` (ships with
+     piper-tts, needs the `onnx` package, now in Dockerfile.audio;
+     audio.sh patches downloaded voices automatically). Durations
+     are stochastic per synthesis, so timing only matches audio from
+     the SAME run: files synthesised pre-patch need `--force`
+     resynthesis. Granularity = display runs (whitespace
      units); reader maps token→run via sp bits (Data3.audioSlice),
      chunk = seek t0, stop t1 (rAF loop; Web Audio sample-accurate
      slicing is the upgrade path — Pages sends CORS *). Never

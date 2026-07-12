@@ -10,6 +10,10 @@
 #              tools/build/<id>_utf8.txt, like the old iconv step)
 #   skip_until regex: drop everything before the first matching line
 #   stop_at    regex: drop the matching line and everything after
+#   audio      absolute base URL of the zzzpeak-audio Pages site — set it
+#              once real per-sentence audio exists for the book (partial
+#              coverage is fine; the reader falls back to Web Speech per
+#              sentence).  Lands in books.json as the book's `audio`.
 #
 # Regexes are Python re syntax, passed verbatim to build3.py
 # (--skip-until / --stop-at).  Use single-quoted TOML literal strings
@@ -28,6 +32,7 @@ encoding = "iso-8859-1"
 title = "Die Verwandlung"
 author = "Franz Kafka"
 skip_until = '^I\.$'
+audio = "https://amiasloth.github.io/zzzpeak-audio/"
 
 [grimm]
 lang = "de"
@@ -74,6 +79,7 @@ source = "tools/sources/velveteen_rabbit_en.txt"
 title = "The Velveteen Rabbit"
 author = "Margery Williams"
 skip_until = '^HERE was once a velveteen rabbit'
+audio = "https://amiasloth.github.io/zzzpeak-audio/"
 
 [frankenstein]
 lang = "en"

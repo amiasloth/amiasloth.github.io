@@ -362,7 +362,7 @@ def build(args):
     entry = {"id": args.book_id, "title": args.title, "author": args.author,
              "lang": args.lang, "levels": LEVEL_ORDER_FINE,
              "source": args.source, "difficulty": difficulty,
-             "stats": stats, "audio": None}
+             "stats": stats, "audio": args.audio or None}
     index["books"] = [b for b in index["books"] if b["id"] != args.book_id]
     index["books"].append(entry)
     index["books"].sort(key=lambda b: (b["lang"], b["id"]))
@@ -391,6 +391,9 @@ def main():
                     help="only the first N sections (small-batch runs)")
     ap.add_argument("--model", default=None,
                     help="spaCy model override (default: lang's lg default)")
+    ap.add_argument("--audio", default=None,
+                    help="absolute base URL of the audio Pages site "
+                         "(sets the book's `audio` in books.json)")
     ap.add_argument("--orth-subst", default=None,
                     help="reviewed JSON substitution list {archaic: modern}")
     ap.add_argument("--data-dir",

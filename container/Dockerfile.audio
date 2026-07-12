@@ -3,9 +3,11 @@
 # zzzpeak AUDIO container — ephemeral, separate from the dev image on purpose
 # (the dev image is at its size budget; see 00_v3_overview.md §4).
 #
-# Contents: python3 + piper-tts (piper1-gpl, ONNX — no torch) + opus-tools
-# (opusenc/opusinfo). ~300 MB. Voice models are NOT baked in: they are data,
-# bind-mounted at runtime from the host (container/audio.sh handles download).
+# Contents: python3 + piper-tts (piper1-gpl, ONNX — no torch) + onnx (for the
+# one-time voice alignment patch, see audio.sh) + opus-tools (opusenc/
+# opusinfo). ~300 MB. Voice models are NOT baked in: they are data,
+# bind-mounted at runtime from the host (container/audio.sh handles download
+# and patching).
 #
 # Build:  podman build -t zzzpeak-audio -f container/Dockerfile.audio .
 # Run:    container/audio.sh <book-id>     (builds the image if missing,
@@ -32,10 +34,15 @@ ENV HOME="/home/${USERNAME}" \
     PATH="/home/${USERNAME}/.local/bin:/usr/local/bin:/usr/bin:/bin" \
     PIP_BREAK_SYSTEM_PACKAGES=1
 
-RUN pip install --no-cache-dir piper-tts
+# onnx: required by `python3 -m piper.patch_voice_with_alignment` — stock
+# rhasspy/piper-voices models export ONLY the audio tensor, so timing.json
+# stays empty until the duration tensor is exposed as a second output
+# (audio.sh runs the patch once per downloaded voice).
+RUN pip install --no-cache-dir piper-tts onnx
 
 # fail the build early if the toolchain is broken
 RUN python3 -c "from piper import PiperVoice; print('piper ok')" \
+    && python3 -c "import onnx; print('onnx ok')" \
     && opusenc --version
 
 WORKDIR /project

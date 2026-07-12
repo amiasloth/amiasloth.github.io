@@ -90,6 +90,8 @@ def build_one(book_id, meta, sample):
         args += ["--skip-until", meta["skip_until"]]
     if meta.get("stop_at"):
         args += ["--stop-at", meta["stop_at"]]
+    if meta.get("audio"):
+        args += ["--audio", meta["audio"]]
     model = os.environ.get(f"MODEL_{lang.upper()}", "")
     if model:
         args += ["--model", model]

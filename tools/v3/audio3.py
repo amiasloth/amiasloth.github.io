@@ -26,8 +26,15 @@ Properties:
   - Text = join(toks, sp) with orth modernisation applied (better TTS
     pronunciation; same form check mode grades against). --raw-orth
     synthesises the original spelling instead.
-  - books.json is NOT touched here; set its `audio` base URL by hand
+  - books.json is NOT touched here; the `audio` base URL flows from
+    tools/v3/books_src.toml through the app build (build3.py --audio)
     once the audio repo's Pages site is up.
+  - Timing REQUIRES an alignment-patched voice: stock rhasspy voices
+    export only the audio tensor, so every sentence comes back
+    unaligned (container/audio.sh patches the .onnx once via
+    `python3 -m piper.patch_voice_with_alignment`). Durations are
+    stochastic per synthesis, so timing is only valid for the audio of
+    the SAME run — files synthesised before the patch need --force.
 
 Runs inside the ephemeral audio container (container/audio.sh) or
 anywhere with `pip install piper-tts` + opus-tools. --dry-run needs
@@ -257,6 +264,22 @@ def main():
     from piper import PiperVoice  # deferred: --dry-run works without piper
     voice = PiperVoice.load(str(voice_path))
 
+    # fail LOUDLY before synthesising a whole batch: an unpatched voice
+    # (single ONNX output) can never produce timing — see the docstring.
+    if not args.no_timing:
+        try:
+            n_out = len(voice.session.get_outputs())
+        except Exception:  # noqa: BLE001 — probe only, never block synth
+            n_out = None
+        if n_out == 1:
+            print("WARNING: voice model has NO alignment output — every "
+                  "sentence will be unaligned and timing.json will stay "
+                  "empty. Patch the voice once:\n"
+                  "  python3 -m piper.patch_voice_with_alignment "
+                  f"{voice_path}\n"
+                  "(container/audio.sh does this automatically), then "
+                  "re-run with --force.", file=sys.stderr)
+
     manifest_path = out_dir / "manifest.json"
     old = json.loads(manifest_path.read_text(encoding="utf-8")) \
         if manifest_path.is_file() else {}
@@ -362,6 +385,14 @@ def main():
     print(f"timing   -> {timing_path} ({len(run_ends)}/{len(texts)} timed"
           + (f", {n_unaligned} unaligned this run" if n_unaligned else "")
           + ")")
+    if n_unaligned and n_unaligned == len(todo) - len(failed):
+        print("WARNING: EVERY sentence came back without alignments — the "
+              "voice model almost certainly lacks the duration output "
+              "(stock rhasspy export). Patch it once:\n"
+              "  python3 -m piper.patch_voice_with_alignment <voice.onnx>\n"
+              "(container/audio.sh does this automatically), then re-run "
+              "with --force: timing is only valid for audio from the same "
+              "synthesis run.", file=sys.stderr)
     print(f"coverage: {covered}/{len(texts)} "
           f"({manifest['coverage']['seconds']}s total)")
     if covered == len(texts):

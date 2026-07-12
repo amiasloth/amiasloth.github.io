@@ -108,7 +108,7 @@
     "avg_sentence_len": 21.8,
     "vocab_below_zipf4": 0.517
    },
-   "audio": null
+   "audio": "https://amiasloth.github.io/zzzpeak-audio/"
   },
   {
    "id": "zarathustra",
@@ -216,7 +216,7 @@
     "avg_sentence_len": 17.2,
     "vocab_below_zipf4": 0.224
    },
-   "audio": null
+   "audio": "https://amiasloth.github.io/zzzpeak-audio/"
   }
  ]
 }

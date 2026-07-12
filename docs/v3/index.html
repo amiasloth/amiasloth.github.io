@@ -54,6 +54,7 @@
     a.querySelector(".bmeta").textContent =
       (b.author ? b.author + " · " : "") + (LANG[b.lang] || b.lang) +
       " · " + b.levels.length + " level" + (b.levels.length > 1 ? "s" : "") +
+      (b.audio ? " · 🔊 audio" : "") +
       (pct ? " · " + pct + "% read" : "") +
       " · " + (b.source || "Public domain");
     box.appendChild(a);
