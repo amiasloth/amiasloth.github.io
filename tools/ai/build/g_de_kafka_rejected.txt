@@ -1,0 +1,57 @@
+absperren	lock, lock up sth.	etwas mit einem Tuch oder Vorhang verdecken	grader
+arbeitend	working	gerade etwas tun oder arbeiten	sanity
+ausbreitend	setting out	etwas großflächig hinlegen	grader
+bedrängt	cornered	voller Sorgen und Probleme	grader
+begründend	giving reasons for, explaining	etwas mit Gründen erklären	grader
+beleidigte	insulted	jemand, der sich gekränkt fühlt	grader
+beschwörend	incantatory	mit flehender Geste	grader
+bleichen	bleach, bleach out	heller werden lassen	grader
+buttern	churn butter	Butter auf etwas streichen	sanity
+dampfen	vape e-cigarettes, vape	warmen Rauch oder Dampf abgeben	sanity
+drehung	twist	eine Bewegung, bei der etwas sich im Kreis dreht	grader
+durchschauend	being wise to	wenn man etwas schnell versteht	grader
+einschaltung	activation	lange Pausen zwischen Wörtern machen	grader
+empfindlichkeit	susceptibility	starkes Gefühl für etwas	grader
+entbehren	miss sb./sth.	etwas nicht mehr haben wollen	grader
+entladend	unloading, offloading	plötzlich mit großer Kraft passieren	grader
+entzünden	light sth.	durch Hitze rot und wund werden	grader
+ermahnen	urging, exhorting	jemandem sagen dass er still sein soll	grader
+fortschreiten	progress, advance	langsam weitergehen oder sich drehen	grader
+freilassen	free	nicht mehr festhalten	grader
+freudig	joyful	voller Freude und Hoffnung	sanity
+führend	leading, foremost	nach unten oder nach oben gehend	grader
+fünfjährig	five-year-old	wenn etwas fünf Jahre dauert	grader
+gabeln	table forks, forks	Besteck, mit dem man Essen aufspießt	grader
+gebessert	reclaimed	sich nicht verändert oder verbessert	grader
+gegenteilig	converse	das genaue Gegenteil	sanity
+genährt	nursed, nurtured	durch etwas beeinflusst oder gestört	grader
+geschnitzt	carved	aus Holz geschnitten und verziert	sanity
+hervorgequollen	bulged out	wenn etwas nach außen gedrückt wird	grader
+hinwerfen	jot down, jot, write off	sich schnell auf den Boden legen	grader
+hungern	fasting	lange nichts essen und Hunger haben	sanity
+kitzeln	titillate	leicht berühren, dass es kitzelt	sanity
+kleiden	clothe	Kleidung anziehen	sanity
+knochig	raw-boned	sehr dünn mit großen Knochen	sanity
+körpermasse	body mass	der ganze große Körper von jemandem	grader
+ledern	coriaceous, leather-like	aus hartem, festem Material wie eine Tasche	grader
+mannigfach	multifarious	viele verschiedene Arten	grader
+mitleidig	pitying	voller Mitleid mit jemandem	sanity
+mittler	intermediary, go-between, middleman	jemand, der zwischen anderen steht	grader
+niederschlagen	knock down, knockdown	mit Gewalt zu Boden bringen	grader
+plump	clunky	unbeholfen und schwer auf den Boden fallen	grader
+scheuern	rub against sth.	etwas mit Druck reiben, um es sauber zu machen	grader
+schlürfen	slurp	langsam und mit Geräusch gehen	grader
+schütten	heap up, raise	etwas fallen lassen oder wegwerfen	grader
+spannen	stretch sth.	neugierig auf etwas warten	grader
+stehengeblieben	pulled up	etwas hört plötzlich auf zu funktionieren	grader
+türspalt	crack of the door	ein kleiner offener Raum an der Tür	grader
+umgedreht	inside out	wenn etwas auf die andere Seite gebracht wird	grader
+untermischen	mix in	etwas kommt zu etwas anderem dazu	grader
+veranlassung	motive, motivation	etwas, das einen Grund gibt	grader
+vermögensverhältnisse	pecuniary circumstances, financial circumstances	wie viel Geld jemand hat	grader
+versteifung	stiffener, stiffening	etwas, das hart und fest macht	grader
+weggefahren	departed, gone away	mit einem Fahrzeug weggegangen sein	grader
+weißbrot	white bread	helles Brot ohne dunkle Kruste	grader
+werdend	nascent	etwas, das immer mehr wird	grader
+wüten	do your worst	sehr wütend sein und laut schreien	sanity
+zureden	coaxing, cajoling	jemandem gut zureden, damit er etwas tut	sanity
