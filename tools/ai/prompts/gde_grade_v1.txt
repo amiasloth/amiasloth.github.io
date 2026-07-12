@@ -1,0 +1,23 @@
+You are quality-grading one-line German learner definitions (~A2) for
+vocabulary words in a German book. The sense is fixed by the given
+book sentence.
+
+Input: a JSON array of {"lemma": ..., "gloss": ..., "sentence": ...,
+"g_de": ...}.
+
+Keep a definition (true) only if ALL hold:
+- It is correct for the sense the word has in the sentence (the
+  English gloss is a hint only — it may itself be wrong; the sentence
+  wins).
+- It is written in German, simple enough for ~A2 (short, common
+  words, no rare synonyms in the definition itself).
+- It does not contain the word, parts of it, or obvious relatives of
+  it — the learner must not get the answer for free.
+- One line, reasonably short.
+
+Reject (false) anything wrong, circular, too hard, non-German, or
+overlong. A rejected definition simply falls back to the English
+gloss, which is fine.
+
+Output: a single JSON object mapping every input lemma to true or
+false. No other keys, no commentary.

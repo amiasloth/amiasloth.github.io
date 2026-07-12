@@ -248,6 +248,17 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    plumbing mode; MISTRAL_API_KEY env; never runs inside the build.
    - `g_de` one-line learner definitions (~A2), two-pass
      generate→grade, fallback `g_en`;
+     TOOL BUILT 2026-07-12 (`tools/ai/gde3.py`; shared plumbing
+     extracted to `tools/ai/mistral3.py` when it became the second
+     consumer): study lemmas + first-occurrence sentence → simple
+     German one-liners; the prompt trusts the SENTENCE over the
+     dictionary gloss, so this pass also catches FreeDict's wrong
+     senses (grimm's Holzhacker = "dirty player"). Pre-checks
+     (headword-leak stem match, length) before the grader; rejects
+     fall back to `g_en`. `build/g_de_<id>.json` → review →
+     `maps/g_de_<id>.json`, auto-baked by gloss3 into
+     `words[].g_de` (reader already prefers g_de). German books
+     only. Awaiting first real run.
    - sense overrides keyed by sentence id (Schloss 🏰/🔒) incl.
      per-occurrence emoji;
    - per-book lemma→emoji map (replaces curated fallback);
@@ -264,13 +275,35 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      `maps/emoji_general_<lang>.json`, a new gloss3 layer BELOW the
      curated emoji_map.py. Precedence: reviewed-book > emoji_map.py >
      general > CLDR-generated; the machine never edits or outranks
-     the hand-picked file. Awaiting first real API run (pilot:
-     kafka — its CLDR map is the known-bad reference).
+     the hand-picked file. Kafka pilot RAN 2026-07-12
+     (mistral-large-latest) and tuned the pipeline: sanity filter
+     widened (arrows/clocks/keycap digits — 8️⃣ for "acht" is right),
+     gender-ZWJ variants normalised to the base (🏃‍♂️→🏃), graders
+     relaxed to _v2 ("when torn, keep"), and PAIRS allowed (≤2 emoji
+     for compounds: Holzhacker → 🪵🪓; the reader renders the raw
+     string in all three surfaces — chunk hint, gloss bubble, study
+     sheet — so pairs are UI-free). `--new-cache` moves the cache
+     aside for model A/B (mistral-medium-latest = Medium 3.5 is the
+     current frontier pick). Dictionary-sense errors the pilot
+     surfaced (FreeDict Holzhacker = "dirty player") are NOT an
+     emoji problem — the g_de pass fixes those (it trusts the book
+     sentence over the gloss).
    - `rebus` (2–4 emoji sentence recall), `para` (simple-German
      paraphrase), section `sum` ("previously on…") — all reserved
      fields already in the schema;
    - optional gloss-miss fills (OOV compounds from
      `gloss_misses_<id>.txt`).
+     TOOL BUILT 2026-07-12 (`tools/ai/gfill3.py`): misses + surfaces
+     + first-occurrence sentence (token scan — misses have no
+     study_by_sent entry) → `g_en` (+ `g_de`, de books), the two
+     fields graded independently; g_en fails = entry dropped, g_de
+     fails = ships without. Proper names refused by prompt and
+     grader. `build/gloss_fill_<id>.json` → review →
+     `maps/gloss_fill_<id>.json`; gloss3 turns a filled miss into a
+     FULL study entry (words/freq/study lists/emoji precedence) —
+     kafka test: 713→715 glossed, validate3 green. Run order: gfill
+     → rebuild → emoji3 rerun sees the new words as study lemmas.
+     Awaiting first real run.
 
 6. Not gonna do: **Difficulty**: per-sentence `d` score (reserved field, formula
    TBD) + calibrate the provisional book-level difficulty label once

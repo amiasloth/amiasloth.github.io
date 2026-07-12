@@ -363,6 +363,20 @@ def run(args):
     if args.emoji_map:
         emoji_map = json.loads(Path(args.emoji_map).read_text("utf-8"))
 
+    # Reviewed gloss-miss fills (tools/ai/gfill3.py): dictionary misses
+    # the AI could gloss from word formation + sentence.  A filled miss
+    # becomes a FULL study entry (words/freq/study lists) instead of a
+    # silent gap; unfilled misses keep the current behaviour.
+    gloss_fill, n_fill = {}, 0
+    fpath = HERE / "maps" / f"gloss_fill_{book['id']}.json"
+    if fpath.is_file():
+        gloss_fill = {k: v for k, v in
+                      json.loads(fpath.read_text("utf-8")).items()
+                      if not k.startswith("_")
+                      and isinstance(v, dict) and v.get("g_en")}
+        print(f"  gloss fills: maps/gloss_fill_{book['id']}.json "
+              f"({len(gloss_fill)} lemmas)")
+
     # Reviewed GENERAL map (tools/ai/ emoji pass, strict rubric; owner
     # decision 2026-07-12): broad common-word coverage BELOW the curated
     # emoji_map.py — the machine never outranks (or edits) the
@@ -420,17 +434,32 @@ def run(args):
                             emoji_common[key] = e
                     continue
                 if key not in index:
-                    misses.setdefault(key, set()).add(tok)
-                    # report-only proposal from the aggressive variants —
-                    # never glossed from (see propose_variants); German only
-                    for v in propose_variants(surf) if lang == "de" else []:
-                        l2 = nfc_lower(lemmatize(v))
-                        if l2 in index:
-                            h, g = entry(l2, lemmatize(v))
-                            if g:
-                                orth_cand[tok] = (l2, h + " [UNVERIFIED]")
-                            break
-                    continue
+                    if key in gloss_fill:
+                        # reviewed AI fill: full glossary entry; falls
+                        # through to the study-list appends below.
+                        if key not in words:
+                            f = gloss_fill[key]
+                            words[key] = {"l": lemma, "g_en": f["g_en"],
+                                          "e": pick_emoji(key)}
+                            if f.get("g_de"):
+                                words[key]["g_de"] = f["g_de"]
+                            freq[key] = round(zipf(key), 2)
+                            n_fill += 1
+                    else:
+                        misses.setdefault(key, set()).add(tok)
+                        # report-only proposal from the aggressive
+                        # variants — never glossed from (see
+                        # propose_variants); German only
+                        for v in (propose_variants(surf)
+                                  if lang == "de" else []):
+                            l2 = nfc_lower(lemmatize(v))
+                            if l2 in index:
+                                h, g = entry(l2, lemmatize(v))
+                                if g:
+                                    orth_cand[tok] = (l2,
+                                                      h + " [UNVERIFIED]")
+                                break
+                        continue
                 if key not in words:
                     # sense choice follows the FIRST rare occurrence's POS.
                     # German ADV maps to adj: German adjectives are used
@@ -460,6 +489,21 @@ def run(args):
             if sent_study:
                 study_by_sent[sent["id"]] = sent_study
         sections_out.append({"title": sec["title"], "study": sec_study})
+
+    # g_de learner definitions (reviewed tools/ai/gde3.py artifact;
+    # additive key per the pinned schema — the reader already prefers
+    # g_de over g_en and falls back where absent).  Auto-loaded when
+    # a reviewed map exists, like the orth/emoji maps.
+    gde_path = HERE / "maps" / f"g_de_{book['id']}.json"
+    if gde_path.is_file():
+        n_gde = 0
+        for k, d in json.loads(gde_path.read_text("utf-8")).items():
+            if (not k.startswith("_") and k in words
+                    and isinstance(d, str) and d):
+                words[k]["g_de"] = d
+                n_gde += 1
+        print(f"  g_de: maps/g_de_{book['id']}.json baked "
+              f"({n_gde} lemmas)")
 
     out = {
         "schema": SCHEMA,
@@ -495,7 +539,8 @@ def run(args):
 
     print(f"{bid}: word_tokens={n_tokens} forms={len(forms)} "
           f"glossed_lemmas={len(words)} misses={len(misses)} "
-          f"archaic_hits={len(orth_cand)} emoji_common={len(emoji_common)}")
+          f"archaic_hits={len(orth_cand)} emoji_common={len(emoji_common)}"
+          + (f" fills={n_fill}" if gloss_fill else ""))
     print(f"  -> {out_path}\n  -> {miss_path}\n  -> {orth_path}")
 
 

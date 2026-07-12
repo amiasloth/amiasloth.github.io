@@ -313,10 +313,14 @@ Amends the 06 spec into the v3 layout (per book, not per level).
   the learner's already-known set (localStorage). Works for any window,
   including across section boundaries. No runtime lemmatiser needed.
 - `e`: lemma emoji. Source precedence (2026-07-12): a REVIEWED map
-  (later: Mistral-reviewed) beats curated `emoji_map.py`, but curated
-  beats the GENERATED CLDR map currently standing in for it
+  (later: Mistral-reviewed) beats curated `emoji_map.py`, curated
+  beats the reviewed GENERAL map `maps/emoji_general_<lang>.json`
+  (broad common-word layer, tools/ai/), and general beats the
+  GENERATED CLDR map currently standing in for the book map
   (`gloss3.py --emoji-map-generated`). Empty allowed and preferred
-  over a forced bad emoji.
+  over a forced bad emoji. Rev 2.2 (2026-07-12): `e` may hold up to
+  TWO emoji (compounds: Holzhacker 🪵🪓) — every consumer renders the
+  raw string, so nothing changes downstream.
 - `emoji_common` (rev 3.1): same sources and precedence, for common
   lemmas that occur in the book (zipf ≥ gloss threshold), minus
   function words (UPOS DET/PRON/ADP/CCONJ/SCONJ/PART/AUX). Consumer:

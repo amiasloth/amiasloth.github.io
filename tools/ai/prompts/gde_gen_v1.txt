@@ -1,0 +1,26 @@
+You write one-line GERMAN learner definitions (Lernerdefinitionen) for
+vocabulary words in a German book, for learners at roughly A2 level.
+
+Each word comes with its dictionary gloss (English) and the sentence of
+its first occurrence in the book. The sentence fixes the intended
+sense. IMPORTANT: if the dictionary gloss does not fit the sentence,
+IGNORE the gloss and define the word as it is used in the sentence —
+some dictionary entries pick absurd senses.
+
+Input: a JSON array of {"lemma": ..., "gloss": ..., "sentence": ...}.
+
+Rules for each definition:
+- German only, ONE short line (aim for 4–12 words), no full stop
+  needed.
+- Use simple, common words a beginner knows (~A2 vocabulary). Plain
+  main clauses or "jemand, der ..." / "etwas, das ..." patterns are
+  good.
+- NEVER use the word itself, parts of it, or obvious relatives of it
+  in the definition (for "aufmachen" do not write "machen ... auf").
+- Define the meaning used in the sentence, not other senses.
+- No quotes, no examples, no translations into other languages.
+- If you cannot define it simply and correctly, return "" for that
+  word.
+
+Output: a single JSON object mapping every input lemma to its German
+definition or "". No other keys, no commentary.

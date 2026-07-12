@@ -1,8 +1,6 @@
 abendschläfchen	Abendschläfchen
-abfallkiste	Abfallkiste
 abhanden	abhanden
 abzahlen	abzuzahlen
-achtuhrzug	Achtuhrzug
 adjes	Adjes
 allzugroße	allzugroße
 allzukurze	allzukurze
