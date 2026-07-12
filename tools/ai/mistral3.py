@@ -107,6 +107,22 @@ class Cache:
 
 # ------------------------------------------------------------ API
 
+# Request pacing baked in (owner 2026-07-12: "so I don't ban myself").
+# Mistral workspace tiers: mistral-large-* = 0.5 req/s (and 800k TPM,
+# which batched requests never approach); mistral-medium-* = 33 req/s.
+# A floor of 2.2s between LARGE requests keeps every run inside the
+# tier with margin; other models get a token 0.1s courtesy gap.
+_last_request = [0.0]
+
+
+def _pace(model):
+    gap = 2.2 if "large" in model else 0.1
+    wait = _last_request[0] + gap - time.monotonic()
+    if wait > 0:
+        time.sleep(wait)
+    _last_request[0] = time.monotonic()
+
+
 def api_call(model, system, user, temperature):
     key = os.environ.get("MISTRAL_API_KEY")
     if not key:
@@ -125,6 +141,7 @@ def api_call(model, system, user, temperature):
     delay = 2
     for attempt in range(6):
         try:
+            _pace(model)
             with urllib.request.urlopen(req, timeout=120) as resp:
                 out = json.loads(resp.read().decode("utf-8"))
             return json.loads(out["choices"][0]["message"]["content"])
