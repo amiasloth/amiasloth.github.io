@@ -1,0 +1,472 @@
+abends		🌙	grader
+abgenützt	fretted	👖	grader
+abtragen	wear, wear away, wear down	👕	grader
+abwärts		⬇️	sanity
+achsel	shoulder	🦿	grader
+acht		8️⃣	sanity
+achter	eighth	8️⃣	sanity
+allmonatlich	every month	📅	grader
+anblick		👀	grader
+anfang		🏁	grader
+angestellte		👔	grader
+angreifen		⚔️	grader
+angreifer		👹	grader
+angriff		⚔️	grader
+ankommen		🚆	grader
+anvertraut	entrusted	🤲	grader
+appetit		🍽️	grader
+arme		🦾	grader
+atem		🌬️	grader
+atmen		🌬️	grader
+aufenthalt		🏨	grader
+auffordern	instruct sb. to do sth.	👨‍🏫	grader
+aufgebraucht	used up, used	🗑️	grader
+aufmachen		🚪	grader
+aufrütteln	shake up sb./sth., rouse sb.	💪	grader
+aufschauen	look up	👆	grader
+aufschlagen	strike	💥	grader
+aufstehen		⬆️	sanity
+augenbraue	eyebrow, brow	🤨	grader
+ausblick		🏞️	grader
+ausgebreitet	set out	📄	grader
+ausgehen		🚶	grader
+ausleeren	empty, empty out	🗑️	grader
+aussehen		👀	grader
+aussicht		🏞️	grader
+ausstrecken	sprawl out	🙌	grader
+beeilt	hastened	⏱️	sanity
+beginnen		🚀	grader
+beimischen	admix sth.	🧪	grader
+beinchen	pin	🦶	grader
+beleidigt		😠	grader
+beschauer	inspector	👀	grader
+beschäftigt		👨‍💻	grader
+besserung		🌡️	grader
+besuch		🚪	grader
+besuchen		🚶‍♂️	grader
+besucher		👤	grader
+bettpfosten	bedpost	🛏️	grader
+bettzeug	bedclothes, bedding	🛏️	grader
+beweis		📄	grader
+bewohnt		🏠	grader
+billig		💵	grader
+blasen		🎷	grader
+blatt		🍃	grader
+bleichen	bleach, bleach out	☀️	grader
+blähen	swell	🎈	grader
+boden		🌍	grader
+brust		🫀	grader
+buschig	bushy	🌿	grader
+chef		👔	grader
+dame		👗	grader
+dampfen	vape e-cigarettes, vape	💨	grader
+dastehen	stand there	🚶	grader
+decke		🛏️	grader
+diener		👨‍🔧	grader
+dienstmädchen	servant girl, serving maid, lady's maid	🧹	grader
+ding		📦	grader
+dirigieren	conduct	🎼	grader
+doppelkinn	double chin	😮	grader
+dort		📍	grader
+drehung	twist	🌀	grader
+drei		3️⃣	sanity
+dunkel		🌑	grader
+dunkles		🌑	grader
+durchscheinen	show through	☀️	grader
+ecke		⌜	sanity
+ehebett	marriage-bed, nuptial bed	🛏️	grader
+eile		⏱️	sanity
+eilen	hurry	⏱️	sanity
+eilends	in a hurry	⏳	sanity
+eiligst	post-haste	⚡	grader
+ein		1️⃣	sanity
+eingestehen	confess to sth.	🗣️	grader
+einknicken	give way	🦵	grader
+einrichten		🛠️	grader
+einrichtung		🏠	grader
+einstellen		⚙️	grader
+elastisch	elastic, elastical	🏀	grader
+empor	up, upwards, upward	⬆️	sanity
+entbehren	miss sb./sth.	😢	grader
+entdeckung		🔍	grader
+entfernung		📏	grader
+entkleidet	undressed	👕	grader
+entladend	unloading, offloading	🚛	grader
+entschuldigen		🙏	grader
+enttäuschung		😞	grader
+erhaschen	catch sth.	🎣	grader
+erhoffen	expect sth. of sth.	🤞	grader
+erinnern		🧠	grader
+erinnerung		🧠	grader
+erkennen		👁️	grader
+erklärung		📜	grader
+erlaubnis		📋	grader
+ernst		😐	grader
+erraten		🤔	grader
+erregt		😠	grader
+ersatz		🔄	grader
+erschöpft		😴	grader
+ersparen		💰	grader
+erstarren	grow stiff	❄️	grader
+erstattet		💵	grader
+erstaunen	be astonished	😲	grader
+ersticken		😷	grader
+ertönen	sound	🎶	grader
+essenz	essence	🧪	grader
+fahrplan		📅	grader
+falte	fold	👖	grader
+faul		🍌	grader
+federn		⛹️	grader
+feiertag		🎉	grader
+feingefühl	discretion	🤫	grader
+fensterflügel	sash	🪟	grader
+fetzen	snatch	🧻	grader
+fläschchen	small bottle, bottle	🍼	grader
+fortschreiten	progress, advance	📈	grader
+frisch		🌿	grader
+früh		🌅	grader
+frühstücken		🍽️	grader
+fußboden		🪑	grader
+fühlen		🤲	grader
+fünf		5️⃣	sanity
+fünfjährig	five-year-old	5️⃣	sanity
+gasse		🚶‍♂️	grader
+gasthaus		🏚️	grader
+gedämpft	absorbed	🔇	grader
+gefaltet	crinkled	📄	grader
+gefüllt		🥤	grader
+gegenstand		📦	grader
+genährt	nursed, nurtured	🍼	grader
+geputzt	buffed	✨	grader
+geradeaus		⬆️	sanity
+geräusch		🔊	grader
+geschmack		👅	grader
+gesicht		👤	grader
+gestern		📅	grader
+gesund		💪	grader
+gewölbt	bellied	🎪	grader
+geöffnet		🚪	grader
+gleich		=	sanity
+gnädig	merciful	🙏	grader
+gott		⛪	grader
+grußwort	words of welcome, short welcoming speech	👋	grader
+gut		👍	grader
+günstig		💰	grader
+halb		½️⃣	sanity
+hals		🦒	grader
+hastig	abrupt	⚡	grader
+haushalt		🧹	grader
+hausknecht	boots	👨‍🔧	grader
+heilige		⛪	grader
+hell		💡	grader
+heraufsteigen	climb up	⬆️	sanity
+hereinbringen	bring in	🚪	grader
+herr		👔	grader
+hervorragen	stick out	📌	grader
+hervorstoßen	rap out	💨	grader
+heute		📅	grader
+hier		📍	grader
+himmlisch	heavenly	☁️	grader
+hinauf		⬆️	sanity
+hinaus		➡️	grader
+hinauskommen	reach above sth.	⬆️	sanity
+hinein		⬅️	sanity
+hinten		🔙	grader
+hinterkopf		🧠	grader
+hinziehen	protract sth.	⏳	sanity
+hinüber		➡️	grader
+hoch		⬆️	sanity
+hoffnung		💭	grader
+holen		🛒	grader
+hotelzimmer		🛏️	grader
+hungern	fasting	🍽️	grader
+hutgeschäft	millinery	👒	grader
+hälfte		½️⃣	sanity
+hängen		🧲	grader
+häßlich		😖	grader
+höhe		⬆️	sanity
+hübsch		😊	grader
+inkasso	collection	💰	grader
+innen		🏠	grader
+instrument		🎸	grader
+jahreszeit		🍂	grader
+kassiererin	cashier	💳	grader
+kasten		📦	grader
+kiefer		🦷	grader
+kindlich	childlike, childish	👶	grader
+kinn		👤	grader
+kleben		🧴	grader
+klebstoff	adhesive, glue	🧴	grader
+kleiderhaken	coat hook	🪑	grader
+klopfen		🚪	grader
+knochig	raw-boned	💀	grader
+kopfende	top	🛏️	grader
+krach		💥	grader
+kredenz	sideboard cupboard, sideboard, credenza	🗄️	grader
+kreis		⭕	sanity
+kreuz		✝️	grader
+körper		🧍	grader
+küche		👩‍🍳	grader
+kühl		❄️	grader
+leben		🌱	grader
+lebhaft	animated, lively	🎉	grader
+leer		🪑	grader
+leintuch	bed sheet, sheet	🛏️	grader
+leuchtend	aglow	✨	grader
+licht		💡	grader
+liefern		📦	grader
+liege		🛏️	grader
+linie		➖	grader
+livree	livery	👔	grader
+lockern	loosen	🔧	grader
+luftloch	vent hole, ventilation hole, ventiduct	🕳️	grader
+lärm		🔊	grader
+lüften		🪟	grader
+melancholisch	sombre, somber	☁️	grader
+minute		⏱️	sanity
+mischen		🥄	grader
+mithelfen	help out, pitch in, muck in	🤝	grader
+mittag		☀️	grader
+mittler	intermediary, go-between, middleman	👔	grader
+monat		📅	grader
+musik		🎵	grader
+musterkollektion	assortment of samples, sample collection	👕	grader
+möbel		🪑	grader
+nachlässig	lackadaisical	😴	grader
+nachmittags		☀️	grader
+nahrung		🍎	grader
+narbe		🩹	grader
+neugierig		👀	grader
+nicken	nod	👍	grader
+niederschlagen	knock down, knockdown	💥	grader
+note		📝	grader
+notfall		⚠️	grader
+nähren	nurse, nurture sth.	🍼	grader
+oben		⬆️	sanity
+obstschale	punnet, pottle	🍎	grader
+offen		🔓	grader
+packen		🎒	grader
+paradieren	parade	🚶‍♂️	grader
+pause		⏸️	sanity
+pelzwerk	vair	🧥	grader
+pfeifen		🎶	grader
+platz		🏟️	grader
+plump	clunky	🪑	grader
+preis		🏷️	grader
+pressen		🧃	grader
+prüfung		✏️	grader
+pünktchen	jot	⚪	grader
+rahmen		🖼️	grader
+rauh	rough	🧴	grader
+raum		🚪	grader
+rauschend	soughing	🌿	grader
+reiben		🧽	grader
+reinigung		🧺	grader
+reinlichkeit	personal cleanliness	🧼	grader
+reisender	passenger, traveller, traveler	🚆	grader
+riesengröße	enormousness	👟	grader
+rock		👗	grader
+rollen		🌀	grader
+runde		⭕	sanity
+rücken		🪑	grader
+rücksichtslos	reckless	🚶‍♂️	grader
+rücksichtsvoll	considerate	🤝	grader
+sammeln		🧺	grader
+satt		🍽️	grader
+sauce		🥄	grader
+schaden		⚠️	grader
+scharf		🔪	grader
+scharren	scrape	🐔	grader
+schaukeln	finesse sth.	🪑	grader
+scheibe		🍕	grader
+schicken		📦	grader
+schieben		🛒	grader
+schlafrock	dressing gown, robe	👘	grader
+schleppen		🏋️	grader
+schlürfen	slurp	👅	grader
+schmecken		👅	grader
+schmutz		🧹	grader
+schmutzig		🧼	grader
+schnappen	spring back, snap back, fly back	🦷	grader
+schnell		⚡	grader
+schreibtisch		🖥️	grader
+schulter		🤷	grader
+schwerhörigkeit	hardness of hearing, hearing difficulty	👂🔇	sanity
+schwirren	ping	🦟	grader
+schälen	pare sth.	🍎	grader
+schütteln		🤲	grader
+schütten	heap up, raise	🏗️	grader
+sechs		6️⃣	sanity
+seite		📄	grader
+serviette	table napkin, napkin, serviette	🧻	grader
+sieben		7️⃣	sanity
+sitzen		🪑	grader
+sohle		👟	grader
+sonntag		📅	grader
+spannen	stretch sth.	🧘	grader
+spaß		😄	grader
+spiel		🎲	grader
+spitze		⛰️	grader
+spreizen	straddle	🦵	grader
+spur		🛣️	grader
+spät		🌃	grader
+staub		🧹	grader
+staubbedeckt	covered in dust	🧹	grader
+steigen		⬆️	sanity
+stillstand		⏸️	sanity
+stirn		🤔	grader
+stock		🌲	grader
+stocken	halt	⏸️	sanity
+stockwerk		🏢	grader
+stolpern	stumble	🚶‍♂️	grader
+stoß		💥	grader
+straff	tight, taut	🩲	grader
+streifen		🐯	grader
+streit		👊	grader
+strom		⚡	grader
+stubenmädchen	chambermaid	🧹	grader
+stunde		⏰	sanity
+stück		🍰	grader
+stückchen		🍪	grader
+süß		🍬	grader
+tageszeit	daytime, time of day	🌞	grader
+tappen	toddle	👶	grader
+tempo		🏎️	grader
+teppich		🧵	grader
+tier		🐾	grader
+ton		🎵	grader
+tragen		🎒	grader
+treffen		🤝	grader
+trocken		☀️	grader
+trubel	hustle and bustle, bustle, hurly-burly	🎪	grader
+tuchwaren	cloth goods	👕	grader
+turmuhr	tower clock	⏰	sanity
+türflügel	leaf	🚪	grader
+türklinke	door handle	🔘	grader
+türöffnung	doorway	🚪	grader
+umgeworfen	flattened	🥤	grader
+umherfliegen	fly around	💨	grader
+unaufhörlich	never-ending	⏳	sanity
+unbeweglich	irremovable	🪨	grader
+unbrauchbar	unserviceable	🗑️	grader
+undeutlich	faint	👀	grader
+unentbehrlich	indispensable	🔑	grader
+ungeschickt	dim	🤦	grader
+uniform		👔	grader
+uniformrock	tunic	👔	grader
+unordnung	disorganization, disorganisation	🧹	grader
+unrat	dross	🗑️	grader
+unschädlich	unoffending	🍎	grader
+unten		⬇️	sanity
+unter		⬇️	sanity
+unterarm	forearm	💪	grader
+unterhaltend	amusing, entertaining	🎭	grader
+unterhaltung		🎭	grader
+unterleib	lower abdomen	🩲	grader
+unternehmer		💼	grader
+untersuchung		🔍	grader
+unverkennbar	unmistakable	👂	grader
+unverletzt	unharmed, unhurt	🩹	grader
+unzahl	host	🔢	grader
+verbarrikadieren	barricade	🚪🪵	sanity
+verbindung		🔗	grader
+verbrauch		🛒	grader
+verbunden		🔗	grader
+verdecken	cover sth. with sth.	🛡️	grader
+verein		🏟️	grader
+vereinigen	unite sth.	🤝	grader
+verfaulen	corrupt	🍎💀	sanity
+vergessen		🧠	grader
+vergnügen		😊	grader
+vergnügung	amusement	🎭	grader
+vergolden	gild, gold-plate, paint gold	🏆	grader
+verhungern		🍽️	grader
+verjagen	chase away	🏃‍♂️💨	sanity
+verkauft		🛒	grader
+verkehr		🚦	grader
+verkäuflich	saleable, salable	🛒	grader
+verlieren		🔍	grader
+verlocken	decoy	🍎🐍	sanity
+verloren		🔍	grader
+vermietet		🏠	grader
+verrammeln	barricade	🚪🪵	sanity
+verschlimmerung	aggravation	📈😷	sanity
+verschwinden		👻	grader
+verschüttet	slopped, slopped out	🥛💦	sanity
+versinken	bog down, get bogged down, get mired down	🪑💨	sanity
+verstehen		🧠	grader
+verstellt	blocked, obstructed	🚧	grader
+versuchen		👨‍🔬	grader
+versunken	bogged down, got bogged down, got mired down	🪑💨	sanity
+versäumen	miss	⏰❌	sanity
+vertauschen	transpose	🔄	grader
+vertrauen		🤝	grader
+vertrauenswürdig	trustworthy, trustable	🤝	grader
+verwandelt		🦋	grader
+verwinden	distort, twist, warp	🌀	grader
+verwischen	obscure sth., obfuscate sth.	🎨	grader
+verzehren	waste sth.	🍽️	grader
+verziehen	warp	🌀	grader
+viel		🍕	grader
+vier		4️⃣	sanity
+viertelstunde		⏱️	sanity
+vorbote	omen, augury, portent	⚠️	grader
+vordringen	penetrate	🚪	grader
+vorlesen		📖	grader
+vormittag		☀️	grader
+vorplatz	entrance hall, front hall, hall	🚪	grader
+vorrücken	move up, be promoted	➡️	grader
+vorschießen	dash forward	➡️	grader
+vorwärts		⬆️	sanity
+vorzimmer	entrance hall, front hall, hall	🚪	grader
+wange		😊	grader
+warm		🔥	grader
+warten		⏳	sanity
+wecken		⏰	sanity
+wecker		⏰	sanity
+wegschicken	turn away sb.	🚪	grader
+weiterschleppen	drag on	🚛	grader
+weiß		⚪	grader
+werfen		🎯	grader
+wetter		☀️	grader
+wiederkehr	anniversary	📅	grader
+wild		🦁	grader
+witwe		👵	grader
+wohnen		🏠	grader
+wohnungstür	flat front door, the flat's front door, apartment front door	🚪	grader
+wohnungstüre	flat front door, the flat's front door, apartment front door	🚪	grader
+wort		🗨️	grader
+wurf		🥎	grader
+wählen		📞	grader
+wärme		🔥	grader
+zacke	point, tooth, serration	⛰️	grader
+zehn		1️⃣	sanity
+zeichen		✍️	grader
+zeigen		👉	grader
+zeiger	cursor, pointer, screen marker	🕐	grader
+zeitraubend	time-consuming	⏳	sanity
+zerstreuung	diversion, distraction	🎭	grader
+zerzausen	dishevel	💇	grader
+ziehen		🎣	grader
+zimmer		🏠	grader
+zimmerdecke	ceiling	🪟	grader
+zischen	fizzling	🐍	grader
+zitternd	tremulous	🤲	grader
+zug		🚂	grader
+zumachen	seal sth., seal off sth.	🔒	grader
+zupfen	cull wool	🧶	grader
+zurück		⬅️	sanity
+zurücklassen	leave	🚪	grader
+zurückschlagen	stave off sth.	🛡️	grader
+zurückweichen	back off	😨	grader
+zuschlagen		👊	grader
+zwei		2️⃣	sanity
+zögernd	dilatory	⏳	sanity
+ärmel		👕	grader
+öffnen		🚪	grader
+öffnung		🕳️	grader
+überanstrengen	overexert	😵‍💫	grader
+überbleibsel	remnant	🍽️	grader
+überglücklich	happy as a sandboy / Larry / a clam / a pig in muck/shit	😊	grader
+überraschung		🎁	grader
+übung		🏋️	grader
