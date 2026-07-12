@@ -50,6 +50,13 @@ from wordfreq import zipf_frequency         # noqa: E402
 SCHEMA = 3
 VENDOR = HERE / "vendor"
 
+# UPOS tags whose lemmas never enter the common-word emoji channel
+# (emoji_common, schema rev 3.1): function words — articles, pronouns,
+# adpositions, conjunctions, particles, auxiliaries — would otherwise
+# fire on nearly every chunk with whatever junk a map carries for them.
+EMOJI_FUNC_POS = {"DET", "PRON", "ADP", "CCONJ", "SCONJ", "CONJ",
+                  "PART", "AUX"}
+
 # Per-language dictionary config.  de: FreeDict deu-eng (de->en gloss).
 # en: WordNet 3.0 in dictd format (en->en definitions — same-language
 # glosses, which is also the owner-preferred direction).  Both are
@@ -349,10 +356,24 @@ def run(args):
     misses = {}                              # key -> set of surfaces
     orth_cand = {}                           # archaic surface -> (key, head)
     n_tokens = 0
+    emoji_common = {}                        # common-lemma emoji channel
+    ec_seen = set()                          # common keys already decided
 
     emoji_map = {}
     if args.emoji_map:
         emoji_map = json.loads(Path(args.emoji_map).read_text("utf-8"))
+
+    def pick_emoji(key):
+        """Emoji source precedence (2026-07-12): a REVIEWED map (later:
+        the Mistral-reviewed one) beats the curated emoji_map.py, but
+        the curated map beats a GENERATED CLDR map standing in for the
+        reviewed one (--emoji-map-generated) — hand-picked beats
+        auto-derived, auto-derived fills the rest."""
+        cur = EMOJI[lang].get(key, "")
+        mapped = emoji_map.get(key, "")
+        if args.emoji_map_generated:
+            return cur or mapped
+        return mapped or cur
 
     for sec in book["sections"]:
         sec_study, sec_seen = [], set()
@@ -377,7 +398,17 @@ def run(args):
                 forms[surf] = key
                 forms[nfc_lower(tok)] = key
                 if zipf(key) >= args.threshold:
-                    continue                 # common word: not study material
+                    # common word: not study material — but it may still
+                    # carry the chunk-emoji FALLBACK channel (restores
+                    # v1 emoji density; 2026-07-12).  Function words are
+                    # guarded out by POS so ein/eine/und can never fire.
+                    if (key not in ec_seen
+                            and sent["pos"][i] not in EMOJI_FUNC_POS):
+                        ec_seen.add(key)
+                        e = pick_emoji(key)
+                        if e:
+                            emoji_common[key] = e
+                    continue
                 if key not in index:
                     misses.setdefault(key, set()).add(tok)
                     # report-only proposal from the aggressive variants —
@@ -406,8 +437,7 @@ def run(args):
                         misses.setdefault(key, set()).add(tok)
                         continue
                     words[key] = {"l": head, "g_en": g_en,
-                                  "e": emoji_map.get(
-                                      key, EMOJI[lang].get(key, ""))}
+                                  "e": pick_emoji(key)}
                     freq[key] = round(zipf(key), 2)
                 if archaic:
                     orth_cand[tok] = (key, words[key]["l"])
@@ -430,6 +460,7 @@ def run(args):
         "words": words,
         "forms": forms,
         "freq": freq,
+        "emoji_common": emoji_common,
         "study_by_sent": study_by_sent,
         "overrides": {},
         "sections": sections_out,
@@ -454,7 +485,7 @@ def run(args):
 
     print(f"{bid}: word_tokens={n_tokens} forms={len(forms)} "
           f"glossed_lemmas={len(words)} misses={len(misses)} "
-          f"archaic_hits={len(orth_cand)}")
+          f"archaic_hits={len(orth_cand)} emoji_common={len(emoji_common)}")
     print(f"  -> {out_path}\n  -> {miss_path}\n  -> {orth_path}")
 
 
@@ -470,6 +501,10 @@ def main():
                     help="reviewed {lemma: emoji} JSON — overrides the "
                          "curated fallback; the future AI-drafted map "
                          "uses this same entry point")
+    ap.add_argument("--emoji-map-generated", action="store_true",
+                    help="the --emoji-map file is the GENERATED CLDR "
+                         "map standing in for a reviewed one: curated "
+                         "emoji_map.py wins collisions instead")
     ap.add_argument("--fetch", action="store_true",
                     help="download + extract the FreeDict dictionary")
     args = ap.parse_args()

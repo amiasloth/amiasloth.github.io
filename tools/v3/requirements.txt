@@ -9,3 +9,4 @@
 -r ../requirements.txt
 simplemma
 wordfreq
+tomli; python_version < "3.11"   # books_src.toml (stdlib tomllib on 3.11+)

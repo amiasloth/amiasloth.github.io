@@ -21,6 +21,11 @@ section", and cross-section dedup stays derivable client-side from
 `study_by_sent` order. Builder lives in `tools/v3/` (build3.py /
 gloss3.py / validate3.py), NOT `tools/build3.py` as written below —
 tools/ top level stays untouched per owner instruction.
+Rev 3.1 (2026-07-12, additive — no reshape, schema integer stays 3):
+gloss gains optional `emoji_common` — the common-word emoji fallback
+channel for the chunk-emoji pick (v1-density fix; see the Glossary
+section). Old gloss files without the key remain valid; the reader
+skips the fallback then.
 This is the frozen contract that `tools/v3/build3.py` fills and the v3 reader
 consumes. Realises the SETTLED features in `00_v3_overview.md` (tokens
 first-class, stable IDs, POS, NER, nested chunks, glossary, orthography,
@@ -224,6 +229,15 @@ Notes:
     (correct for the intent — compounds ARE the hard words). Break the
     tie deterministically by word order within the chunk. Deduplicate
     repeated lemmas before picking.
+  - **Common-word fallback (rev 3.1).** When no glossed candidate has
+    an emoji, fall back to `emoji_common` (first match in word order —
+    rarity is meaningless among common words). Rationale: study words
+    are precisely where emoji coverage is worst, so the rare-only pick
+    yielded ~6–14% chunk coverage vs v1's any-word density; the common
+    channel restores it (grimm: 41% beginner / 67% advanced) while the
+    rare channel keeps pedagogical priority. Tokens with an entry
+    (including override-created ones — e:"" therefore suppresses) never
+    reach the fallback.
 - **Sense overrides refine the emoji per occurrence.** "Same word →
   same emoji" is the default; the gloss file's `overrides` block (keyed
   by sentence `id`) is the exception layer for occurrences that use a
@@ -262,6 +276,15 @@ Amends the 06 spec into the v3 layout (per book, not per level).
                                           //   chunk-emoji rarest-word pick.
                                           //   Also v4 "you know X% of
                                           //   this book"
+      "emoji_common": {"tür":"🚪"},       // rev 3.1, optional: emoji for
+                                          //   COMMON (unglossed) lemmas —
+                                          //   chunk-emoji fallback when no
+                                          //   study word carries one.
+                                          //   Keys disjoint from `words`,
+                                          //   values non-empty, keys
+                                          //   reachable via `forms`.
+                                          //   Function words excluded at
+                                          //   build (POS guard).
       "study_by_sent": {                  // per-sentence study lemmas,
         "e16b0a3a": ["aufmachen"]          //   keyed by sentence id. Daily
       },                                   //   mode unions the window's ids;
@@ -289,9 +312,16 @@ Amends the 06 spec into the v3 layout (per book, not per level).
   unions their `study_by_sent` entries in order, dedups, and subtracts
   the learner's already-known set (localStorage). Works for any window,
   including across section boundaries. No runtime lemmatiser needed.
-- `e`: lemma emoji. No-AI fallback = curated `emoji_map.py` + CLDR
-  suggestions; AI-drafted per-book map replaces it later. Empty allowed
-  and preferred over a forced bad emoji.
+- `e`: lemma emoji. Source precedence (2026-07-12): a REVIEWED map
+  (later: Mistral-reviewed) beats curated `emoji_map.py`, but curated
+  beats the GENERATED CLDR map currently standing in for it
+  (`gloss3.py --emoji-map-generated`). Empty allowed and preferred
+  over a forced bad emoji.
+- `emoji_common` (rev 3.1): same sources and precedence, for common
+  lemmas that occur in the book (zipf ≥ gloss threshold), minus
+  function words (UPOS DET/PRON/ADP/CCONJ/SCONJ/PART/AUX). Consumer:
+  the chunk-emoji fallback only — common words still get no gloss
+  entry.
 - `forms` is book-complete (every surface form occurring in the book)
   because the browser has no lemmatiser. Same NFC/archaic normalisation
   on both build and runtime sides.

@@ -3,10 +3,12 @@
 tools/v3/emoji_map_gen3.py — CLDR-based emoji suggestions for a book's
 gloss file.  Writes two outputs: the human-readable report (as
 emoji_suggest3.py did) and a {lemma: emoji} JSON map taking the top
-candidate per lemma.  The map is for TESTING only — it ignores the
-empty-beats-bad principle (00_v3_overview.md) and will be replaced by
-the AI-drafted map; both use the same gloss3.py --emoji-map entry
-point and format.
+candidate per lemma (all lemmas — stable across rebuilds).  The map
+STANDS IN for the reviewed map (owner decision 2026-07-12: manual
+review doesn't scale) until the CLDR -> Mistral review pipeline lands;
+gloss3 is told via --emoji-map-generated so the curated emoji_map.py
+wins collisions.  The Mistral map will use the same gloss3.py
+--emoji-map entry point and format, without that flag.
 
 Matching (deterministic):
   1. the German lemma against German CLDR keywords + emoji names
@@ -124,9 +126,13 @@ def main():
 
     lines, n_hit = [], 0
     emoji_map = {}
+    # The JSON map covers ALL gloss lemmas, not only currently-empty
+    # ones: it then depends only on the lemma set, so it is stable
+    # across rebuilds (2026-07-12 fix — the old empty-only map collapsed
+    # to {} once a bake succeeded, and every fresh rebuild oscillated,
+    # needing two passes to converge).  The REPORT still lists only
+    # lemmas whose gloss emoji is empty: it is the human gap review.
     for key, w in sorted(gloss["words"].items()):
-        if w.get("e"):
-            continue                        # already has one
         cands, seen = [], set()
 
         def add(emoji, via):
@@ -146,10 +152,11 @@ def main():
             for e in en_idx.get(key, []):
                 add(e, f"en:{key}")
         if cands:
-            n_hit += 1
-            lines.append(f"{key}\t{w['l']} = {w['g_en']}\t"
-                         + "  ".join(f"{e} ({v})" for e, v in cands))
             emoji_map[key] = cands[0][0]
+            if not w.get("e"):
+                n_hit += 1
+                lines.append(f"{key}\t{w['l']} = {w['g_en']}\t"
+                             + "  ".join(f"{e} ({v})" for e, v in cands))
 
     book_id = Path(args.gloss).stem
     json_out = HERE / "build" / f"emoji_map_{book_id}.json"

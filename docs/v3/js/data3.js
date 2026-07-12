@@ -140,8 +140,14 @@
    * for "the word the learner most likely does not know". Repeated
    * lemmas are deduplicated; zipf ties (OOV compounds) break by word
    * order (first wins); per-occurrence sense overrides are honoured via
-   * glossLookup. Returns "" when no candidate has an emoji — empty
-   * beats bad. */
+   * glossLookup. When no glossed candidate has an emoji, falls back to
+   * the COMMON-WORD channel (gloss.emoji_common, schema rev 3.1):
+   * {lemma: emoji} for common, unglossed lemmas — restores v1 emoji
+   * density. First match in word order wins there (rarity is
+   * meaningless among common words). Tokens with an entry — including
+   * per-occurrence overrides, which can also suppress with e:"" —
+   * belong to the rare pass and never reach the fallback. Returns ""
+   * when neither channel has a candidate — empty beats bad. */
   function chunkEmoji(gloss, sent, a, b) {
     var seen = {}, bestE = "", bestZ = Infinity;
     for (var k = a; k < b; k++) {
@@ -155,7 +161,15 @@
       if (z == null) z = 0;                   // OOV = maximally rare
       if (z < bestZ) { bestZ = z; bestE = r.entry.e; }   // strict <: first wins ties
     }
-    return bestE;
+    if (bestE || !gloss.emoji_common) return bestE;
+    for (var k2 = a; k2 < b; k2++) {          // common-word fallback
+      if (!WORD_RE.test(sent.toks[k2])) continue;
+      var r2 = glossLookup(gloss, sent, k2);
+      if (r2.isEnt || !r2.lemma || r2.entry) continue;
+      var e2 = get(gloss.emoji_common, r2.lemma);
+      if (e2) return e2;
+    }
+    return "";
   }
 
   /* Display runs of the token slice [a, b): the whitespace-separated

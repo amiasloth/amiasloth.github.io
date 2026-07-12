@@ -48,9 +48,18 @@ word-shaped is a token position.
 - **POS tags, NER spans** (PROPN-trimmed, en label-whitelisted),
   paragraph flags, per-book stats, review reports per book
   (misses / orth candidates / emoji suggestions / review sample).
-- **Emoji**: curated map fallback; reviewed per-book
-  `maps/emoji_<id>.json` via `--emoji-map`; CLDR suggestions
-  report-only. Empty beats bad. While testing will use python script to generate emoji-map.
+- **Emoji**: two channels (2026-07-12). Rare/study words: emoji on the
+  gloss entry, rarest-with-emoji wins the chunk pick. Common words:
+  `gloss.emoji_common` fallback (schema rev 3.1) — restores v1 density
+  (grimm: 6%/14% → 41%/67% of beginner/advanced chunks); function
+  words excluded by UPOS guard. Precedence: reviewed map (planned:
+  CLDR → Mistral review → `maps/emoji_<id>.json`) beats curated
+  `emoji_map.py`; curated beats the GENERATED CLDR map that currently
+  stands in for reviewed (`--emoji-map-generated`; owner decision —
+  manual review doesn't scale, and UI density can't be judged
+  emoji-less). Empty beats bad. `emoji_map_gen3.py` now maps ALL gloss
+  lemmas, so the generated map is stable across rebuilds (the old
+  empty-only map oscillated with the bake, needing two passes).
 - **Orthography**: NOTHING changes displayed text. Reviewed
   `maps/orth_<id>.json` bakes per-token `orth` (display = user
   toggle; check mode and gloss lookup use the modern form).
@@ -130,12 +139,22 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    run it after any rebuild; it doubles as a data-review gate.
    On-device review still pending for: gloss bubble taps vs nav zones,
    study-word mark subtlety, ladder feel (no rung 2/3 indicator yet —
-   five-minute add if disorienting), emoji density once the gloss
-   rebuild with the generated maps lands.
-   Emoji-map test phase: build_data3.sh now falls back to the GENERATED
-   build/emoji_map_<id>.json when no reviewed maps/emoji_<id>.json
-   exists (owner-approved for UI testing; rerun bakes it — the map
-   depends only on the lemma set, which the emoji map doesn't change).
+   five-minute add if disorienting), emoji density on device (the
+   common-word channel landed 2026-07-12: sm-tested at grimm 41%/67%
+   beginner/advanced; needs the lg rebuild + a look on the phone).
+   Emoji-map phase (updated 2026-07-12): build_data3 falls back to the
+   GENERATED build/emoji_map_<id>.json when no reviewed
+   maps/emoji_<id>.json exists, passing --emoji-map-generated so the
+   curated map wins collisions; the generated map now covers ALL gloss
+   lemmas (stable across rebuilds, single-pass converge). Owner
+   decision: the generated map STANDS IN for reviewed until the
+   CLDR → Mistral pipeline; manual review of full maps doesn't scale.
+   Build tooling (2026-07-12): per-book source metadata (paths, titles,
+   trim regexes, encoding) moved to tools/v3/books_src.toml — single
+   source of truth read by the new build_data3.py driver;
+   build_data3.sh is a thin wrapper (same BOOKS/MODEL_*/SAMPLE envs).
+   The audio pipeline deliberately never reads it: audio consumes only
+   built book files + books.json.
    Feature list still to add (all data-ready):
    - ~~level selection + nested chunk stepping; progressive-rung mode
      (rungs ⊆ advanced; ladder valid from any level)~~ (done);
@@ -165,9 +184,25 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
    levels share files); `manifest.json` with voice, coverage, per-sid
    durations; `books.json` audio field. Reader: sentence replay with
    Web Speech fallback; partial coverage fine. Rollout shortest-first
-   (velveteen/kafka), judge on device. Chunk-level playback stays
-   deferred (word timestamps via later forced alignment; no audio
-   regeneration needed).
+   (velveteen/kafka), judge on device.
+   Decisions 2026-07-12:
+   - Voices PINNED: `de_DE-thorsten-medium`, `en_GB-alba-medium`
+     (owner auditioned rhasspy piper-samples; cori-high rejected for
+     2–3× synth cost, southern_english_female ships low-only).
+     Switching later = full resynthesis, so pinned before batch runs.
+   - Chunk-level playback CONFIRMED via per-token timestamps on the
+     sentence audio: forced alignment (e.g. aeneas — Piper exposes no
+     word timings) in the audio container, per-book sidecar
+     `timing.json` (NOT in the manifest), chunk = seek t[a], stop
+     t[b] (rAF loop; Web Audio sample-accurate slicing is the upgrade
+     path — Pages sends CORS *). Never per-chunk files: the chunker
+     still evolves and would invalidate them; token timestamps
+     survive chunker changes with zero recompute.
+   - Practice/check mode gets a play-chunk-slice button (same asset +
+     playback module, composes with "hide text while you speak");
+     playback-speed control (audio.playbackRate 0.7×/0.85×/1×,
+     pitch-preserving). Offline audio deferred — online-only v1
+     (cross-origin SW caching is the ugly part, not playback).
    Decisions 2026-07-11:
    - Per-sentence files CONFIRMED over one whole-book file +
      timestamps. Whole-book loses for a sentence-replay reader: a

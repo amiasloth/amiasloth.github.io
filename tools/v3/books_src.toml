@@ -1,0 +1,83 @@
+# Per-book source metadata for the v3 build — single source of truth,
+# read by build_data3.py.  Paths are relative to the REPO ROOT.
+#
+# Fields:
+#   lang       "de" | "en"
+#   source     raw source text (Gutenberg etc.)
+#   title      display title  (books.json / book file)
+#   author     display author
+#   encoding   source encoding when not UTF-8 (converted once into
+#              tools/build/<id>_utf8.txt, like the old iconv step)
+#   skip_until regex: drop everything before the first matching line
+#   stop_at    regex: drop the matching line and everything after
+#
+# Regexes are Python re syntax, passed verbatim to build3.py
+# (--skip-until / --stop-at).  Use single-quoted TOML literal strings
+# so backslashes survive; '\n' inside a pattern is the two characters
+# backslash-n, which re treats as a newline — same as before.
+#
+# The audio pipeline deliberately does NOT read this file: it consumes
+# only built book files (docs/data3/) + docs/data3/books.json.
+
+# ---- German ---------------------------------------------------------------
+
+[kafka]
+lang = "de"
+source = "tools/sources/kafka.txt"
+encoding = "iso-8859-1"
+title = "Die Verwandlung"
+author = "Franz Kafka"
+skip_until = '^I\.$'
+
+[grimm]
+lang = "de"
+source = "tools/sources/grimm_de.txt"
+title = "Grimms Märchen"
+author = "Brüder Grimm"
+skip_until = '^\s+Marienkind\s*$'
+stop_at = '^\s+Inhalt\s*$'
+
+[birnbaum]
+lang = "de"
+source = "tools/sources/Unterm_Birnbaum_de.txt"
+title = "Unterm Birnbaum"
+author = "Theodor Fontane"
+skip_until = '^\s+I\.\s*$'
+stop_at = '^\s+Grote.{0,2}sche Sammlung'
+
+[heidi]
+lang = "de"
+source = "tools/sources/heidi_kann_brauchen_de.txt"
+title = "Heidi kann brauchen, was es gelernt hat"
+author = "Johanna Spyri"
+skip_until = '^Reisezurüstungen\n\nDer freundliche'
+
+[zarathustra]
+lang = "de"
+source = "tools/sources/zarathustra_de.txt"
+title = "Also sprach Zarathustra"
+author = "Friedrich Wilhelm Nietzsche"
+skip_until = '^Erster Theil\s*$'
+
+# ---- English --------------------------------------------------------------
+
+[alice]
+lang = "en"
+source = "tools/sources/Alice_en.txt"
+title = "Alice's Adventures in Wonderland"
+author = "Lewis Carroll"
+skip_until = '^CHAPTER I\.'
+
+[velveteen]
+lang = "en"
+source = "tools/sources/velveteen_rabbit_en.txt"
+title = "The Velveteen Rabbit"
+author = "Margery Williams"
+skip_until = '^HERE was once a velveteen rabbit'
+
+[frankenstein]
+lang = "en"
+source = "tools/sources/frankenstein_en.txt"
+title = "Frankenstein; or, The Modern Prometheus"
+author = "Mary Wollstonecraft Shelley"
+skip_until = '^Letter 1\s*$'

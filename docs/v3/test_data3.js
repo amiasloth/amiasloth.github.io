@@ -236,6 +236,31 @@ for (const meta of index.books) {
   if (E(1, 10, g5) !== "🔒") bad("chunkEmoji: override emoji, got " + E(1, 10, g5));
   console.log("ok  chunkEmoji rules (rarity, ents, fallthrough, tie, empty, override)");
 
+  // ---- common-word channel (gloss.emoji_common, schema rev 3.1) ----
+  // no glossed candidate has an emoji -> first common lemma (in word
+  // order) with an emoji_common entry wins
+  const g6 = JSON.parse(JSON.stringify(g));
+  for (const k in g6.words) g6.words[k].e = "";
+  g6.forms.das = "der"; g6.forms.und = "und";
+  g6.emoji_common = { der: "🚪", und: "➕" };
+  if (E(1, 10, g6) !== "🚪") bad("chunkEmoji: common fallback, got " + E(1, 10, g6));
+  if (E(4, 10, g6) !== "➕") bad("chunkEmoji: common word order, got " + E(4, 10, g6));
+  // any rare-channel emoji beats the whole common channel
+  const g7 = JSON.parse(JSON.stringify(g6));
+  g7.words.schloss.e = "🏰";
+  if (E(1, 10, g7) !== "🏰") bad("chunkEmoji: rare beats common, got " + E(1, 10, g7));
+  // an override on a common lemma creates an entry: e:"" suppresses it
+  // in both passes; a non-empty e wins the rare pass outright (explicit
+  // per-occurrence context beats everything)
+  const g8 = JSON.parse(JSON.stringify(g6));
+  g8.overrides.s1 = { der: { e: "" } };
+  if (E(1, 10, g8) !== "➕") bad("chunkEmoji: common suppression, got " + E(1, 10, g8));
+  g8.overrides.s1 = { der: { e: "🎯" } };
+  if (E(1, 10, g8) !== "🎯") bad("chunkEmoji: common override wins, got " + E(1, 10, g8));
+  // gloss without emoji_common (pre-3.1 file) -> old behaviour, "" ok
+  // (already covered by the all-empty g4 check above)
+  console.log("ok  chunkEmoji common-word channel (fallback, order, precedence, override)");
+
   // grimm estimate with the generated test map (in-memory merge)
   const gloss = JSON.parse(fs.readFileSync(path.join(ROOT, "gloss", "grimm.json"), "utf8"));
   const map = JSON.parse(fs.readFileSync(
@@ -250,6 +275,22 @@ for (const meta of index.books) {
     console.log("ok  grimm/" + lv + " with test map: " + withE + "/" + flat.length +
       " chunks would show an emoji (" + Math.round(100 * withE / flat.length) + "%)");
   }
+
+  // emoji_common invariants on every shipped gloss file (rev 3.1):
+  // keys disjoint from words, values non-empty, keys reachable via forms
+  for (const f of fs.readdirSync(path.join(ROOT, "gloss"))) {
+    if (!f.endsWith(".json")) continue;
+    const gl = JSON.parse(fs.readFileSync(path.join(ROOT, "gloss", f), "utf8"));
+    const ec = gl.emoji_common;
+    if (!ec) continue;                       // pre-3.1 file: fine
+    const reach = new Set(Object.values(gl.forms));
+    for (const k in ec) {
+      if (gl.words[k]) bad("emoji_common shadows glossed word: " + k + " (" + f + ")");
+      if (!ec[k]) bad("emoji_common empty value: " + k + " (" + f + ")");
+      if (!reach.has(k)) bad("emoji_common unreachable key: " + k + " (" + f + ")");
+    }
+  }
+  console.log("ok  emoji_common invariants across gloss files");
 }
 
 // ---------------- displayRuns + check-mode grading ----------------

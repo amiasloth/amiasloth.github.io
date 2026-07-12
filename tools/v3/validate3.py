@@ -179,9 +179,24 @@ def check_gloss(gloss, book, book_ids):
                 err(f"gloss: section study lemma {l!r} not in words")
     if len(gloss["sections"]) != len(book["sections"]):
         err("gloss: section count differs from book")
+    # emoji_common (schema rev 3.1, optional): common-lemma fallback
+    # channel for the chunk-emoji pick.  Keys must be disjoint from
+    # words (a lemma is rare or common, never both), values non-empty
+    # (empty beats bad: omit instead), and every key reachable through
+    # forms (otherwise it is dead weight the reader can never hit).
+    ec = gloss.get("emoji_common", {})
+    fvals = set(gloss["forms"].values())
+    for k, v in ec.items():
+        if k in w:
+            err(f"gloss: emoji_common key {k!r} shadows a glossed word")
+        if not v:
+            err(f"gloss: emoji_common[{k!r}] is empty — omit the key")
+        if k not in fvals:
+            err(f"gloss: emoji_common key {k!r} unreachable via forms")
     hits = sum(1 for v in gloss["forms"].values() if v in w)
     print(f"gloss: words={len(w)} forms={len(gloss['forms'])} "
-          f"(→glossed: {hits}) study_sents={len(gloss['study_by_sent'])}")
+          f"(→glossed: {hits}) study_sents={len(gloss['study_by_sent'])} "
+          f"emoji_common={len(ec)}")
 
 
 def write_sample(book, gloss, n, out_path):
