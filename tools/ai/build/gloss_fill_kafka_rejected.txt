@@ -1,0 +1,31 @@
+ausgesuchte	selected, chosen	ausgewählt, ausgesucht	sanity g_de
+befreiende	liberating	befreiend, erlösend	sanity g_de
+bequemen	to accommodate oneself	sich anpassen, gefügig sein	grader
+beschatten	to shade	Schatten spenden, verdecken	grader
+familienpflicht	family duty	Aufgabe für die Familie	grader
+fensterblech	window sill (metal)	Blech unter dem Fenster	grader
+fußspitze	tiptoe	vorderster Teil des Fußes	grader
+getraute	dared	hatte den Mut, etwas zu tun	grader
+harren	to wait, endure	geduldig warten, ausharren	sanity g_de
+hellerwerdens	brightening, dawning	langsames Hellerwerden am Morgen	sanity g_de
+hereinkamen	came in	betraten den Raum	grader
+himmeln	to gaze heavenward		grader
+himmeln	to gaze heavenward	zum Himmel schauen, sehnsüchtig blicken	sanity g_de
+hinschieben	to push aside	etwas an eine andere Stelle schieben	grader
+jed	each, every		grader
+jed	each, every	jeder (veraltet)	sanity g_de
+jen	that		grader
+jen	that	jener (veraltet)	sanity g_de
+livreerockes	livery coat	Dienstkleidung für Diener	grader
+magern	to grow thin, to lose weight	dünner oder schlanker werden	grader
+menschenzimmer	human room	normales Zimmer für Menschen	grader
+qu	crosswise, diagonally		grader
+qu	crosswise, diagonally	quer oder schräg	sanity g_de
+sowiet	as far as	bis zu dem Punkt, wo	grader
+statten	to permit	erlauben, möglich machen	grader
+umfließen	to flow around	flüssig um etwas herumfließen	sanity g_de
+verweinen	to cry one's eyes out	viel weinen	grader
+vormittägigen	morning, a.m	am Vormittag passiert	grader
+weiteressen	to continue eating	nach einer Pause essen	grader
+zuminde	at least	mindestens	grader
+zuungunst	to the disadvantage of	wenn etwas für jemanden schlecht ist	grader

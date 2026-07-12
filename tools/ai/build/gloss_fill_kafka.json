@@ -1,0 +1,1033 @@
+{
+  "_meta": {
+    "generator": "gfill3.py@94c3456",
+    "model": "mistral-large-latest",
+    "date": "2026-07-12",
+    "kind": "gloss-fill",
+    "book": "kafka",
+    "lang": "de",
+    "source_hash": "sha256:3d657ee82737",
+    "review_to": "tools/v3/maps/gloss_fill_kafka.json"
+  },
+  "abendschläfchen": {
+    "g_en": "evening nap",
+    "g_de": "kurzer Schlaf am Abend"
+  },
+  "abhanden": {
+    "g_en": "lost, gone",
+    "g_de": "nicht mehr vorhanden, verloren"
+  },
+  "abzahlen": {
+    "g_en": "to pay off",
+    "g_de": "Schulden nach und nach zurückzahlen"
+  },
+  "adjes": {
+    "g_en": "bye-bye, farewell",
+    "g_de": "veralteter Abschiedsgruß"
+  },
+  "allzugroße": {
+    "g_en": "overly large",
+    "g_de": "zu groß, übermäßig groß"
+  },
+  "allzukurze": {
+    "g_en": "overly brief",
+    "g_de": "zu kurz, viel zu knapp"
+  },
+  "ander": {
+    "g_en": "other"
+  },
+  "aneinandergedrängt": {
+    "g_en": "pressed together",
+    "g_de": "eng beieinander stehend, dicht gedrängt"
+  },
+  "aneinandergedrückt": {
+    "g_en": "pressed together",
+    "g_de": "eng aneinander liegend"
+  },
+  "angewöhnt": {
+    "g_en": "accustomed",
+    "g_de": "sich etwas zur Gewohnheit gemacht"
+  },
+  "anstarren": {
+    "g_en": "to stare at",
+    "g_de": "lange und intensiv ansehen"
+  },
+  "antreffen": {
+    "g_en": "to encounter",
+    "g_de": "vorfinden, begegnen"
+  },
+  "arbeitserfolge": {
+    "g_en": "work successes",
+    "g_de": "Erfolge bei der Arbeit"
+  },
+  "aschenkiste": {
+    "g_en": "ash box",
+    "g_de": "Behälter für Asche"
+  },
+  "atemfreiheit": {
+    "g_en": "breathing space",
+    "g_de": "Möglichkeit, frei zu atmen"
+  },
+  "aufblasen": {
+    "g_en": "to inflate",
+    "g_de": "mit Luft füllen, aufpumpen"
+  },
+  "auffallende": {
+    "g_en": "striking, conspicuous",
+    "g_de": "auffällig, ungewöhnlich"
+  },
+  "aufraffen": {
+    "g_en": "to gather up",
+    "g_de": "sich zusammennehmen, sammeln"
+  },
+  "aufreissen": {
+    "g_en": "to tear open",
+    "g_de": "plötzlich öffnen, aufreißen"
+  },
+  "aufrichten": {
+    "g_en": "to straighten up",
+    "g_de": "in eine aufrechte Position bringen"
+  },
+  "aufseufzend": {
+    "g_en": "sighing",
+    "g_de": "mit einem Seufzer"
+  },
+  "auseinandergepackt": {
+    "g_en": "unpacked",
+    "g_de": "ausgepackt, ausgebreitet"
+  },
+  "ausgestattete": {
+    "g_en": "furnished, equipped",
+    "g_de": "mit Möbeln und Dingen versehen"
+  },
+  "ausgesuchte": {
+    "g_en": "selected, chosen"
+  },
+  "beeilen": {
+    "g_en": "to hurry",
+    "g_de": "schnell machen, eilen"
+  },
+  "befreiende": {
+    "g_en": "liberating"
+  },
+  "begnügen": {
+    "g_en": "to content oneself",
+    "g_de": "sich zufriedengeben, genügen lassen"
+  },
+  "begriffsstützige": {
+    "g_en": "slow-witted",
+    "g_de": "langsam im Verstehen"
+  },
+  "beinreihen": {
+    "g_en": "rows of legs",
+    "g_de": "mehrere Beine in Reihen"
+  },
+  "beirren": {
+    "g_en": "to confuse",
+    "g_de": "verwirren, unsicher machen"
+  },
+  "beisammen": {
+    "g_en": "together",
+    "g_de": "an einem Ort versammelt"
+  },
+  "bekreuzen": {
+    "g_en": "to cross oneself",
+    "g_de": "ein Kreuzzeichen machen"
+  },
+  "belehren": {
+    "g_en": "to instruct",
+    "g_de": "jemandem etwas erklären"
+  },
+  "berufsarbeit": {
+    "g_en": "professional work",
+    "g_de": "Arbeit im Beruf"
+  },
+  "besinnung": {
+    "g_en": "consciousness, senses",
+    "g_de": "klares Denken, Bewusstsein"
+  },
+  "besonder": {
+    "g_en": "special, particular"
+  },
+  "bettrand": {
+    "g_en": "edge of the bed",
+    "g_de": "Rand des Bettes"
+  },
+  "bleiches": {
+    "g_en": "pale",
+    "g_de": "sehr blass, farblos"
+  },
+  "bogenförmigen": {
+    "g_en": "arched, bow-shaped",
+    "g_de": "wie ein Bogen geformt, gekrümmt"
+  },
+  "bürgerschüler": {
+    "g_en": "secondary school pupil"
+  },
+  "dachen": {
+    "g_en": "to think (archaic/dialect)",
+    "g_de": "denken (veraltete Form)"
+  },
+  "dahintorkelte": {
+    "g_en": "to stagger along",
+    "g_de": "unsicher, schwankend gehen"
+  },
+  "daliegen": {
+    "g_en": "to lie there",
+    "g_de": "ohne Bewegung am Boden liegen"
+  },
+  "damenfreund": {
+    "g_en": "ladies' man",
+    "g_de": "Mann, der Frauen sehr mag"
+  },
+  "daransetzen": {
+    "g_en": "to dedicate, to put effort into",
+    "g_de": "alles tun, um ein Ziel zu erreichen"
+  },
+  "darnach": {
+    "g_en": "afterwards, thereafter",
+    "g_de": "danach, hinterher"
+  },
+  "dasitzen": {
+    "g_en": "to sit there",
+    "g_de": "aufrecht sitzen bleiben"
+  },
+  "dienermütze": {
+    "g_en": "servant's cap",
+    "g_de": "Mütze für Diener oder Bedienstete"
+  },
+  "dieneruniform": {
+    "g_en": "servant's uniform",
+    "g_de": "Kleidung für Diener oder Bedienstete"
+  },
+  "dreiviertel": {
+    "g_en": "three-quarters",
+    "g_de": "drei von vier Teilen"
+  },
+  "einemmal": {
+    "g_en": "once, at one time",
+    "g_de": "einmal, auf einmal"
+  },
+  "einemmale": {
+    "g_en": "suddenly",
+    "g_de": "plötzlich, mit einem Mal"
+  },
+  "einigemale": {
+    "g_en": "several times",
+    "g_de": "mehrmals, ein paar Mal"
+  },
+  "einmieten": {
+    "g_en": "to rent a room",
+    "g_de": "ein Zimmer mieten und wohnen"
+  },
+  "einrichtungsstücke": {
+    "g_en": "furnishings, furniture",
+    "g_de": "Möbel und Dinge für ein Zimmer"
+  },
+  "einviertel": {
+    "g_en": "quarter to (time)",
+    "g_de": "eine Viertelstunde vor der vollen Stunde"
+  },
+  "einzelnweise": {
+    "g_en": "one by one, individually",
+    "g_de": "einzeln, nacheinander"
+  },
+  "einöde": {
+    "g_en": "desolation, wasteland",
+    "g_de": "leerer, trauriger Ort"
+  },
+  "elektrisiert": {
+    "g_en": "electrified",
+    "g_de": "wie von Strom bewegt"
+  },
+  "entgegenfauchen": {
+    "g_en": "to hiss at",
+    "g_de": "wütend zischen gegen jemanden"
+  },
+  "entgegenhob": {
+    "g_en": "to hold up towards",
+    "g_de": "nach vorne hochhalten"
+  },
+  "entschließen": {
+    "g_en": "to decide",
+    "g_de": "sich zu etwas entscheiden"
+  },
+  "entschuldigungsbriefe": {
+    "g_en": "letters of excuse",
+    "g_de": "Briefe, um Abwesenheit zu erklären"
+  },
+  "erbieten": {
+    "g_en": "to offer",
+    "g_de": "anbieten, etwas zu tun"
+  },
+  "ereignen": {
+    "g_en": "to occur, to happen",
+    "g_de": "passieren, geschehen"
+  },
+  "ererben": {
+    "g_en": "to inherit",
+    "g_de": "von Eltern oder Familie bekommen"
+  },
+  "erfreuliche": {
+    "g_en": "pleasant, joyful",
+    "g_de": "angenehm, schön"
+  },
+  "erhorchen": {
+    "g_en": "to overhear",
+    "g_de": "heimlich etwas hören"
+  },
+  "erkundigt": {
+    "g_en": "inquired",
+    "g_de": "gefragt, um etwas zu erfahren"
+  },
+  "ersehnen": {
+    "g_en": "to long for",
+    "g_de": "sich sehr nach etwas sehnen"
+  },
+  "erstenmal": {
+    "g_en": "first time",
+    "g_de": "zum ersten Mal"
+  },
+  "erstickungsanfällen": {
+    "g_en": "attacks of suffocation",
+    "g_de": "plötzliche Atemnot"
+  },
+  "familienglied": {
+    "g_en": "family member",
+    "g_de": "Mitglied einer Familie"
+  },
+  "familienschmuckstücke": {
+    "g_en": "family jewels",
+    "g_de": "wertvolle Dinge der Familie"
+  },
+  "fensterbrüstung": {
+    "g_en": "window sill",
+    "g_de": "Vorsprung unter dem Fenster"
+  },
+  "fenstervorhänge": {
+    "g_en": "window curtains",
+    "g_de": "Stoff vor dem Fenster, der Licht abhält"
+  },
+  "festgeriegelt": {
+    "g_en": "to bolt shut",
+    "g_de": "mit einem Riegel verschlossen"
+  },
+  "festgeriegelten": {
+    "g_en": "bolted shut",
+    "g_de": "mit einem Riegel verschlossen"
+  },
+  "festgewordener": {
+    "g_en": "hardened, congealed",
+    "g_de": "hart geworden, nicht mehr flüssig"
+  },
+  "fleckige": {
+    "g_en": "stained, spotted",
+    "g_de": "mit Flecken, nicht sauber"
+  },
+  "fortgehe": {
+    "g_en": "to leave, depart",
+    "g_de": "weggehen, nicht bleiben"
+  },
+  "fortwirkend": {
+    "g_en": "continuing, lingering",
+    "g_de": "noch weiter wirkend"
+  },
+  "fragerei": {
+    "g_en": "constant questioning",
+    "g_de": "ständiges Fragen, Nachforschen"
+  },
+  "frühstücksgeschirr": {
+    "g_en": "breakfast dishes",
+    "g_de": "Teller und Tassen für das Frühstück"
+  },
+  "fünfuhrzug": {
+    "g_en": "five o'clock train",
+    "g_de": "Zug, der um fünf Uhr fährt"
+  },
+  "füßestampfen": {
+    "g_en": "stamping of feet",
+    "g_de": "lautes Aufstampfen mit den Füßen"
+  },
+  "gedeckte": {
+    "g_en": "set, laid",
+    "g_de": "Tisch mit Geschirr und Essen vorbereitet"
+  },
+  "gehorchen": {
+    "g_en": "to obey",
+    "g_de": "tun, was jemand sagt"
+  },
+  "geneigte": {
+    "g_en": "tilted, inclined",
+    "g_de": "schräg, nicht gerade"
+  },
+  "geschäftsdiener": {
+    "g_en": "office messenger, porter",
+    "g_de": "Person, die im Büro Botengänge macht"
+  },
+  "gesuchte": {
+    "g_en": "sought-after, desired",
+    "g_de": "das, was man sucht"
+  },
+  "getrauen": {
+    "g_en": "to dare",
+    "g_de": "den Mut haben, etwas zu tun"
+  },
+  "goldknöpfen": {
+    "g_en": "gold buttons",
+    "g_de": "Knöpfe aus Gold oder goldfarben"
+  },
+  "goldmonogramm": {
+    "g_en": "gold monogram",
+    "g_de": "goldenes Namenszeichen"
+  },
+  "grauschwarzen": {
+    "g_en": "gray-black",
+    "g_de": "dunkelgrau mit schwarzem Ton"
+  },
+  "halblauten": {
+    "g_en": "half-whispered, subdued",
+    "g_de": "leise gesprochen, nicht laut"
+  },
+  "halbverfaultes": {
+    "g_en": "half-rotten",
+    "g_de": "teilweise verdorben, nicht mehr frisch"
+  },
+  "handbewegung": {
+    "g_en": "hand movement, gesture",
+    "g_de": "Bewegung mit der Hand"
+  },
+  "handelsakademiker": {
+    "g_en": "graduate of commercial academy",
+    "g_de": "Person mit Ausbildung in Handel"
+  },
+  "haremsfrau": {
+    "g_en": "harem woman",
+    "g_de": "Frau in einem Harem"
+  },
+  "harren": {
+    "g_en": "to wait, endure"
+  },
+  "hausmeisterin": {
+    "g_en": "caretaker, janitress",
+    "g_de": "Person, die ein Haus betreut"
+  },
+  "hellerwerdens": {
+    "g_en": "brightening, dawning"
+  },
+  "heraushörte": {
+    "g_en": "to distinguish, pick out",
+    "g_de": "etwas aus Geräuschen erkennen"
+  },
+  "hereinkäme": {
+    "g_en": "would come in",
+    "g_de": "würde den Raum betreten"
+  },
+  "hereinlassen": {
+    "g_en": "to let in",
+    "g_de": "jemanden hereinbitten oder erlauben"
+  },
+  "hereinstellen": {
+    "g_en": "to place inside",
+    "g_de": "etwas in einen Raum stellen"
+  },
+  "hereinzukommen": {
+    "g_en": "to come in",
+    "g_de": "einen Raum betreten"
+  },
+  "hergehen": {
+    "g_en": "to proceed, go on",
+    "g_de": "ablaufen, passieren"
+  },
+  "herumschauen": {
+    "g_en": "to look around",
+    "g_de": "sich umsehen, Blicke schweifen lassen"
+  },
+  "herunterneigen": {
+    "g_en": "to bend down",
+    "g_de": "den Kopf oder Körper nach unten bewegen"
+  },
+  "hervoreilte": {
+    "g_en": "to rush out",
+    "g_de": "schnell aus einem Ort herauskommen"
+  },
+  "herzulaufen": {
+    "g_en": "to run here",
+    "g_de": "zu jemandem oder hierher laufen"
+  },
+  "hie": {
+    "g_en": "here",
+    "g_de": "an dieser Stelle (veraltet)"
+  },
+  "hinaufzukriechen": {
+    "g_en": "to crawl up",
+    "g_de": "langsam nach oben bewegen"
+  },
+  "hinausfliegen": {
+    "g_en": "to be fired, to fly out",
+    "g_de": "entlassen werden, schnell rausgehen"
+  },
+  "hinauskehren": {
+    "g_en": "to sweep out",
+    "g_de": "mit einem Besen nach draußen kehren"
+  },
+  "hinausschaffen": {
+    "g_en": "to remove, to carry out",
+    "g_de": "etwas aus einem Raum bringen"
+  },
+  "hinaustragen": {
+    "g_en": "to carry out",
+    "g_de": "etwas nach draußen tragen"
+  },
+  "hinauszuschaukeln": {
+    "g_en": "to swing out",
+    "g_de": "sich langsam hin- und herbewegen, um rauszukommen"
+  },
+  "hineinfallen": {
+    "g_en": "to fall into",
+    "g_de": "plötzlich in etwas hineinsinken"
+  },
+  "hineinstellen": {
+    "g_en": "to put inside",
+    "g_de": "etwas in einen Raum stellen"
+  },
+  "hineinzuschauen": {
+    "g_en": "to look inside",
+    "g_de": "kurz in einen Raum blicken"
+  },
+  "hintreten": {
+    "g_en": "to step up",
+    "g_de": "vor jemanden treten"
+  },
+  "hinuntergeworfenen": {
+    "g_en": "thrown down",
+    "g_de": "nach unten geworfen"
+  },
+  "hinunterjagen": {
+    "g_en": "to chase down",
+    "g_de": "jemanden nach unten vertreiben"
+  },
+  "hinunterstiegen": {
+    "g_en": "to descend",
+    "g_de": "nach unten gehen"
+  },
+  "hinunterzuschlucken": {
+    "g_en": "to swallow down",
+    "g_de": "etwas mit Mühe schlucken"
+  },
+  "hinwenden": {
+    "g_en": "to turn toward",
+    "g_de": "sich zu jemandem drehen"
+  },
+  "hinüberlugte": {
+    "g_en": "to peek over",
+    "g_de": "heimlich zur Seite schauen"
+  },
+  "hochgeschichteter": {
+    "g_en": "piled high",
+    "g_de": "in großen Mengen gestapelt"
+  },
+  "holzdeckel": {
+    "g_en": "wooden lid",
+    "g_de": "Deckel aus Holz"
+  },
+  "holztür": {
+    "g_en": "wooden door",
+    "g_de": "Tür aus Holz"
+  },
+  "imstande": {
+    "g_en": "capable, able",
+    "g_de": "fähig sein, etwas zu tun"
+  },
+  "irgendwelcher": {
+    "g_en": "any, some",
+    "g_de": "beliebige, unbestimmte"
+  },
+  "juckende": {
+    "g_en": "itchy",
+    "g_de": "unangenehmes Kribbeln auf der Haut"
+  },
+  "kleiderrechen": {
+    "g_en": "coat rack",
+    "g_de": "Hakenleiste für Kleidung"
+  },
+  "knochenbaues": {
+    "g_en": "bone structure",
+    "g_de": "Aufbau der Knochen im Körper"
+  },
+  "kommis": {
+    "g_en": "clerk, shop assistant",
+    "g_de": "kaufmännischer Angestellter"
+  },
+  "komplizieren": {
+    "g_en": "to complicate",
+    "g_de": "etwas schwieriger machen"
+  },
+  "kopfschüttelnd": {
+    "g_en": "shaking one's head",
+    "g_de": "den Kopf hin- und herbewegen"
+  },
+  "kramen": {
+    "g_en": "to rummage",
+    "g_de": "suchend in etwas wühlen"
+  },
+  "krankenkassenarzt": {
+    "g_en": "health insurance doctor",
+    "g_de": "Arzt der Krankenversicherung"
+  },
+  "kälteschauer": {
+    "g_en": "chill",
+    "g_de": "plötzliches Kältegefühl"
+  },
+  "lackstiefel": {
+    "g_en": "patent leather boots",
+    "g_de": "glänzende Schuhe aus Lackleder"
+  },
+  "laubsägearbeiten": {
+    "g_en": "fretsaw work, scrollwork",
+    "g_de": "Handwerk mit dünner Säge für Muster in Holz"
+  },
+  "lauigkeit": {
+    "g_en": "lukewarmness, tepidness",
+    "g_de": "leicht warme, fast kalte Temperatur"
+  },
+  "ledersofa": {
+    "g_en": "leather sofa",
+    "g_de": "Sofa mit Leder bezogen"
+  },
+  "letztenmal": {
+    "g_en": "last time",
+    "g_de": "das allerletzte Mal"
+  },
+  "losreißen": {
+    "g_en": "to tear off, to break free",
+    "g_de": "mit Gewalt abtrennen oder befreien"
+  },
+  "lächerlicherweise": {
+    "g_en": "ridiculously, absurdly",
+    "g_de": "auf alberne oder peinliche Weise"
+  },
+  "menschenmögliches": {
+    "g_en": "all humanly possible",
+    "g_de": "alles, was ein Mensch tun kann"
+  },
+  "modengeschäft": {
+    "g_en": "fashion store",
+    "g_de": "Laden für Kleidung und Mode"
+  },
+  "morgenarbeit": {
+    "g_en": "morning work",
+    "g_de": "Arbeit, die morgens erledigt wird"
+  },
+  "möbelerschütternde": {
+    "g_en": "furniture-shaking",
+    "g_de": "so laut, dass Möbel wackeln"
+  },
+  "mühevoll": {
+    "g_en": "laborious, strenuous",
+    "g_de": "mit viel Anstrengung verbunden"
+  },
+  "nachfliegend": {
+    "g_en": "flying after",
+    "g_de": "hinterher fliegend"
+  },
+  "nachhelfen": {
+    "g_en": "to assist, to give a hand",
+    "g_de": "etwas unterstützen oder erleichtern"
+  },
+  "neuigkeit": {
+    "g_en": "news, novelty",
+    "g_de": "neue Information oder Nachricht"
+  },
+  "nichtsahnende": {
+    "g_en": "unsuspecting",
+    "g_de": "ohne etwas zu ahnen"
+  },
+  "niederbeugen": {
+    "g_en": "to bend down",
+    "g_de": "sich nach unten beugen"
+  },
+  "niederfliessen": {
+    "g_en": "to flow down",
+    "g_de": "nach unten fließen"
+  },
+  "niedergleiten": {
+    "g_en": "to slide down",
+    "g_de": "langsam nach unten rutschen"
+  },
+  "niederkämmen": {
+    "g_en": "to comb down",
+    "g_de": "Haare glatt nach unten kämmen"
+  },
+  "notenzeilen": {
+    "g_en": "staves, lines of music",
+    "g_de": "Zeilen in einem Notenblatt"
+  },
+  "offenhalten": {
+    "g_en": "to keep open",
+    "g_de": "etwas geöffnet lassen"
+  },
+  "ohnmachtähnlichen": {
+    "g_en": "faint-like",
+    "g_de": "wie eine Ohnmacht"
+  },
+  "panzerartig": {
+    "g_en": "armor-like, shell-like",
+    "g_de": "hart wie ein Panzer"
+  },
+  "pelzboa": {
+    "g_en": "fur boa",
+    "g_de": "langer Pelzschal für den Hals"
+  },
+  "pelzhut": {
+    "g_en": "fur hat",
+    "g_de": "Hut aus Pelz"
+  },
+  "pelzmuff": {
+    "g_en": "fur muff",
+    "g_de": "Pelzhandwärmer für die Hände"
+  },
+  "ragen": {
+    "g_en": "to protrude, to stick out",
+    "g_de": "herausstehen oder hervorstehen"
+  },
+  "rumpelzeug": {
+    "g_en": "junk, clutter",
+    "g_de": "altes, unordentliches Zeug"
+  },
+  "rücklehne": {
+    "g_en": "backrest",
+    "g_de": "Teil eines Stuhls zum Anlehnen"
+  },
+  "rückwärtslauf": {
+    "g_en": "running backwards",
+    "g_de": "rückwärts laufen"
+  },
+  "scheitelfrisur": {
+    "g_en": "center-parted hairstyle",
+    "g_de": "Frisur mit Scheitel in der Mitte"
+  },
+  "schmeichelworte": {
+    "g_en": "flattering words",
+    "g_de": "freundliche Worte, um zu gefallen"
+  },
+  "schmutzstreifen": {
+    "g_en": "dirt streaks",
+    "g_de": "lange Schmutzspuren"
+  },
+  "schreckenerregender": {
+    "g_en": "terrifying",
+    "g_de": "das macht große Angst"
+  },
+  "schreckgestalt": {
+    "g_en": "horrifying figure",
+    "g_de": "etwas, das sehr erschreckend aussieht"
+  },
+  "schreibende": {
+    "g_en": "writers",
+    "g_de": "Personen, die Texte verfassen"
+  },
+  "schwerkranker": {
+    "g_en": "seriously ill person",
+    "g_de": "jemand mit schwerer Krankheit"
+  },
+  "sechzehnjährige": {
+    "g_en": "sixteen-year-old",
+    "g_de": "Person, die 16 Jahre alt ist"
+  },
+  "seitentüre": {
+    "g_en": "side door",
+    "g_de": "Tür an der Seite eines Raumes"
+  },
+  "speiseüberreste": {
+    "g_en": "food leftovers",
+    "g_de": "übrig gebliebene Essensstücke"
+  },
+  "stiefelsohlen": {
+    "g_en": "boot soles",
+    "g_de": "unterer Teil von Stiefeln"
+  },
+  "stockbehälter": {
+    "g_en": "umbrella stand",
+    "g_de": "Behälter für Gehstöcke oder Schirme"
+  },
+  "straußfeder": {
+    "g_en": "ostrich feather"
+  },
+  "sämtliches": {
+    "g_en": "all, entire",
+    "g_de": "alles zusammen"
+  },
+  "tapet": {
+    "g_en": "wallpaper",
+    "g_de": "Papier an der Wand als Dekoration"
+  },
+  "tickte": {
+    "g_en": "ticked",
+    "g_de": "machte tickende Geräusche"
+  },
+  "tränenlos": {
+    "g_en": "tearless, dry-eyed",
+    "g_de": "ohne Tränen"
+  },
+  "türezuschlagen": {
+    "g_en": "to slam the door",
+    "g_de": "Tür mit Kraft schließen"
+  },
+  "umfangen": {
+    "g_en": "to embrace, clasp",
+    "g_de": "mit den Armen festhalten"
+  },
+  "umflatternd": {
+    "g_en": "fluttering around",
+    "g_de": "flatternd um etwas herum"
+  },
+  "umfließen": {
+    "g_en": "to flow around"
+  },
+  "umtanzen": {
+    "g_en": "to dance around",
+    "g_de": "tanzend um etwas herumgehen"
+  },
+  "umwehen": {
+    "g_en": "to waft around",
+    "g_de": "leicht um etwas wehen"
+  },
+  "unaufhörlichen": {
+    "g_en": "ceaseless, incessant",
+    "g_de": "ohne Pause"
+  },
+  "unbegreiflichen": {
+    "g_en": "incomprehensible",
+    "g_de": "nicht zu verstehen"
+  },
+  "ungeheueren": {
+    "g_en": "enormous, monstrous",
+    "g_de": "sehr groß und furchterregend"
+  },
+  "unnütze": {
+    "g_en": "useless",
+    "g_de": "ohne Nutzen"
+  },
+  "ununterscheidbar": {
+    "g_en": "indistinguishable",
+    "g_de": "nicht zu unterscheiden"
+  },
+  "verbeißen": {
+    "g_en": "to bite into, clench",
+    "g_de": "mit den Zähnen festhalten"
+  },
+  "verbeugen": {
+    "g_en": "to bow",
+    "g_de": "sich mit dem Oberkörper neigen"
+  },
+  "vergessene": {
+    "g_en": "forgotten",
+    "g_de": "etwas, das man nicht mehr weiß"
+  },
+  "verlorenheit": {
+    "g_en": "lostness, abandonment",
+    "g_de": "Gefühl, verlassen zu sein"
+  },
+  "vernunftgründen": {
+    "g_en": "rational arguments",
+    "g_de": "logische Gründe"
+  },
+  "vernünftigste": {
+    "g_en": "most reasonable",
+    "g_de": "am klügsten"
+  },
+  "viertelstundenlang": {
+    "g_en": "for a quarter of an hour",
+    "g_de": "15 Minuten lang"
+  },
+  "viertelstündig": {
+    "g_en": "quarter-hourly"
+  },
+  "violinspiel": {
+    "g_en": "violin playing",
+    "g_de": "das Spielen auf der Geige"
+  },
+  "violinspieler": {
+    "g_en": "violinist",
+    "g_de": "Person, die Geige spielt"
+  },
+  "volksschüler": {
+    "g_en": "elementary school pupil",
+    "g_de": "Kind in der Grundschule"
+  },
+  "vorgefallene": {
+    "g_en": "occurred, happened",
+    "g_de": "etwas, das passiert ist"
+  },
+  "vorgesetzter": {
+    "g_en": "superior, boss",
+    "g_de": "Person, die über anderen arbeitet"
+  },
+  "vorlese": {
+    "g_en": "to read aloud",
+    "g_de": "laut aus einem Text lesen"
+  },
+  "vormerkbuch": {
+    "g_en": "notebook, ledger",
+    "g_de": "Buch für Notizen oder Rechnungen"
+  },
+  "vorwagen": {
+    "g_en": "to venture forward",
+    "g_de": "vorsichtig nach vorne bewegen"
+  },
+  "vorwärtsbewegenden": {
+    "g_en": "moving forward",
+    "g_de": "sich nach vorne bewegend"
+  },
+  "vorwärtsgesprungen": {
+    "g_en": "leapt forward",
+    "g_de": "schnell nach vorne gesprungen"
+  },
+  "vorwärtsstieß": {
+    "g_en": "pushed forward",
+    "g_de": "mit Kraft nach vorne gedrückt"
+  },
+  "vorzimmertür": {
+    "g_en": "anteroom door",
+    "g_de": "Tür zum Vorzimmer"
+  },
+  "vorüberkommen": {
+    "g_en": "to pass by",
+    "g_de": "an etwas vorbeigehen"
+  },
+  "wachgeblieben": {
+    "g_en": "stayed awake",
+    "g_de": "nicht eingeschlafen"
+  },
+  "wahrscheinlicherweise": {
+    "g_en": "probably",
+    "g_de": "sehr wahrscheinlich"
+  },
+  "weckuhr": {
+    "g_en": "alarm clock"
+  },
+  "weigern": {
+    "g_en": "to refuse",
+    "g_de": "etwas nicht tun wollen"
+  },
+  "weiterschreiben": {
+    "g_en": "to continue writing",
+    "g_de": "nach einer Pause schreiben"
+  },
+  "werdender": {
+    "g_en": "future, emerging",
+    "g_de": "etwas, das noch wird"
+  },
+  "wohlbekannten": {
+    "g_en": "well-known, familiar",
+    "g_de": "sehr bekannt"
+  },
+  "wohnzimmertür": {
+    "g_en": "living room door",
+    "g_de": "Tür zum Wohnzimmer"
+  },
+  "wundgerieben": {
+    "g_en": "chafed, rubbed raw",
+    "g_de": "durch Reiben verletzt"
+  },
+  "zeitlang": {
+    "g_en": "while, period of time",
+    "g_de": "eine bestimmte Zeit"
+  },
+  "zimmerherr": {
+    "g_en": "lodger, roomer",
+    "g_de": "Person, die ein Zimmer mietet"
+  },
+  "zimmermitte": {
+    "g_en": "middle of the room",
+    "g_de": "Mitte des Zimmers"
+  },
+  "zimmermöbel": {
+    "g_en": "furniture",
+    "g_de": "Möbel im Zimmer"
+  },
+  "zimmernachbar": {
+    "g_en": "neighboring room occupant",
+    "g_de": "Person im Nachbarzimmer"
+  },
+  "zuganschlüsse": {
+    "g_en": "train connections",
+    "g_de": "Verbindungen zwischen Zügen"
+  },
+  "zugedrückt": {
+    "g_en": "pressed shut",
+    "g_de": "fest zugemacht"
+  },
+  "zuhausebleiben": {
+    "g_en": "to stay at home",
+    "g_de": "nicht weggehen"
+  },
+  "zulaufen": {
+    "g_en": "to run toward",
+    "g_de": "zu jemandem hinlaufen"
+  },
+  "zulächeln": {
+    "g_en": "to smile at",
+    "g_de": "jemandem freundlich lächeln"
+  },
+  "zurückschicken": {
+    "g_en": "to send back",
+    "g_de": "etwas wieder wegschicken"
+  },
+  "zurückschnappenden": {
+    "g_en": "snapping shut",
+    "g_de": "plötzlich zufallend"
+  },
+  "zurücktreiben": {
+    "g_en": "to drive back",
+    "g_de": "jemanden zurückdrängen"
+  },
+  "zurückzusehen": {
+    "g_en": "to look back",
+    "g_de": "noch einmal hinschauen"
+  },
+  "zusammenpacken": {
+    "g_en": "to pack up",
+    "g_de": "Dinge einpacken"
+  },
+  "zusammensturz": {
+    "g_en": "collapse",
+    "g_de": "plötzliches Zusammenbrechen"
+  },
+  "zuschulden": {
+    "g_en": "to be guilty of",
+    "g_de": "etwas Schlechtes getan haben"
+  },
+  "zweitemal": {
+    "g_en": "second time",
+    "g_de": "das zweite Mal, wenn etwas passiert"
+  },
+  "ängstigen": {
+    "g_en": "to frighten, alarm",
+    "g_de": "Angst machen, beunruhigen"
+  },
+  "ärgste": {
+    "g_en": "worst",
+    "g_de": "das Schlimmste, was passieren kann"
+  },
+  "überdrüssig": {
+    "g_en": "weary of, tired of",
+    "g_de": "keine Lust mehr auf etwas haben"
+  },
+  "überkriechen": {
+    "g_en": "to crawl over",
+    "g_de": "über etwas hinwegkriechen"
+  },
+  "übermüden": {
+    "g_en": "to overwork, overtire",
+    "g_de": "zu müde werden durch zu viel Arbeit"
+  },
+  "überschwung": {
+    "g_en": "swing over, flip",
+    "g_de": "Bewegung, um sich umzudrehen"
+  },
+  "überschüssigen": {
+    "g_en": "excess, surplus",
+    "g_de": "mehr als nötig, übrig geblieben"
+  }
+}
