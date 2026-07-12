@@ -27,8 +27,8 @@ BOOK="${1:?usage: container/audio.sh <book-id> [audio3.py args...]}"; shift
 IMAGE="${IMAGE:-zzzpeak-audio}"
 AUDIO_REPO="${AUDIO_REPO:-../zzzpeak-audio}"
 VOICES_DIR="${VOICES_DIR:-$HOME/piper-voices}"
-VOICE_DE="${VOICE_DE:-de_DE-thorsten-medium}"
-VOICE_EN="${VOICE_EN:-en_US-lessac-medium}"
+VOICE_DE="${VOICE_DE:-de_DE-thorsten-medium}"   # PINNED 2026-07-12
+VOICE_EN="${VOICE_EN:-en_GB-alba-medium}"       # PINNED 2026-07-12
 
 # built book file -> language -> voice
 if   [ -f "docs/data3/de/${BOOK}.json" ]; then BLANG=de

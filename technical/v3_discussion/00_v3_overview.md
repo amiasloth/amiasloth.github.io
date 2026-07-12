@@ -190,18 +190,29 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      (owner auditioned rhasspy piper-samples; cori-high rejected for
      2–3× synth cost, southern_english_female ships low-only).
      Switching later = full resynthesis, so pinned before batch runs.
-   - Chunk-level playback CONFIRMED via per-token timestamps on the
-     sentence audio: forced alignment (e.g. aeneas — Piper exposes no
-     word timings) in the audio container, per-book sidecar
-     `timing.json` (NOT in the manifest), chunk = seek t[a], stop
-     t[b] (rAF loop; Web Audio sample-accurate slicing is the upgrade
-     path — Pages sends CORS *). Never per-chunk files: the chunker
-     still evolves and would invalidate them; token timestamps
-     survive chunker changes with zero recompute.
-   - Practice/check mode gets a play-chunk-slice button (same asset +
-     playback module, composes with "hide text while you speak");
-     playback-speed control (audio.playbackRate 0.7×/0.85×/1×,
-     pitch-preserving). Offline audio deferred — online-only v1
+   - Chunk-level playback CONFIRMED via per-RUN timestamps on the
+     sentence audio, sidecar `timing.json` (NOT in the manifest).
+     IMPLEMENTED (2026-07-12) with piper1-gpl's NATIVE phoneme
+     alignments (`include_alignments=True`; space phonemes delimit
+     words) — no forced-alignment tool at all, timing extracted
+     during synthesis in audio3.py (supersedes the aeneas plan; no
+     new container deps). Granularity = display runs (whitespace
+     units); reader maps token→run via sp bits (Data3.audioSlice),
+     chunk = seek t0, stop t1 (rAF loop; Web Audio sample-accurate
+     slicing is the upgrade path — Pages sends CORS *). Never
+     per-chunk files: the chunker still evolves and would invalidate
+     them; run timestamps survive chunker changes with zero
+     recompute. Sentences where espeak's word count disagrees with
+     the run count get no timing (partial timing OK, like partial
+     coverage; those chunks fall back to Web Speech).
+   - Reader integration (IMPLEMENTED 2026-07-12): js/audio3.js
+     (BookAudio) slots BEHIND speakCurrent() — book audio first, Web
+     Speech fallback per sentence — so ttsFirst shadowing, check
+     mode's "hear it first", A/B compare and the 🔊 button all get
+     real audio with no flow changes. Activated by `audio` base URL
+     in books.json (absolute; files at <base>/<id>/<sid>.opus).
+     Existing "Voice speed" pref maps onto audio.playbackRate
+     (pitch-preserving). Offline audio deferred — online-only v1
      (cross-origin SW caching is the ugly part, not playback).
    Decisions 2026-07-11:
    - Per-sentence files CONFIRMED over one whole-book file +
@@ -231,11 +242,30 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      manifest provenance.
 
 5. **AI passes (optional, additive, Mistral; reviewable artifacts)**
+   All AI tooling lives in `tools/ai/` (owner 2026-07-12): versioned
+   prompt files, COMMITTED JSONL response cache keyed by prompt
+   version, unreviewed artifacts in `tools/ai/build/`, `--mock`
+   plumbing mode; MISTRAL_API_KEY env; never runs inside the build.
    - `g_de` one-line learner definitions (~A2), two-pass
      generate→grade, fallback `g_en`;
    - sense overrides keyed by sentence id (Schloss 🏰/🔒) incl.
      per-occurrence emoji;
    - per-book lemma→emoji map (replaces curated fallback);
+     TOOL BUILT 2026-07-12 (`tools/ai/emoji3.py`, generate→grade,
+     both stages Mistral, empty-beats-bad end to end): `--book <id>`
+     covers STUDY lemmas only (gloss + first-occurrence sentence fix
+     the sense → liberal rubric) → `build/emoji_ai_<id>.json`, review
+     → `maps/emoji_<id>.json` (existing gloss3 entry point). Second
+     product split off (owner 2026-07-12): the GENERAL map — common
+     lemmas from each book's text plus `--general` (wordfreq top-N,
+     lemmatised), graded with a stricter NO-context rubric (dominant
+     sense only) — accumulates in
+     `build/emoji_general_candidates_<lang>.json`, review →
+     `maps/emoji_general_<lang>.json`, a new gloss3 layer BELOW the
+     curated emoji_map.py. Precedence: reviewed-book > emoji_map.py >
+     general > CLDR-generated; the machine never edits or outranks
+     the hand-picked file. Awaiting first real API run (pilot:
+     kafka — its CLDR map is the known-bad reference).
    - `rebus` (2–4 emoji sentence recall), `para` (simple-German
      paraphrase), section `sum` ("previously on…") — all reserved
      fields already in the schema;

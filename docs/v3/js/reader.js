@@ -43,6 +43,7 @@
   };
 
   let meta = null;       // entry from books.json
+  let bookAudio = null;  // BookAudio instance when books.json has `audio`
   let book = null;       // loaded book json (null in review mode)
   let gloss = null;      // loaded gloss json (null in review mode / on miss)
   let flat = [];         // [{t, e?, cont?, sec, secTitle, i, lv?, sentStart?, sentEnd?}]
@@ -100,7 +101,15 @@
     level = Store.getLevel(bookId, meta.levels.includes("beginner")
       ? "beginner" : meta.levels[0]);
     if (!meta.levels.includes(level)) level = meta.levels[0];
-    if (!TTS.available()) el.tts.style.display = "none";
+    // real book audio (separate audio repo, per-sentence opus) — a
+    // drop-in upgrade over Web Speech inside speakCurrent(); partial
+    // coverage and absent timing degrade per sentence, not per book
+    if (meta.audio && window.BookAudio)
+      bookAudio = BookAudio.create(meta.audio, bookId);
+    if (!modelAvailable()) el.tts.style.display = "none";
+    if (bookAudio) bookAudio.ready.then(() => {
+      el.tts.style.display = modelAvailable() ? "" : "none";
+    });
     if (Checker.isSupported()) {
       checker = new Checker({
         lang: meta.lang,
@@ -480,16 +489,43 @@
     }
   }
 
-  // ---------------- TTS ----------------
+  // ---------------- model voice (book audio > Web Speech) ----------
+
+  /* one switch for "can the app speak the phrase at all" — real book
+   * audio and Web Speech are interchangeable behind speakCurrent() */
+  function modelAvailable() {
+    return !!(bookAudio && bookAudio.active()) || TTS.available();
+  }
+  function modelSpeaking() {
+    return TTS.speaking() || !!(bookAudio && bookAudio.playing());
+  }
+  function stopModel() {
+    TTS.stop();
+    if (bookAudio) bookAudio.stop();
+  }
 
   function speakCurrent() {
-    if (!flat.length || !TTS.available()) return Promise.resolve(false);
+    if (!flat.length || !modelAvailable()) return Promise.resolve(false);
     rec.halt();                      // never TTS into an open take
     // Same rule for a check take: end it SILENTLY (endTake, not stop) so no
     // result fires — otherwise the silence re-arm could start listening
     // while the TTS is speaking and transcribe the voice.
     if (checker && checker.state === "listening") checker.endTake();
     status("");
+    // real audio first: whole sentence file, or a timing.json slice for
+    // a chunk; false (no file / no slice / playback error) → Web Speech
+    const ref = sentenceStep || flat[idx];
+    if (bookAudio && ref.sent) {
+      return bookAudio.play(ref.sent, ref.a != null ? ref.a : 0,
+                            ref.b != null ? ref.b : ref.sent.toks.length,
+                            prefs.ttsRate)
+        .then((ok) => {
+          if (ok === false && TTS.available())   // failed (null = cancelled)
+            return TTS.speak(curText(), meta.lang, prefs.ttsRate);
+          return !!ok;
+        });
+    }
+    if (!TTS.available()) return Promise.resolve(false);
     return TTS.speak(curText(), meta.lang, prefs.ttsRate);
   }
 
@@ -498,7 +534,7 @@
    * fixed order (own take, then TTS) so the learner can self-correct —
    * see onPlayEnd below. */
   function startTake() {
-    if (!sentenceStep && prefs.ttsFirst && TTS.available()) {
+    if (!sentenceStep && prefs.ttsFirst && modelAvailable()) {
       speakCurrent().then(() => rec.record({ words: curWords() }));
     } else {
       rec.record({ words: curWords() });
@@ -594,7 +630,7 @@
   function startCheckTake(auto) {
     if (!checker) return;
     checkAuto = !!auto;
-    TTS.stop();
+    stopModel();
     rec.reset();                 // the two mic systems never run at once (harmless if idle)
     checker._unlock();           // best-effort audio unlock for take playback
     // NOTE: the previous diff (miss marks) intentionally stays on screen
@@ -608,9 +644,9 @@
     // miss-retries: a retry is just the same phrase run like a new one). If
     // iOS blocks the delayed recognition start (no gesture), the checker's
     // not-allowed path keeps the session and asks for a tap — TTS still plays.
-    if (prefs.ttsFirst && TTS.available()) {
+    if (prefs.ttsFirst && modelAvailable()) {
+      speakCurrent().then(listen);
       status("Listen…");
-      TTS.speak(curText(), meta.lang, prefs.ttsRate).then(listen);
     } else listen();
   }
 
@@ -629,7 +665,7 @@
   // doesn't listen forever (~6 takes ≈ a minute of patience).
   function rearmOnSilence() {
     // Never re-arm while TTS is speaking — recognition would transcribe it.
-    if (!checkActive() || prefs.after === "stop" || checkSilent >= 6 || TTS.speaking()) return false;
+    if (!checkActive() || prefs.after === "stop" || checkSilent >= 6 || modelSpeaking()) return false;
     checkSilent++;
     checkAuto = true;
     status("Listening… say the phrase.");
@@ -702,8 +738,8 @@
     const idxSnap = idx, stepSnap = sentenceStep;
     const playTake = () => (res.takeUrl && checker.playbackEnabled())
       ? checker.playTake() : Promise.resolve();
-    const speakModel = () => (prefs.abCompare && TTS.available())
-      ? TTS.speak(curText(), meta.lang, prefs.ttsRate) : Promise.resolve();
+    const speakModel = () => (prefs.abCompare && modelAvailable())
+      ? speakCurrent() : Promise.resolve();
     playTake().then(speakModel).then(() => {
       // bail if the user navigated away during playback (loop does the same)
       if (idx !== idxSnap || sentenceStep !== stepSnap) return;
@@ -782,7 +818,7 @@
   // hands-free "next" flow to know whether to keep going or stop).
   function go(delta, opts) {
     opts = opts || {};
-    TTS.stop();
+    stopModel();
     // Leaving a phrase in Check mode: end the current take but KEEP the mic
     // open (persistent session), drop the diff, reset the retry counter.
     // render() (below) redraws the focus line clean.
@@ -937,9 +973,9 @@
 
     // release mic when the page goes away / is hidden
     document.addEventListener("visibilitychange", () => {
-      if (document.hidden) { rec.reset(); if (checker) checker.reset(); TTS.stop(); }
+      if (document.hidden) { rec.reset(); if (checker) checker.reset(); stopModel(); }
     });
-    window.addEventListener("pagehide", () => { rec.reset(); if (checker) checker.reset(); TTS.stop(); });
+    window.addEventListener("pagehide", () => { rec.reset(); if (checker) checker.reset(); stopModel(); });
   }
 
   // ---------------- sheets ----------------
@@ -970,7 +1006,7 @@
   function jumpToSection(si) {
     const at = flat.findIndex((c) => c.sec === si);
     if (at < 0) return;
-    TTS.stop();                       // clean handover, like a level switch
+    stopModel();                       // clean handover, like a level switch
     rec.reset();
     if (checker) checker.reset();
     checkRetry = 0; checkSilent = 0; checkDiffShown = false;
@@ -1070,7 +1106,7 @@
     if (name === "checkMode") {   // switching modes: hand the mic over cleanly
       if (checker) checker.reset();
       rec.reset();
-      TTS.stop();
+      stopModel();
       checkRetry = 0;
       clearCheckDiff();
       paintIdleButton();
@@ -1105,7 +1141,7 @@
     const tabs = [];
     if (gloss || bookHasOrth) tabs.push(["reading", "Reading"]);
     tabs.push(["practice", "Practice"]);
-    if (TTS.available()) tabs.push(["voice", "Voice"]);
+    if (modelAvailable()) tabs.push(["voice", "Voice"]);
     if (!settingsTab || !tabs.some((t) => t[0] === settingsTab))
       settingsTab = tabs[0][0];
     if (tabs.length > 1) {

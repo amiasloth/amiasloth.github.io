@@ -293,6 +293,36 @@ for (const meta of index.books) {
   console.log("ok  emoji_common invariants across gloss files");
 }
 
+// ---------------- audioSlice (timing.json chunk playback) ----------
+{
+  // "Er sah , dann ging er ."  toks glue via sp: "sah," and "er."
+  // runs: [Er] [sah,] [dann] [ging] [er.]  -> 5 runs
+  const sent = {
+    toks: ["Er", "sah", ",", "dann", "ging", "er", "."],
+    sp:    "1011100",
+  };
+  const ends = [0.3, 0.9, 1.4, 1.9, 2.5];
+  const S = (a, b) => Data3.audioSlice(sent, a, b, ends);
+  // whole sentence
+  let r = S(0, 7);
+  if (r.t0 !== 0 || r.t1 !== 2.5) bad("audioSlice whole: " + JSON.stringify(r));
+  // first chunk [0,3) = "Er sah," -> runs 0..1
+  r = S(0, 3);
+  if (r.t0 !== 0 || r.t1 !== 0.9) bad("audioSlice head: " + JSON.stringify(r));
+  // middle chunk [3,5) = "dann ging" -> runs 2..3, starts after run 1
+  r = S(3, 5);
+  if (r.t0 !== 0.9 || r.t1 !== 1.9) bad("audioSlice mid: " + JSON.stringify(r));
+  // tail chunk [5,7) = "er." -> run 4
+  r = S(5, 7);
+  if (r.t0 !== 1.9 || r.t1 !== 2.5) bad("audioSlice tail: " + JSON.stringify(r));
+  // run-count mismatch (espeak dropped a unit at synthesis) -> null
+  if (Data3.audioSlice(sent, 0, 3, [0.3, 0.9]) !== null)
+    bad("audioSlice must reject mismatched run counts");
+  if (Data3.audioSlice(sent, 3, 3, ends) !== null)
+    bad("audioSlice must reject empty spans");
+  console.log("ok  audioSlice (whole, head, mid, tail, mismatch, empty)");
+}
+
 // ---------------- displayRuns + check-mode grading ----------------
 {
   const Match = require("./js/match.js");

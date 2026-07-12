@@ -363,17 +363,27 @@ def run(args):
     if args.emoji_map:
         emoji_map = json.loads(Path(args.emoji_map).read_text("utf-8"))
 
+    # Reviewed GENERAL map (tools/ai/ emoji pass, strict rubric; owner
+    # decision 2026-07-12): broad common-word coverage BELOW the curated
+    # emoji_map.py — the machine never outranks (or edits) the
+    # hand-picked file.  Loaded automatically when present.
+    general_map = {}
+    gpath = HERE / "maps" / f"emoji_general_{lang}.json"
+    if gpath.is_file():
+        general_map = json.loads(gpath.read_text("utf-8"))
+
     def pick_emoji(key):
-        """Emoji source precedence (2026-07-12): a REVIEWED map (later:
-        the Mistral-reviewed one) beats the curated emoji_map.py, but
-        the curated map beats a GENERATED CLDR map standing in for the
-        reviewed one (--emoji-map-generated) — hand-picked beats
+        """Emoji source precedence (2026-07-12): reviewed PER-BOOK map
+        (later: the Mistral-reviewed one) > curated emoji_map.py >
+        reviewed GENERAL map > generated CLDR map (--emoji-map-generated
+        demotes the --emoji-map file to last place) — hand-picked beats
         auto-derived, auto-derived fills the rest."""
         cur = EMOJI[lang].get(key, "")
         mapped = emoji_map.get(key, "")
+        gen = general_map.get(key, "")
         if args.emoji_map_generated:
-            return cur or mapped
-        return mapped or cur
+            return cur or gen or mapped
+        return mapped or cur or gen
 
     for sec in book["sections"]:
         sec_study, sec_seen = [], set()

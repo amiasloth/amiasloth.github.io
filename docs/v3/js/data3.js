@@ -172,6 +172,27 @@
     return "";
   }
 
+  /* Audio slice times for chunk [a, b) from a timing.json entry:
+   * `ends` = end time (seconds) of each display RUN of the sentence
+   * (audio3.py, granularity "runs"). Token→run mapping via the sp
+   * bits: token k sits in run number = count of "1" bits before k.
+   * Returns {t0, t1} — start/stop seconds into the sentence file — or
+   * null when `ends` doesn't match the sentence's run count (espeak
+   * dropped/expanded a unit at synthesis; caller falls back). */
+  function audioSlice(sent, a, b, ends) {
+    var sp = sent.sp, n = sent.toks.length, runs = 1;
+    for (var i = 0; i < n - 1; i++) if (sp[i] === "1") runs++;
+    if (!ends || ends.length !== runs || b <= a) return null;
+    var rA = 0, rB = 0;
+    for (var k = 0; k < b - 1 && k < n - 1; k++) {
+      if (sp[k] === "1") {
+        rB++;                          // rB ends as run index of token b-1
+        if (k < a) rA++;               // rA = run index of token a
+      }
+    }
+    return { t0: rA > 0 ? ends[rA - 1] : 0, t1: ends[rB] };
+  }
+
   /* Display runs of the token slice [a, b): the whitespace-separated
    * units the reader shows (tokens glue to the next one when their sp
    * bit is 0 — "sah" + "," renders as "sah,"). Per run: the original
@@ -232,6 +253,7 @@
     nfcLower: nfcLower,
     glossLookup: glossLookup,
     chunkEmoji: chunkEmoji,
+    audioSlice: audioSlice,
   };
 
   global.Data3 = Data3;

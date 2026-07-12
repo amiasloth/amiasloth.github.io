@@ -10,6 +10,10 @@ checkout (zzzpeak-audio), never into docs/.
     <out>/<book_id>/<sid>.opus     one file per unique sentence id
     <out>/<book_id>/manifest.json  voice (+license), coverage, per-sid
                                    durations, provenance
+    <out>/<book_id>/timing.json    per-sid display-run end times from
+                                   piper's native phoneme alignments —
+                                   chunk playback = slice the sentence
+                                   audio (no extra alignment tool)
 
 Properties:
   - Incremental: existing .opus files are kept (use --force to redo);
@@ -42,6 +46,65 @@ import wave
 from pathlib import Path
 
 MANIFEST_SCHEMA = 1
+
+
+def synth_with_timing(voice, text, wav_path, want_timing=True):
+    """Synthesize `text` to `wav_path`; return (duration_s, run_ends_s).
+
+    run_ends_s: cumulative end time (seconds) of every whitespace-
+    separated unit of `text` — the reader's display RUNS (sp bits) —
+    derived from piper's native phoneme alignments (piper1-gpl
+    `include_alignments=True`): space phonemes delimit words, BOS/EOS
+    bracket each espeak sentence, chunk boundaries close words too.
+    Returns None for run_ends_s when the voice model does not emit
+    alignments or the word count disagrees with the run count (espeak
+    dropped/expanded units — numbers, bare dashes); partial timing
+    coverage is fine by design, like partial audio coverage.
+    """
+    try:                              # deferred like PiperVoice; the
+        from piper.voice import BOS, EOS   # fallback keeps the pure
+    except ImportError:                    # timing logic unit-testable
+        BOS, EOS = "^", "$"                # without piper installed
+
+    rate = voice.config.sample_rate
+    cum = 0                      # samples emitted so far (all chunks)
+    word_ends = []               # sample offset at each word end
+    in_word = False
+    have_align = want_timing
+    with wave.open(str(wav_path), "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(rate)
+        for chunk in voice.synthesize(text, include_alignments=want_timing):
+            wf.writeframes(chunk.audio_int16_bytes)
+            aligns = chunk.phoneme_alignments if want_timing else None
+            if aligns is None:
+                have_align = False
+                cum += len(chunk.audio_int16_array)
+                continue
+            for al in aligns:
+                prev = cum
+                cum += al.num_samples
+                if al.phoneme == " ":
+                    if in_word:
+                        word_ends.append(prev)
+                    in_word = False
+                elif al.phoneme in (BOS, EOS):
+                    if in_word:          # EOS closes the last word
+                        word_ends.append(prev)
+                    in_word = False
+                else:
+                    in_word = True
+            if in_word:                  # chunk boundary closes a word
+                word_ends.append(cum)
+                in_word = False
+    dur = round(cum / rate, 2) if cum else None
+    if dur is None:                      # alignments off: probe the wav
+        with wave.open(str(wav_path), "rb") as wf:
+            dur = round(wf.getnframes() / wf.getframerate(), 2)
+    if not have_align or len(word_ends) != len(text.split()):
+        return dur, None
+    return dur, [round(w / rate, 3) for w in word_ends]
 
 
 def sentence_text(sent, use_orth=True):
@@ -111,6 +174,8 @@ def main():
                     help="re-synthesise even if the .opus already exists")
     ap.add_argument("--raw-orth", action="store_true",
                     help="synthesise original spelling, not orth-modernised")
+    ap.add_argument("--no-timing", action="store_true",
+                    help="skip run-timing extraction (timing.json)")
     ap.add_argument("--dry-run", action="store_true",
                     help="report what would be done; no piper/opusenc needed")
     args = ap.parse_args()
@@ -153,17 +218,21 @@ def main():
         if manifest_path.is_file() else {}
     durations = dict(old.get("durations") or {})
 
+    timing_path = out_dir / "timing.json"
+    old_timing = json.loads(timing_path.read_text(encoding="utf-8")) \
+        if timing_path.is_file() else {}
+    run_ends = dict(old_timing.get("runs") or {})  # sid -> [end_s, ...]
+
     out_dir.mkdir(parents=True, exist_ok=True)
     failed = []
+    n_unaligned = 0
     for n, sid in enumerate(todo, 1):
         text = texts[sid]
         opus_path = out_dir / f"{sid}.opus"
         try:
             with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
-                with wave.open(tmp.name, "wb") as wf:
-                    voice.synthesize_wav(text, wf)
-                with wave.open(tmp.name, "rb") as wf:
-                    dur = round(wf.getnframes() / wf.getframerate(), 2)
+                dur, ends = synth_with_timing(
+                    voice, text, tmp.name, want_timing=not args.no_timing)
                 tmp_opus = opus_path.with_suffix(".opus.tmp")
                 subprocess.run(
                     ["opusenc", "--quiet", "--bitrate", str(args.bitrate),
@@ -171,6 +240,12 @@ def main():
                     check=True, capture_output=True)
                 tmp_opus.replace(opus_path)  # atomic: no half-written files
             durations[sid] = dur
+            if ends is not None:
+                run_ends[sid] = ends
+            else:
+                run_ends.pop(sid, None)      # resynth invalidates old timing
+                if not args.no_timing:
+                    n_unaligned += 1
         except Exception as e:  # noqa: BLE001 — log & continue the batch
             failed.append(sid)
             print(f"  FAIL {sid}: {e}", file=sys.stderr)
@@ -219,7 +294,30 @@ def main():
         json.dumps(manifest, ensure_ascii=False, indent=1) + "\n",
         encoding="utf-8")
 
+    # timing sidecar (design 2026-07-12): per-sid END TIME (seconds) of
+    # each display RUN — whitespace unit of the synthesised text, which
+    # the reader maps to token indices via the sp bits.  Chunk playback
+    # = seek ends[run(a)-1], stop at ends[run(b)-1].  Kept OUT of the
+    # manifest so partial/absent timing never bloats or blocks it.
+    run_ends = {sid: run_ends[sid] for sid in texts
+                if sid in run_ends and sid in on_disk}
+    timing = {
+        "schema": 1,
+        "generator": manifest["generator"],
+        "book": manifest["book"],
+        "voice_sha256": manifest["voice"]["sha256"],
+        "granularity": "runs",
+        "coverage": {"sentences": len(texts), "timed": len(run_ends)},
+        "runs": run_ends,
+    }
+    timing_path.write_text(
+        json.dumps(timing, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encoding="utf-8")
+
     print(f"manifest -> {manifest_path}")
+    print(f"timing   -> {timing_path} ({len(run_ends)}/{len(texts)} timed"
+          + (f", {n_unaligned} unaligned this run" if n_unaligned else "")
+          + ")")
     print(f"coverage: {covered}/{len(texts)} "
           f"({manifest['coverage']['seconds']}s total)")
     if covered == len(texts):
