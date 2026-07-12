@@ -211,9 +211,17 @@ In rough order; 1–3 are the v3 core, 4–6 make it complete.
      slicing is the upgrade path — Pages sends CORS *). Never
      per-chunk files: the chunker still evolves and would invalidate
      them; run timestamps survive chunker changes with zero
-     recompute. Sentences where espeak's word count disagrees with
-     the run count get no timing (partial timing OK, like partial
-     coverage; those chunks fall back to Web Speech).
+     recompute. Spoken-word count routinely disagrees with the run
+     count — espeak FUSES function words ('in the'→ɪnðə, 'Es
+     ist'→ɛsɪst; ~43% of velveteen sentences, ~14% of kafka) and
+     expands numbers ('1922'→3 words). audio3.py maps words→runs by
+     DP over phoneme lengths (1:N fusion, N:1 expansion, solo
+     phonemization as the length reference; fused runs interpolate
+     inside their word, punct-only runs stick to the previous end).
+     Validated offline against both books: 100% mapped, monotonic;
+     implausible alignments (avg cost > 3/word) get no timing
+     (partial timing OK, like partial coverage; those chunks fall
+     back to Web Speech).
    - Reader integration (IMPLEMENTED 2026-07-12): js/audio3.js
      (BookAudio) slots BEHIND speakCurrent() — book audio first, Web
      Speech fallback per sentence — so ttsFirst shadowing, check

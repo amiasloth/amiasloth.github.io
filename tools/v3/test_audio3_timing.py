@@ -10,7 +10,7 @@ import types
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from audio3 import synth_with_timing  # noqa: E402
+from audio3 import run_ends_from_words, synth_with_timing  # noqa: E402
 
 RATE = 22050
 
@@ -95,3 +95,62 @@ def test_double_space_phoneme(tmp_path):
     dur, ends = synth_with_timing(FakeVoice(chunks), "a b",
                                   tmp_path / "t.wav")
     assert ends == [round(50 / RATE, 3), round(120 / RATE, 3)]
+
+
+# ---- word->run mapping (espeak fusion/expansion; run_ends_from_words) ----
+
+class PhonemizingVoice(FakeVoice):
+    """FakeVoice + a solo phonemizer: each run maps to a fixed list of
+    single-char phonemes (what espeak would say for the run alone)."""
+
+    def __init__(self, chunks, solo):
+        super().__init__(chunks)
+        self._solo = solo
+
+    def phonemize(self, text):
+        return [list(self._solo[text])]
+
+
+def test_fusion_two_runs_one_spoken_word(tmp_path):
+    # espeak fuses "in the" -> one 4-phoneme word ('ɪnðə' style);
+    # "house" is 1:1. Fused runs interpolate inside the word by their
+    # solo phoneme lengths (2/2 -> midpoint), word edge stays exact.
+    chunks = [Chunk([Align("^", 0)]
+                    + W(100, 100, 100, 100) + [Align(" ", 0)]  # 'xxxx'
+                    + W(100, 100, 100, 100, 100)               # 'xxxxx'
+                    + [Align("$", 0)])]
+    voice = PhonemizingVoice(chunks, {"in": "xx", "the": "xx",
+                                      "house": "xxxxx"})
+    dur, ends = synth_with_timing(voice, "in the house", tmp_path / "t.wav")
+    t_fused, t_house = 400 / RATE, 900 / RATE
+    assert ends == [round(t_fused / 2, 3), round(t_fused, 3),
+                    round(t_house, 3)]
+
+
+def test_expansion_number_three_words_one_run(tmp_path):
+    # "1922" -> three spoken words; the run ends when the LAST one does
+    chunks = [Chunk([Align("^", 0)]
+                    + W(100, 100, 100, 100, 100, 100) + [Align(" ", 0)]
+                    + W(100, 100, 100, 100, 100, 100) + [Align(" ", 0)]
+                    + W(100, 100, 100, 100, 100, 100) + [Align(" ", 0)]
+                    + W(100, 100) + [Align("$", 0)])]
+    voice = PhonemizingVoice(chunks, {"1922": "x" * 18, "ok": "xx"})
+    dur, ends = synth_with_timing(voice, "1922 ok", tmp_path / "t.wav")
+    assert ends == [round(1800 / RATE, 3), round(2000 / RATE, 3)]
+
+
+def test_punct_only_run_sticks_to_previous_end():
+    # '«' produces no spoken word: it inherits the preceding end
+    # (0.0 at sentence start), alnum runs map 1:1
+    ends = run_ends_from_words(["abc", "de"], [1.0, 2.0],
+                               ["«", "wort", "—", "gut"],
+                               lambda r: {"wort": 3, "gut": 2}.get(r, 0))
+    assert ends == [0.0, 1.0, 1.0, 2.0]
+
+
+def test_implausible_alignment_rejected():
+    # one 20-phoneme word vs two 1-phoneme runs: cost blows the
+    # per-word budget -> no timing rather than a wrong slice
+    ends = run_ends_from_words(["x" * 20], [1.0], ["a", "b"],
+                               lambda r: 1)
+    assert ends is None

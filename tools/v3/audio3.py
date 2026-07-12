@@ -59,17 +59,110 @@ from pathlib import Path
 MANIFEST_SCHEMA = 1
 
 
+def _align_words_to_runs(word_lens, run_lens, penalty=2.0, gmax=3):
+    """DP alignment of spoken words to display runs by phoneme length.
+
+    espeak FUSES function words ('in the' -> 'ɪnðə', 'Es ist' ->
+    'ɛsɪst'): one spoken word covers several runs (1:N). Numbers go
+    the other way ('1922' -> three spoken words, N:1). Ops: (1,1),
+    (1,2)..(1,gmax), (2,1)..(gmax,1); cost = |phoneme-length diff| +
+    penalty per extra unit. Returns [(n_words, n_runs), ...] covering
+    both sequences, or None when no alignment exists.
+    """
+    n_w, n_r = len(word_lens), len(run_lens)
+    if not n_w or not n_r:
+        return None
+    inf = float("inf")
+    dp = [[inf] * (n_r + 1) for _ in range(n_w + 1)]
+    bk = [[None] * (n_r + 1) for _ in range(n_w + 1)]
+    dp[0][0] = 0.0
+    ops = [(1, k) for k in range(1, gmax + 1)] \
+        + [(k, 1) for k in range(2, gmax + 1)]
+    for i in range(n_w + 1):
+        for j in range(n_r + 1):
+            base = dp[i][j]
+            if base == inf:
+                continue
+            for nw, nr in ops:
+                if i + nw > n_w or j + nr > n_r:
+                    continue
+                cost = abs(sum(word_lens[i:i + nw])
+                           - sum(run_lens[j:j + nr])) \
+                    + penalty * (nw + nr - 2)
+                if base + cost < dp[i + nw][j + nr]:
+                    dp[i + nw][j + nr] = base + cost
+                    bk[i + nw][j + nr] = (nw, nr)
+    if dp[n_w][n_r] == inf or dp[n_w][n_r] / n_w > 3.0:
+        return None                      # no/implausible alignment
+    groups, i, j = [], n_w, n_r
+    while i or j:
+        nw, nr = bk[i][j]
+        groups.append((nw, nr))
+        i, j = i - nw, j - nr
+    groups.reverse()
+    return groups
+
+
+def run_ends_from_words(words_ph, word_ends, runs, solo_len):
+    """Per-run end times from per-word (phoneme string, end) pairs.
+
+    words_ph/word_ends: spoken words in order (phonemes, end seconds).
+    runs: text.split() — the reader's display runs. solo_len(run) ->
+    phoneme length of the run spoken alone (espeak; 0 for pure
+    punctuation). Fast path: counts equal -> identity. Otherwise DP
+    (see _align_words_to_runs); fused runs interpolate inside their
+    word proportionally to solo lengths; punctuation-only runs stick
+    to the preceding end. Returns list (len == len(runs)) or None.
+    """
+    alnum = [i for i, r in enumerate(runs) if any(c.isalnum() for c in r)]
+    ends = [None] * len(runs)
+
+    if len(words_ph) == len(alnum):
+        groups = [(1, 1)] * len(alnum)
+    else:
+        groups = _align_words_to_runs(
+            [len(w) for w in words_ph],
+            [max(1, solo_len(runs[i])) for i in alnum])
+        if groups is None:
+            return None
+
+    wi = ri = 0
+    t_prev = 0.0
+    for nw, nr in groups:
+        t_end = word_ends[wi + nw - 1]
+        span = [alnum[k] for k in range(ri, ri + nr)]
+        if nr == 1:
+            ends[span[0]] = t_end
+        else:                            # fused: split the word's time
+            lens = [max(1, solo_len(runs[i])) for i in span]
+            total, cum = sum(lens), 0
+            for i, ln in zip(span, lens):
+                cum += ln
+                ends[i] = t_prev + (t_end - t_prev) * cum / total
+            ends[span[-1]] = t_end       # exact at the word edge
+        wi, ri, t_prev = wi + nw, ri + nr, t_end
+
+    t = 0.0                              # punct-only runs: previous end
+    for i in range(len(runs)):
+        if ends[i] is None:
+            ends[i] = t
+        else:
+            t = ends[i]
+    return [round(e, 3) for e in ends]
+
+
 def synth_with_timing(voice, text, wav_path, want_timing=True):
     """Synthesize `text` to `wav_path`; return (duration_s, run_ends_s).
 
     run_ends_s: cumulative end time (seconds) of every whitespace-
     separated unit of `text` — the reader's display RUNS (sp bits) —
     derived from piper's native phoneme alignments (piper1-gpl
-    `include_alignments=True`): space phonemes delimit words, BOS/EOS
-    bracket each espeak sentence, chunk boundaries close words too.
-    Returns None for run_ends_s when the voice model does not emit
-    alignments or the word count disagrees with the run count (espeak
-    dropped/expanded units — numbers, bare dashes); partial timing
+    `include_alignments=True`, alignment-patched voice): space phonemes
+    delimit words, BOS/EOS bracket each espeak sentence, chunk
+    boundaries close words too. Spoken-word count can disagree with the
+    run count (espeak fuses function words, expands numbers, drops bare
+    dashes/quotes) — run_ends_from_words maps words to runs; None (no
+    timing for this sentence) only when even that fails. Partial timing
     coverage is fine by design, like partial audio coverage.
     """
     try:                              # deferred like PiperVoice; the
@@ -80,6 +173,8 @@ def synth_with_timing(voice, text, wav_path, want_timing=True):
     rate = voice.config.sample_rate
     cum = 0                      # samples emitted so far (all chunks)
     word_ends = []               # sample offset at each word end
+    words_ph = []                # phoneme string of each spoken word
+    cur = ""
     in_word = False
     have_align = want_timing
     with wave.open(str(wav_path), "wb") as wf:
@@ -99,23 +194,47 @@ def synth_with_timing(voice, text, wav_path, want_timing=True):
                 if al.phoneme == " ":
                     if in_word:
                         word_ends.append(prev)
-                    in_word = False
+                        words_ph.append(cur)
+                    in_word, cur = False, ""
                 elif al.phoneme in (BOS, EOS):
                     if in_word:          # EOS closes the last word
                         word_ends.append(prev)
-                    in_word = False
+                        words_ph.append(cur)
+                    in_word, cur = False, ""
                 else:
                     in_word = True
+                    cur += al.phoneme
             if in_word:                  # chunk boundary closes a word
                 word_ends.append(cum)
-                in_word = False
+                words_ph.append(cur)
+                in_word, cur = False, ""
     dur = round(cum / rate, 2) if cum else None
     if dur is None:                      # alignments off: probe the wav
         with wave.open(str(wav_path), "rb") as wf:
             dur = round(wf.getnframes() / wf.getframerate(), 2)
-    if not have_align or len(word_ends) != len(text.split()):
+    if not have_align or not word_ends:
         return dur, None
-    return dur, [round(w / rate, 3) for w in word_ends]
+
+    ends_s = [w / rate for w in word_ends]
+    phonemize = getattr(voice, "phonemize", None)
+    if phonemize is None:                # unit-test fakes: no mapping
+        runs = text.split()
+        if len(word_ends) != len(runs):
+            return dur, None
+        return dur, [round(e, 3) for e in ends_s]
+
+    cache = {}
+    def solo_len(run):
+        if run not in cache:
+            try:
+                cache[run] = sum(len(p) for sent in phonemize(run)
+                                 for p in sent if p != " ")
+            except Exception:  # noqa: BLE001 — espeak oddity: punt
+                cache[run] = 0
+        return cache[run]
+
+    return dur, run_ends_from_words(words_ph, ends_s, text.split(),
+                                    solo_len)
 
 
 def sentence_text(sent, use_orth=True):
