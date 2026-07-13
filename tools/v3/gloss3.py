@@ -9,9 +9,16 @@ emits docs/data3/gloss/<book>.json with words / forms / freq /
 study_by_sent / sections.  Deterministic, offline; the network is used
 exactly once (--fetch) to vendor the FreeDict dictionary.
 
-Stable contract note (06 spec): a later Mistral pass may add `g_de`
-learner definitions and fill the `overrides` sense-exception layer; both
-are additive keys, never a reshape.
+Schema rev 3.2 (07 rework, 2026-07-12): `words` covers ALL content
+lemmas (UPOS NOUN/VERB/ADJ/ADV — the bubble scope), not just rare ones;
+`freq` covers every words key; `emoji_common` is RETIRED (subsumed by
+full coverage — build stops emitting it, the reader keeps a tolerant
+read for old files).  Study lists stay a RARITY concept, unchanged.
+When tools/ai/build/unified_<id>.json exists (unified3.py), it is
+auto-baked with NO review gate: `d` -> g_de (de books) / g_en (en
+books, overwriting the WordNet line), `e` at the top of the emoji
+precedence.  Entries may be g_de-only (de dictionary misses the AI
+glossed); g_en for de books stays in the data but is never rendered.
 
 Byproducts (small-batch review + the orthography pass):
   tools/v3/build/gloss_misses_<book>.txt    rare lemmas with no dict hit
